@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HotelHub - Login</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div class="auth-page">
+        <!-- Lado do Formulário -->
+        <div class="auth-form-side">
+            <div class="auth-header">
+                <div class="logo" style="cursor: pointer;" onclick="window.location.href='index.html'">
+                    <span class="logo-icon">H</span>
+                    <span class="logo-text">HotelHub</span>
+                </div>
+            </div>
+            
+            <div class="auth-card">
+                <h2>Bem-vindo de volta</h2>
+                <p class="auth-subtitle">Entre na sua conta para continuar</p>
+
+                <form id="formLoginHospede">
+                    <div class="auth-input-group">
+                        <label for="userEmail">E-mail</label>
+                        <input type="email" id="userEmail" placeholder="seu@email.com" required>
+                    </div>
+                    
+                    <div class="auth-input-group">
+                        <label for="userPassword">Senha</label>
+                        <input type="password" id="userPassword" placeholder="••••••••" required>
+                    </div>
+
+                    <div class="auth-options">
+                        <label class="checkbox-container">
+                            <input type="checkbox"> Lembrar de mim
+                        </label>
+                        <a href="#" class="auth-link">Esqueceu a senha?</a>
+                    </div>
+
+                    <button type="submit" class="btn-auth">Entrar</button>
+                    
+                    <p class="auth-footer-text">
+                        Não tem uma conta? <a href="cadastro.html" class="auth-accent-link">Cadastre-se</a>
+                    </p>
+                    
+                    <a href="login-hoteleiro.html" class="manager-link" id="linkLoginGerente">Acessar como gerente →</a>
+                </form>
+            </div>
+        </div>
+
+        <!-- Lado da Imagem -->
+        <div class="auth-image-side" style="background-image: linear-gradient(rgba(7, 13, 25, 0.3), rgba(7, 13, 25, 0.5)), url('https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80');">
+            <div class="auth-image-content">
+                <h2>Encontre o hotel perfeito para sua próxima aventura</h2>
+                <p>Compare preços de milhares de hotéis e economize até 40% na sua reserva</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

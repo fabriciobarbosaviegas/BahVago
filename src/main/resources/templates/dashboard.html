@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HotelHub Admin - Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="admin-panel-body">
+
+    <div class="admin-layout-wrapper">
+        <aside class="admin-sidebar">
+            <div class="sidebar-brand">
+                <span class="logo-icon">H</span>
+                <div>
+                    <h4>HotelHub</h4>
+                    <small>Gerente</small>
+                </div>
+            </div>
+            <nav class="sidebar-menu">
+                <a href="dashboard.html" class="menu-item active"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+                <a href="gerenciar-hotel.html" class="menu-item"><i class="fa-solid fa-hotel"></i> Meu hotel</a>
+                <a href="gerenciar-quartos.html" class="menu-item"><i class="fa-solid fa-bed"></i> Quartos</a>
+                <a href="estatisticas.html" class="menu-item"><i class="fa-solid fa-chart-bar"></i> Estatísticas</a>
+                <a href="gerenciar-avaliacoes.html" class="menu-item"><i class="fa-solid fa-comment-dots"></i> Avaliações</a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="index.html" id="btnAdminLogout" class="menu-item logout"><i class="fa-solid fa-arrow-left"></i> Voltar ao site</a>
+            </div>
+        </aside>
+
+        <main class="admin-main-content">
+            <header class="admin-content-header">
+                <div>
+                    <h1>Dashboard</h1>
+                    <p>Visão geral do seu hotel</p>
+                </div>
+            </header>
+
+            <section class="metrics-row-grid">
+                <div class="metric-card">
+                    <div class="metric-header"><i class="fa-regular fa-calendar-check text-blue"></i> <span class="badge-trend positive">+12%</span></div>
+                    <h3>1.247</h3>
+                    <p>Total de reservas</p>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-header"><i class="fa-solid fa-dollar-sign text-blue"></i> <span class="badge-trend positive">+18%</span></div>
+                    <h3>R$ 549k</h3>
+                    <p>Receita total</p>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-header"><i class="fa-solid fa-percent text-blue"></i> <span class="badge-trend positive">+5%</span></div>
+                    <h3>87%</h3>
+                    <p>Taxa de ocupação</p>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-header"><i class="fa-regular fa-star text-blue"></i> <span class="rating-label-mini">4.8</span></div>
+                    <h3>4.8</h3>
+                    <p>Avaliação média</p>
+                </div>
+            </section>
+
+            <section class="charts-row-grid">
+                <div class="chart-card-box">
+                    <h4>Reservas por mês</h4>
+                    <div class="chart-placeholder-mock line-chart-bg"></div>
+                </div>
+                <div class="chart-card-box">
+                    <h4>Receita mensal</h4>
+                    <div class="chart-placeholder-mock bar-chart-bg"></div>
+                </div>
+            </section>
+
+            <section class="admin-section-container">
+                <h4>Status dos quartos</h4>
+                <div class="status-rooms-grid">
+                    <div class="status-block available"><h5>12</h5><p>Disponíveis</p></div>
+                    <div class="status-block occupied"><h5>18</h5><p>Ocupados</p></div>
+                    <div class="status-block maintenance"><h5>2</h5><p>Manutenção</p></div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,378 @@
+document.addEventListener("DOMContentLoaded", () => {
+    
+    // Verifica se existe a marcação de login salvo no localStorage do navegador
+    const usuarioEstaLogado = localStorage.getItem('hotelhub_logged') === 'true';
+    const adminEstaLogado = localStorage.getItem('hotelhub_admin_logged') === 'true';
+
+    // ==========================================
+    // 1. GERENCIAMENTO GLOBAL DA NAVBAR (SESSÃO)
+    // ==========================================
+    const navActions = document.querySelector(".nav-actions");
+    const navActionsSearch = document.getElementById("navActionsSearch");
+    const navActionsHotel = document.getElementById("navActionsHotel");
+    const navActionsRoom = document.getElementById("navActionsRoom");
+    
+    // Agrupa todos os alvos possíveis de navbar das novas telas
+    const targetNav = navActionsSearch || navActionsHotel || navActionsRoom || navActions;
+
+    if (usuarioEstaLogado && targetNav) {
+        targetNav.className = "nav-actions-logged";
+        targetNav.innerHTML = `
+            <a href="favoritos.html" class="nav-icon-link" title="Favoritos"><i class="fa-regular fa-heart"></i></a>
+            <a href="perfil.html" class="nav-icon-link" title="Minha Conta"><i class="fa-regular fa-user"></i></a>
+            <button id="btnLogoutTop" class="btn-logout-icon" title="Sair"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+        `;
+    }
+
+    // Configura o botão de Logout global
+    const interceptarLogout = document.getElementById("btnLogoutTop");
+    if (interceptarLogout) {
+        interceptarLogout.addEventListener("click", (e) => {
+            e.preventDefault();
+            localStorage.removeItem('hotelhub_logged');
+            window.location.href = "index.html";
+        });
+    }
+
+    // ==========================================
+    // 2. CONTROLE CONDICIONAL DE ACESSO
+    // ==========================================
+    const gerenciarAcesso = (evento, destinoSucesso) => {
+        if (!usuarioEstaLogado) {
+            evento.preventDefault();
+            window.location.href = "login.html";
+        } else if (destinoSucesso) {
+            evento.preventDefault();
+            window.location.href = destinoSucesso;
+        }
+    };
+
+    // Form de busca da Home -> Resultados
+    const formularioBusca = document.getElementById("mainSearchForm");
+    if (formularioBusca) {
+        formularioBusca.addEventListener("submit", (e) => {
+            e.preventDefault();
+            window.location.href = "resultados.html"; 
+        });
+    }
+
+    // Clique nos Cards de Hotel (Geral) -> Abre página do Hotel
+    const cardsHoteis = document.querySelectorAll(".hotel-card");
+    cardsHoteis.forEach((card) => {
+        card.addEventListener("click", (e) => {
+            gerenciarAcesso(e, "hotel.html");
+        });
+    });
+
+    // ==========================================
+    // 3. FLUXO INTERNO DA PÁGINA DO HOTEL
+    // ==========================================
+    const botoesVerOfertaQuarto = document.querySelectorAll(".btn-goToRoom");
+    botoesVerOfertaQuarto.forEach(botao => {
+        botao.addEventListener("click", (e) => {
+            const tipoQuarto = botao.getAttribute("data-room") || "deluxe";
+            gerenciarAcesso(e, `quarto.html?type=${tipoQuarto}`);
+        });
+    });
+
+    // ==========================================
+    // 4. FLUXO DO COMPARADOR DE SITES (quarto.html)
+    // ==========================================
+    const urlParams = new URLSearchParams(window.location.search);
+    const quartoTipo = urlParams.get('type');
+    
+    const labelBread = document.getElementById("breadRoomName");
+    const labelTitle = document.getElementById("roomMainTitle");
+
+    if (quartoTipo && labelTitle) {
+        if (quartoTipo === "standard") {
+            if(labelBread) labelBread.textContent = "Quarto Standard";
+            labelTitle.textContent = "Quarto Standard";
+        } else if (quartoTipo === "master") {
+            if(labelBread) labelBread.textContent = "Suite Master";
+            labelTitle.textContent = "Suite Master";
+        }
+    }
+
+    const botoesRedirecionamento = document.querySelectorAll(".btn-redirect-offer, #btnMainRedirect");
+    botoesRedirecionamento.forEach(botao => {
+        botao.addEventListener("click", () => {
+            const urlDestino = botao.getAttribute("data-url") || "https://www.booking.com";
+            window.open(urlDestino, '_blank');
+        });
+    });
+
+    const thumbs = document.querySelectorAll(".room-thumbnails-strip .thumb");
+    const mainImg = document.getElementById("roomDisplayImg");
+    thumbs.forEach(thumb => {
+        thumb.addEventListener("click", () => {
+            thumbs.forEach(t => t.classList.remove("active"));
+            thumb.classList.add("active");
+            if (mainImg) mainImg.src = thumb.src;
+        });
+    });
+
+    // ==========================================
+    // 5. ABA DINÂMICA (PÁGINA DE PERFIL)
+    // ==========================================
+    const botoesAbas = document.querySelectorAll(".tab-btn");
+    const conteudosAbas = document.querySelectorAll(".tab-content");
+
+    if (botoesAbas.length > 0) {
+        botoesAbas.forEach(botao => {
+            botao.addEventListener("click", () => {
+                const alvoAba = botao.getAttribute("data-tab");
+                botoesAbas.forEach(b => b.classList.remove("active"));
+                conteudosAbas.forEach(c => c.classList.remove("active"));
+                botao.classList.add("active");
+                const elementoAlvo = document.getElementById(`tab-${alvoAba}`);
+                if (elementoAlvo) elementoAlvo.classList.add("active");
+            });
+        });
+    }
+
+    // ==========================================
+    // 6. LÓGICA DE FAVORITOS (CORAÇÃO)
+    // ==========================================
+    const favGrid = document.getElementById("favGrid");
+    const botoesCoracao = document.querySelectorAll(".btn-heart");
+
+    botoesCoracao.forEach(botao => {
+        botao.addEventListener("click", (e) => {
+            e.stopPropagation();
+            
+            if (favGrid) {
+                const cardHotel = botao.closest(".hotel-card");
+                if (cardHotel) {
+                    cardHotel.remove();
+                    const itensRestantes = favGrid.querySelectorAll(".hotel-card").length;
+                    const contadorTexto = document.getElementById("favCount");
+                    if (contadorTexto) {
+                        contadorTexto.textContent = `${itensRestantes} ${itensRestantes === 1 ? 'hotel salvo' : 'hotéis salvos'}`;
+                    }
+                    if (itensRestantes === 0) {
+                        const estadoVazio = document.getElementById("emptyState");
+                        if (estadoVazio) estadoVazio.classList.remove("hidden");
+                    }
+                }
+            } else {
+                if (!usuarioEstaLogado) {
+                    window.location.href = "login.html";
+                } else {
+                    const icone = botao.querySelector('i');
+                    icone.classList.toggle('fa-regular');
+                    icone.classList.toggle('fa-solid');
+                    if (icone.classList.contains('fa-solid')) {
+                        icone.style.color = '#ef4444';
+                    } else {
+                        icone.style.color = 'white';
+                    }
+                }
+            }
+        });
+    });
+
+    // ===================================================
+    // 7. AUTENTICAÇÃO DIRETA
+    // ===================================================
+
+    // CORREÇÃO: Só adiciona o evento se o link do gerente realmente existir
+    const linkLoginGerente = document.getElementById("linkLoginGerente");
+    if (linkLoginGerente) {
+        linkLoginGerente.addEventListener("click", (e) => {
+            e.preventDefault(); 
+            window.location.href = "login-hoteleiro.html";
+        });
+    }
+
+    // LOGIN DO HÓSPEDE
+    const formLoginHospede = document.getElementById("formLoginHospede");
+    if (formLoginHospede) {
+        formLoginHospede.addEventListener("submit", (e) => {
+            e.preventDefault();
+            localStorage.setItem('hotelhub_logged', 'true');
+            window.location.href = "index.html"; 
+        });
+    }
+
+    // LOGIN DO GERENTE/HOTELEIRO
+    const formLoginHoteleiro = document.getElementById("formLoginHoteleiro");
+    if (formLoginHoteleiro) {
+        formLoginHoteleiro.addEventListener("submit", (e) => {
+            e.preventDefault();
+            localStorage.setItem('hotelhub_admin_logged', 'true');
+            window.location.href = "dashboard.html"; 
+        });
+    }
+
+    // Logout do Admin
+    const btnAdminLogout = document.getElementById("btnAdminLogout");
+    if (btnAdminLogout) {
+        btnAdminLogout.addEventListener("click", (e) => {
+            e.preventDefault();
+            localStorage.removeItem('hotelhub_admin_logged');
+            window.location.href = "index.html";
+        });
+    }
+
+    // Formulários Administrativos
+    const formInfoHotel = document.getElementById("formInfoHotel");
+    if (formInfoHotel) {
+        formInfoHotel.addEventListener("submit", (e) => {
+            e.preventDefault();
+            alert("Alterações salvas com sucesso!");
+        });
+    }
+
+    const formComodidadesHotel = document.getElementById("formComodidadesHotel");
+    if (formComodidadesHotel) {
+        formComodidadesHotel.addEventListener("submit", (e) => {
+            e.preventDefault();
+            alert("Comodidades atualizadas!");
+        });
+    }
+
+    const formNovoQuarto = document.getElementById("formNovoQuarto");
+    if (formNovoQuarto) {
+        formNovoQuarto.addEventListener("submit", (e) => {
+            e.preventDefault();
+            alert("Quarto criado com sucesso!");
+            window.location.href = "gerenciar-quartos.html";
+        });
+    }
+
+    // Envio de respostas da Central de Avaliações
+    const botoesResponderReview = document.querySelectorAll(".btn-submit-reply");
+    botoesResponderReview.forEach(botao => {
+        botao.addEventListener("click", () => {
+            const containerForm = botao.closest(".admin-reply-form-zone");
+            const caixaTexto = containerForm ? containerForm.querySelector("textarea") : null;
+            
+            if (caixaTexto && caixaTexto.value.trim() !== "") {
+                caixaTexto.value = ""; 
+                const cardReview = botao.closest(".admin-review-item-box");
+                const badgeStatus = cardReview ? cardReview.querySelector(".status-pill") : null;
+                if (badgeStatus) {
+                    badgeStatus.textContent = "Respondido";
+                    badgeStatus.style.backgroundColor = "rgba(34,197,94,0.15)";
+                    badgeStatus.style.color = "#22c55e";
+                }
+                alert("Resposta enviada com sucesso!");
+            }
+        });
+    });
+
+    const botoesCancelarReview = document.querySelectorAll(".btn-cancel-reply");
+    botoesCancelarReview.forEach(botao => {
+        botao.addEventListener("click", () => {
+            const containerForm = botao.closest(".admin-reply-form-zone");
+            const caixaTexto = containerForm ? containerForm.querySelector("textarea") : null;
+            if (caixaTexto) caixaTexto.value = "";
+        });
+    });
+
+    // ==========================================
+    // 8. GALERIA DE FOTOS DO HOTEL
+    // ==========================================
+    const galleryNavPrev = document.querySelector(".gallery-nav.prev");
+    const galleryNavNext = document.querySelector(".gallery-nav.next");
+    const galleryDots = document.querySelectorAll(".gallery-dots .dot");
+    const mainGalleryImg = document.getElementById("mainGalleryImg");
+    
+    if (galleryNavPrev && galleryNavNext && mainGalleryImg) {
+        const imagens = [
+            "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80",
+            "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1200&q=80",
+            "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1200&q=80"
+        ];
+        let indiceAtual = 0;
+        
+        const atualizarGaleria = () => {
+            mainGalleryImg.src = imagens[indiceAtual];
+            galleryDots.forEach((dot, index) => {
+                if (index === indiceAtual) {
+                    dot.classList.add("active");
+                } else {
+                    dot.classList.remove("active");
+                }
+            });
+        };
+        
+        galleryNavPrev.addEventListener("click", () => {
+            indiceAtual = (indiceAtual - 1 + imagens.length) % imagens.length;
+            atualizarGaleria();
+        });
+        
+        galleryNavNext.addEventListener("click", () => {
+            indiceAtual = (indiceAtual + 1) % imagens.length;
+            atualizarGaleria();
+        });
+        
+        galleryDots.forEach((dot, index) => {
+            dot.addEventListener("click", () => {
+                indiceAtual = index;
+                atualizarGaleria();
+            });
+        });
+    }
+
+    // ==========================================
+    // 9. GRÁFICO DE HISTÓRICO DE PREÇOS
+    // ==========================================
+    const chartDots = document.querySelectorAll(".chart-dot");
+    chartDots.forEach(dot => {
+        dot.addEventListener("click", () => {
+            chartDots.forEach(d => d.classList.remove("active"));
+            dot.classList.add("active");
+        });
+    });
+
+    // ==========================================
+    // 10. FILTROS DE AVALIAÇÕES (ADMIN)
+    // ==========================================
+    const filterButtons = document.querySelectorAll(".admin-filter-btn");
+    filterButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            filterButtons.forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+        });
+    });
+
+    // ==========================================
+    // 11. CHECKBOX DE COMODIDADES
+    // ==========================================
+    const checkboxesComodidades = document.querySelectorAll(".admin-checkbox-list-stack input[type='checkbox']");
+    checkboxesComodidades.forEach(checkbox => {
+        checkbox.addEventListener("change", function() {
+            // Aqui você pode adicionar lógica para salvar automaticamente
+            console.log("Comodidade alterada:", this.nextElementSibling.textContent);
+        });
+    });
+
+    // ==========================================
+    // 12. UPLOAD DE FOTOS (SIMULAÇÃO)
+    // ==========================================
+    const uploadDropzone = document.querySelector(".upload-dropzone-box");
+    if (uploadDropzone) {
+        uploadDropzone.addEventListener("click", () => {
+            alert("Funcionalidade de upload seria aberta aqui!");
+        });
+        
+        uploadDropzone.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            uploadDropzone.style.borderColor = "var(--accent-blue)";
+        });
+        
+        uploadDropzone.addEventListener("dragleave", () => {
+            uploadDropzone.style.borderColor = "rgba(255,255,255,0.12)";
+        });
+        
+        uploadDropzone.addEventListener("drop", (e) => {
+            e.preventDefault();
+            uploadDropzone.style.borderColor = "rgba(255,255,255,0.12)";
+            alert("Arquivos soltos! Upload seria iniciado.");
+        });
+    }
+
+    console.log("HotelHub - Sistema inicializado com sucesso! 🚀");
+});

@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HotelHub - Encontre o hotel perfeito</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="container nav-container">
+            <div class="logo">
+                <span class="logo-icon">H</span>
+                <span class="logo-text">HotelHub</span>
+            </div>
+            <nav class="nav-actions">
+                <a href="login.html" class="btn-text">Entrar</a>
+                <a href="login.html" class="btn-primary">Cadastrar</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container hero-container">
+            <h1>Encontre o hotel perfeito <br><span class="text-gradient">para sua próxima viagem</span></h1>
+            <p class="hero-subtitle">Compare preços de milhares de hotéis em um só lugar e economize até 40% na sua reserva</p>
+            
+            <form class="search-bar" id="mainSearchForm">
+                <div class="search-input-group">
+                    <i class="fa-solid fa-bed icon-input"></i>
+                    <div>
+                        <label>Destino</label>
+                        <input type="text" placeholder="Para onde você vai?" required>
+                    </div>
+                </div>
+                <div class="search-input-group">
+                    <i class="fa-regular fa-calendar icon-input"></i>
+                    <div>
+                        <label>Check-in</label>
+                        <input type="text" placeholder="dd/mm/aaaa">
+                    </div>
+                </div>
+                <div class="search-input-group">
+                    <i class="fa-regular fa-calendar icon-input"></i>
+                    <div>
+                        <label>Check-out</label>
+                        <input type="text" placeholder="dd/mm/aaaa">
+                    </div>
+                </div>
+                <div class="search-input-group">
+                    <i class="fa-solid fa-user-group icon-input"></i>
+                    <div>
+                        <label>Hóspedes</label>
+                        <input type="number" value="2" min="1">
+                    </div>
+                </div>
+                <button type="submit" class="btn-search">
+                    <i class="fa-solid fa-magnifying-glass"></i> Buscar hotéis
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <section class="features container">
+        <div class="feature-card">
+            <div class="feature-icon"><i class="fa-solid fa-chart-line"></i></div>
+            <h3>Melhores preços</h3>
+            <p>Compare e economize até 40%</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon"><i class="fa-solid fa-shield-halved"></i></div>
+            <h3>Reserva segura</h3>
+            <p>Pagamentos 100% protegidos</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon"><i class="fa-regular fa-star"></i></div>
+            <h3>Avaliações reais</h3>
+            <p>Milhões de reviews verificados</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon"><i class="fa-solid fa-headset"></i></div>
+            <h3>Suporte 24/7</h3>
+            <p>Sempre aqui para ajudar</p>
+        </div>
+    </section>
+
+    <section class="categories container">
+        <h2>Explore por categoria</h2>
+        <div class="categories-grid">
+            <div class="category-item">
+                <i class="fa-solid fa-umbrella-beach"></i>
+                <span>Praia</span>
+                <small>234 hotéis</small>
+            </div>
+            <div class="category-item">
+                <i class="fa-solid fa-building"></i>
+                <span>Cidade</span>
+                <small>547 hotéis</small>
+            </div>
+            <div class="category-item">
+                <i class="fa-solid fa-mountain"></i>
+                <span>Montanha</span>
+                <small>123 hotéis</small>
+            </div>
+            <div class="category-item">
+                <i class="fa-solid fa-tree"></i>
+                <span>Resort</span>
+                <small>89 hotéis</small>
+            </div>
+            <div class="category-item">
+                <i class="fa-solid fa-cow"></i>
+                <span>Fazenda</span>
+                <small>45 hotéis</small>
+            </div>
+            <div class="category-item">
+                <i class="fa-solid fa-landmark"></i>
+                <span>Histórico</span>
+                <small>87 hotéis</small>
+            </div>
+        </div>
+    </section>
+
+    <section class="popular-hotels container">
+        <div class="section-header">
+            <h2>Hotéis populares</h2>
+            <a href="login.html" class="view-all">Ver todos <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+
+        <div class="hotels-grid">
+            <div class="hotel-card">
+                <div class="card-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=500&q=80" alt="Grand Luxury Hotel">
+                    <span class="badge-discount">-15%</span>
+                    <button class="btn-heart"><i class="fa-regular fa-heart"></i></button>
+                </div>
+                <div class="card-content">
+                    <div class="card-title-row">
+                        <h3>Grand Luxury Hotel & Spa</h3>
+                        <span class="rating"><i class="fa-solid fa-star"></i> 4.8</span>
+                    </div>
+                    <p class="location"><i class="fa-solid fa-location-dot"></i> Rio de Janeiro, RJ</p>
+                    <p class="amenities"><i class="fa-solid fa-wifi"></i> <i class="fa-solid fa-clock"></i></p>
+                    <div class="card-footer">
+                        <span class="reviews">1247 avaliações</span>
+                        <div class="price-box">
+                            <small>a partir de</small>
+                            <span class="price">R$ 450<small>/noite</small></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hotel-card">
+                <div class="card-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=500&q=80" alt="Oceanview Resort">
+                    <button class="btn-heart"><i class="fa-regular fa-heart"></i></button>
+                </div>
+                <div class="card-content">
+                    <div class="card-title-row">
+                        <h3>Oceanview Resort Paradise</h3>
+                        <span class="rating"><i class="fa-solid fa-star"></i> 4.9</span>
+                    </div>
+                    <p class="location"><i class="fa-solid fa-location-dot"></i> Florianópolis, SC</p>
+                    <p class="amenities"><i class="fa-solid fa-wifi"></i> <i class="fa-solid fa-clock"></i></p>
+                    <div class="card-footer">
+                        <span class="reviews">882 avaliações</span>
+                        <div class="price-box">
+                            <small>a partir de</small>
+                            <span class="price">R$ 580<small>/noite</small></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hotel-card">
+                <div class="card-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=500&q=80" alt="Urban Design Hotel">
+                    <span class="badge-discount">-10%</span>
+                    <button class="btn-heart"><i class="fa-regular fa-heart"></i></button>
+                </div>
+                <div class="card-content">
+                    <div class="card-title-row">
+                        <h3>Urban Design Hotel</h3>
+                        <span class="rating"><i class="fa-solid fa-star"></i> 4.7</span>
+                    </div>
+                    <p class="location"><i class="fa-solid fa-location-dot"></i> São Paulo, SP</p>
+                    <p class="amenities"><i class="fa-solid fa-wifi"></i> <i class="fa-solid fa-clock"></i></p>
+                    <div class="card-footer">
+                        <span class="reviews">2103 avaliações</span>
+                        <div class="price-box">
+                            <small>a partir de</small>
+                            <span class="price">R$ 380<small>/noite</small></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hotel-card">
+                <div class="card-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=500&q=80" alt="Mountain View Lodge">
+                    <button class="btn-heart"><i class="fa-regular fa-heart"></i></button>
+                </div>
+                <div class="card-content">
+                    <div class="card-title-row">
+                        <h3>Mountain View Lodge</h3>
+                        <span class="rating"><i class="fa-solid fa-star"></i> 4.6</span>
+                    </div>
+                    <p class="location"><i class="fa-solid fa-location-dot"></i> Campos do Jordão, SP</p>
+                    <p class="amenities"><i class="fa-solid fa-wifi"></i> <i class="fa-solid fa-clock"></i></p>
+                    <div class="card-footer">
+                        <span class="reviews">634 avaliações</span>
+                        <div class="price-box">
+                            <small>a partir de</small>
+                            <span class="price">R$ 520<small>/noite</small></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hotel-card">
+                <div class="card-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=500&q=80" alt="Tropical Beach Resort">
+                    <button class="btn-heart"><i class="fa-regular fa-heart"></i></button>
+                </div>
+                <div class="card-content">
+                    <div class="card-title-row">
+                        <h3>Tropical Beach Resort</h3>
+                        <span class="rating"><i class="fa-solid fa-star"></i> 4.8</span>
+                    </div>
+                    <p class="location"><i class="fa-solid fa-location-dot"></i> Porto de Galinhas, PE</p>
+                    <p class="amenities"><i class="fa-solid fa-wifi"></i> <i class="fa-solid fa-clock"></i></p>
+                    <div class="card-footer">
+                        <span class="reviews">1456 avaliações</span>
+                        <div class="price-box">
+                            <small>a partir de</small>
+                            <span class="price">R$ 680<small>/noite</small></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hotel-card">
+                <div class="card-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=500&q=80" alt="Historic Downtown Hotel">
+                    <span class="badge-discount">-20%</span>
+                    <button class="btn-heart"><i class="fa-regular fa-heart"></i></button>
+                </div>
+                <div class="card-content">
+                    <div class="card-title-row">
+                        <h3>Historic Downtown Hotel</h3>
+                        <span class="rating"><i class="fa-solid fa-star"></i> 4.5</span>
+                    </div>
+                    <p class="location"><i class="fa-solid fa-location-dot"></i> Salvador, BA</p>
+                    <p class="amenities"><i class="fa-solid fa-wifi"></i> <i class="fa-solid fa-clock"></i></p>
+                    <div class="card-footer">
+                        <span class="reviews">789 avaliações</span>
+                        <div class="price-box">
+                            <small>a partir de</small>
+                            <span class="price">R$ 320<small>/noite</small></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="testimonials container">
+        <h2>O que nossos clientes dizem</h2>
+        <div class="testimonials-grid">
+            <div class="testimonial-card">
+                <div class="user-info">
+                    <div class="avatar" style="background-color: #2563eb;">MS</div>
+                    <div>
+                        <h4>Maria Silva</h4>
+                        <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                    </div>
+                </div>
+                <p class="comment">Experiência incrível! O hotel superou todas as expectativas. Quartos espaçosos, equipe atenciosa e localização perfeita.</p>
+                <span class="helpful">24 pessoas acharam útil</span>
+            </div>
+
+            <div class="testimonial-card">
+                <div class="user-info">
+                    <div class="avatar" style="background-color: #3b82f6;">JS</div>
+                    <div>
+                        <h4>João Santos</h4>
+                        <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i></div>
+                    </div>
+                </div>
+                <p class="comment">Muito bom! Apenas o café da manhã poderia ter mais opções, mas no geral recomendo.</p>
+                <span class="helpful">12 pessoas acharam útil</span>
+            </div>
+
+            <div class="testimonial-card">
+                <div class="user-info">
+                    <div class="avatar" style="background-color: #1d4ed8;">AC</div>
+                    <div>
+                        <h4>Ana Costa</h4>
+                        <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                    </div>
+                </div>
+                <p class="comment">Simplesmente perfeito! Voltarei com certeza.</p>
+                <span class="helpful">18 pessoas acharam útil</span>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container footer-content">
+            <div class="footer-brand">
+                <div class="logo">
+                    <span class="logo-icon">H</span>
+                    <span class="logo-text">HotelHub</span>
+                </div>
+                <p>A melhor plataforma para encontrar e comparar preços de hotéis.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Empresa</h4>
+                <a href="#">Sobre nós</a>
+                <a href="#">Carreiras</a>
+                <a href="#">Imprensa</a>
+                <a href="#">Blog</a>
+            </div>
+            <div class="footer-links">
+                <h4>Suporte</h4>
+                <a href="#">Central de ajuda</a>
+                <a href="#">Contato</a>
+                <a href="#">Políticas</a>
+                <a href="#">Termos</a>
+            </div>
+            <div class="footer-social">
+                <h4>Redes sociais</h4>
+                <div class="social-icons">
+                    <a href="#"><i class="fa-brands fa-facebook"></i></a>
+                    <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#"><i class="fa-brands fa-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 HotelHub. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HotelHub - Pesquisar Hotéis</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <header class="navbar">
+        <div class="container nav-container">
+            <div class="logo" style="cursor: pointer;" onclick="window.location.href='index.html'">
+                <span class="logo-icon">H</span>
+                <span class="logo-text">HotelHub</span>
+            </div>
+            <!-- Gerenciado dinamicamente via JS (Entrar/Cadastrar ou Ícones Logado) -->
+            <nav class="nav-actions" id="navActionsSearch">
+                <a href="login.html" class="btn-text">Entrar</a>
+                <a href="login.html" class="btn-primary">Cadastrar</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- BARRA DE BUSCA COMPACTA (TOPO) -->
+    <section class="search-top-bar">
+        <div class="container">
+            <form class="search-compact-form" id="compactSearchForm">
+                <div class="search-compact-input">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" placeholder="Para onde você vai?" value="Rio de Janeiro, RJ">
+                </div>
+                <button type="submit" class="btn-compact-search">Buscar</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- CONTEÚDO PRINCIPAL (LAYOUT DUAS COLUNAS) -->
+    <main class="container search-layout">
+        
+        <!-- LATERAL ESQUERDA: FILTROS -->
+        <aside class="search-sidebar">
+            <div class="sidebar-header">
+                <h3><i class="fa-solid fa-sliders"></i> Filtros</h3>
+                <button type="button" class="btn-clear-filters" id="clearFilters">Limpar</button>
+            </div>
+
+            <form id="filtersForm">
+                <!-- Preço por noite -->
+                <div class="filter-group">
+                    <label class="filter-label">Preço por noite</label>
+                    <div class="price-range-inputs">
+                        <input type="range" min="0" max="2000" value="1000" class="range-slider" id="priceRange">
+                        <div class="range-values">
+                            <span>R$ 0</span>
+                            <span>R$ 2000+</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Avaliação -->
+                <div class="filter-group">
+                    <label class="filter-label">Avaliação</label>
+                    <div class="filter-options">
+                        <label class="checkbox-container"><input type="checkbox"> <span class="stars-gold"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></span> <small>5.0</small></label>
+                        <label class="checkbox-container"><input type="checkbox"> <span class="stars-gold"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i></span> <small>4.0+</small></label>
+                        <label class="checkbox-container"><input type="checkbox"> <span class="stars-gold"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i></span> <small>3.0+</small></label>
+                        <label class="checkbox-container"><input type="checkbox"> <span class="stars-gold"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i></span> <small>2.0+</small></label>
+                        <label class="checkbox-container"><input type="checkbox"> <span class="stars-gold"><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i></span> <small>1.0+</small></label>
+                    </div>
+                </div>
+
+                <!-- Comodidades -->
+                <div class="filter-group">
+                    <label class="filter-label">Comodidades</label>
+                    <div class="filter-options">
+                        <label class="checkbox-container"><input type="checkbox"> Wi-Fi gratuito</label>
+                        <label class="checkbox-container"><input type="checkbox"> Estacionamento</label>
+                        <label class="checkbox-container"><input type="checkbox"> Piscina</label>
+                        <label class="checkbox-container"><input type="checkbox"> Academia</label>
+                        <label class="checkbox-container"><input type="checkbox"> Café da manhã</label>
+                        <label class="checkbox-container"><input type="checkbox"> Pet-friendly</label>
+                    </div>
+                </div>
+
+                <!-- Tipo -->
+                <div class="filter-group">
+                    <label class="filter-label">Tipo</label>
+                    <div class="filter-options">
+                        <label class="checkbox-container"><input type="checkbox"> Hotel</label>
+                        <label class="checkbox-container"><input type="checkbox"> Pousada</label>
+                        <label class="checkbox-container"><input type="checkbox"> Resort</label>
+                        <label class="checkbox-container"><input type="checkbox"> Hostel</label>
+                        <label class="checkbox-container"><input type="checkbox"> Apart-hotel</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-apply-filters">Aplicar filtros</button>
+            </form>
+        </aside>
+
+        <!-- COLUNA DIREITA: RESULTADOS -->
+        <section class="search-results-side">
+            <div class="results-header">
+                <div>
+                    <h2>Hotéis disponíveis</h2>
+                    <p class="results-count">6 opções encontradas</p>
+                </div>
+                <div class="results-sort">
+                    <span>Ordenar por:</span>
+                    <select class="select-sort">
+                        <option>Mais relevantes</option>
+                        <option>Menor preço</option>
+                        <option>Maior preço</option>
+                        <option>Melhor avaliação</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Grid de 2 Colunas conforme o Figma -->
+            <div class="search-hotels-grid">
+                
+                <!-- Card 1 -->
+                <div class="hotel-card" data-id="1">
+                    <div class="card-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=500&q=80" alt="Hotel 1">
+                        <span class="badge-discount">-15%</span>
+                        <button class="btn-heart"><i class="fa-regular fa-heart"></i></button>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-title-row">
+                            <h3>Grand Luxury Hotel & Spa</h3>
+                            <span class="rating"><i class="fa-solid fa-star"></i> 4.8</span>
+                        </div>
+                        <p class="location"><i class="fa-solid fa-location-dot"></i> Rio de Janeiro, RJ</p>
+                        <p class="amenities"><i class="fa-solid fa-wifi"></i> <i class="fa-solid fa-mug-hot"></i> <i class="fa-solid fa-car"></i></p>
+                        <div class="card-footer">
+                            <span class="reviews">1247 avaliações</span>
+                            <div class="price-box">
+                                <small>a partir de</small>
+                                <span class="price">R$ 450<small>/noite</small></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="hotel-card" data-id="2">
+                    <div class="card-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=500&q=80" alt="Hotel 2">
+                        <button class="btn-heart"><i class="fa-regular fa-heart"></i></button>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-title-row">
+                            <h3>Oceanview Resort Paradise</h3>
+                            <span class="rating"><i class="fa-solid fa-star"></i> 4.9</span>
+                        </div>
+                        <p class="location"><i class="fa-solid fa-location-dot"></i> Florianópolis, SC</p>
+                        <p class="amenities"><i class="fa-solid fa-wifi"></i> <i class="fa-solid fa-mug-hot"></i> <i class="fa-solid fa-water"></i></p>
+                        <div class="card-footer">
+                            <span class="reviews">882 avaliações</span>
+                            <div class="price-box">
+                                <small>a partir de</small>
+                                <span class="price">R$ 580<small>/noite</small></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="hotel-card" data-id="3">
+                    <div class="card-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=500&q=80" alt="Hotel 3">
+                        <span class="badge-discount">-20%</span>
+                        <button class="btn-heart"><i class="fa-regular fa-heart"></i></button>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-title-row">
+                            <h3>Urban Design Hotel</h3>
+                            <span class="rating"><i class="fa-solid fa-star"></i> 4.7</span>
+                        </div>
+                        <p class="location"><i class="fa-solid fa-location-dot"></i> São Paulo, SP</p>
+                        <p class="amenities"><i class="fa-solid fa-wifi"></i> <i class="fa-solid fa-mug-hot"></i></p>
+                        <div class="card-footer">
+                            <span class="reviews">2103 avaliações</span>
+                            <div class="price-box">
+                                <small>a partir de</small>
+                                <span class="price">R$ 380<small>/noite</small></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="hotel-card" data-id="4">
+                    <div class="card-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=500&q=80" alt="Hotel 4">
+                        <button class="btn-heart"><i class="fa-regular fa-heart"></i></button>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-title-row">
+                            <h3>Mountain View Lodge</h3>
+                            <span class="rating"><i class="fa-solid fa-star"></i> 4.6</span>
+                        </div>
+                        <p class="location"><i class="fa-solid fa-location-dot"></i> Campos do Jordão, SP</p>
+                        <p class="amenities"><i class="fa-solid fa-wifi"></i> <i class="fa-solid fa-snowflake"></i></p>
+                        <div class="card-footer">
+                            <span class="reviews">634 avaliações</span>
+                            <div class="price-box">
+                                <small>a partir de</small>
+                                <span class="price">R$ 520<small>/noite</small></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 5 -->
+                <div class="hotel-card" data-id="5">
+                    <div class="card-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=500&q=80" alt="Hotel 5">
+                        <button class="btn-heart"><i class="fa-regular fa-heart"></i></button>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-title-row">
+                            <h3>Tropical Beach Resort</h3>
+                            <span class="rating"><i class="fa-solid fa-star"></i> 4.8</span>
+                        </div>
+                        <p class="location"><i class="fa-solid fa-location-dot"></i> Porto de Galinhas, PE</p>
+                        <p class="amenities"><i class="fa-solid fa-wifi"></i> <i class="fa-solid fa-water"></i></p>
+                        <div class="card-footer">
+                            <span class="reviews">1456 avaliações</span>
+                            <div class="price-box">
+                                <small>a partir de</small>
+                                <span class="price">R$ 680<small>/noite</small></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 6 -->
+                <div class="hotel-card" data-id="6">
+                    <div class="card-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=500&q=80" alt="Hotel 6">
+                        <span class="badge-discount">-10%</span>
+                        <button class="btn-heart"><i class="fa-regular fa-heart"></i></button>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-title-row">
+                            <h3>Historic Downtown Hotel</h3>
+                            <span class="rating"><i class="fa-solid fa-star"></i> 4.5</span>
+                        </div>
+                        <p class="location"><i class="fa-solid fa-location-dot"></i> Salvador, BA</p>
+                        <p class="amenities"><i class="fa-solid fa-wifi"></i> <i class="fa-solid fa-building-columns"></i></p>
+                        <div class="card-footer">
+                            <span class="reviews">789 avaliações</span>
+                            <div class="price-box">
+                                <small>a partir de</small>
+                                <span class="price">R$ 320<small>/noite</small></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

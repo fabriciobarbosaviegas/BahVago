@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HotelHub Admin - Avaliações</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="admin-panel-body">
+
+    <div class="admin-layout-wrapper">
+        <aside class="admin-sidebar">
+            <div class="sidebar-brand">
+                <span class="logo-icon">H</span>
+                <div><h4>HotelHub</h4><small>Gerente</small></div>
+            </div>
+            <nav class="sidebar-menu">
+                <a href="dashboard.html" class="menu-item"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+                <a href="gerenciar-hotel.html" class="menu-item"><i class="fa-solid fa-hotel"></i> Meu hotel</a>
+                <a href="gerenciar-quartos.html" class="menu-item"><i class="fa-solid fa-bed"></i> Quartos</a>
+                <a href="estatisticas.html" class="menu-item"><i class="fa-solid fa-chart-bar"></i> Estatísticas</a>
+                <a href="gerenciar-avaliacoes.html" class="menu-item active"><i class="fa-solid fa-comment-dots"></i> Avaliações</a>
+            </nav>
+            <div class="sidebar-footer"><a href="index.html" class="menu-item logout"><i class="fa-solid fa-arrow-left"></i> Voltar ao site</a></div>
+        </aside>
+
+        <main class="admin-main-content">
+            <header class="admin-content-header">
+                <div>
+                    <h1>Gerenciar avaliações</h1>
+                    <p>Responda às avaliações dos hóspedes</p>
+                </div>
+            </header>
+
+            <section class="metrics-row-grid column-3">
+                <div class="metric-card-summary"><div class="circle-icon"><i class="fa-regular fa-star"></i></div><div><h3>4.8</h3><p>Avaliação geral</p></div></div>
+                <div class="metric-card-summary"><div class="circle-icon"><i class="fa-regular fa-comment"></i></div><div><h3>1.247</h3><p>Total de avaliações</p></div></div>
+                <div class="metric-card-summary"><div class="circle-icon yellow-bg"><i class="fa-regular fa-clock"></i></div><div><h3>12</h3><p>Aguardando resposta</p></div></div>
+            </section>
+
+            <div class="admin-tabs-filter-row">
+                <button class="admin-filter-btn active">Todas</button>
+                <button class="admin-filter-btn">Não respondidas</button>
+                <button class="admin-filter-btn">5 estrelas</button>
+                <button class="admin-filter-btn">4 estrelas</button>
+                <button class="admin-filter-btn">3 estrelas ou menos</button>
+            </div>
+
+            <div class="admin-reviews-feed-stack">
+                
+                <div class="admin-review-item-box">
+                    <div class="review-item-header">
+                        <div class="reviewer-meta-info">
+                            <span class="user-avatar-sm">MS</span>
+                            <div>
+                                <h5>Maria Silva</h5>
+                                <span class="stars-gold"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></span>
+                            </div>
+                        </div>
+                        <div class="review-date-badge-wrapper">
+                            <span class="date-text">2026-05-10</span>
+                            <span class="status-pill yellow">Sem resposta</span>
+                        </div>
+                    </div>
+                    <p class="review-body-text-content">Experiência incrível! O hotel superou todas as expectativas. Quartos espaçosos, equipe atenciosa e localização perfeita.</p>
+                    
+                    <div class="admin-reply-form-zone">
+                        <textarea rows="2" placeholder="Escreva sua resposta..."></textarea>
+                        <div class="reply-actions-row">
+                            <button class="btn-primary btn-sm btn-submit-reply">Enviar resposta</button>
+                            <button class="btn-text btn-sm">Cancelar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-review-item-box">
+                    <div class="review-item-header">
+                        <div class="reviewer-meta-info">
+                            <span class="user-avatar-sm">JS</span>
+                            <div>
+                                <h5>João Santos</h5>
+                                <span class="stars-gold"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i></span>
+                            </div>
+                        </div>
+                        <div class="review-date-badge-wrapper">
+                            <span class="date-text">2026-05-08</span>
+                            <span class="status-pill yellow">Sem resposta</span>
+                        </div>
+                    </div>
+                    <p class="review-body-text-content">Muito bom! Apenas o café da manhã poderia ter mais opções, mas no geral recomendo.</p>
+                    
+                    <div class="admin-reply-form-zone">
+                        <textarea rows="2" placeholder="Escreva sua resposta..."></textarea>
+                        <div class="reply-actions-row">
+                            <button class="btn-primary btn-sm btn-submit-reply">Enviar resposta</button>
+                            <button class="btn-text btn-sm">Cancelar</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

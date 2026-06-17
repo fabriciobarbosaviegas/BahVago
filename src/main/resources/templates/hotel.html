@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HotelHub - Grand Luxury Hotel & Spa</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="container nav-container">
+            <div class="logo" style="cursor: pointer;" onclick="window.location.href='index.html'">
+                <span class="logo-icon">H</span>
+                <span class="logo-text">HotelHub</span>
+            </div>
+            <nav class="nav-actions" id="navActionsHotel">
+                <a href="login.html" class="btn-text">Entrar</a>
+                <a href="login.html" class="btn-primary">Cadastrar</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container hotel-page-layout">
+        
+        <section class="hotel-gallery">
+            <div class="gallery-main-wrapper">
+                <button class="gallery-nav prev"><i class="fa-solid fa-chevron-left"></i></button>
+                <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80" alt="Grand Luxury Hotel" id="mainGalleryImg">
+                <button class="gallery-nav next"><i class="fa-solid fa-chevron-right"></i></button>
+                <div class="gallery-dots">
+                    <span class="dot active"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+            </div>
+        </section>
+
+        <div class="hotel-columns-grid">
+            
+            <div class="hotel-details-column">
+                <div class="hotel-title-header">
+                    <h1>Grand Luxury Hotel & Spa</h1>
+                    <span class="rating-badge"><i class="fa-solid fa-star"></i> 4.8 <small>(1247 avaliações)</small></span>
+                </div>
+                <p class="hotel-location-text"><i class="fa-solid fa-location-dot"></i> Rio de Janeiro, RJ</p>
+
+                <div class="hotel-section-box">
+                    <h3>Sobre este hotel</h3>
+                    <p>Experimente o luxo incomparável no Grand Luxury Hotel & Spa, localizado no coração do Rio de Janeiro. Com vistas deslumbrantes para a praia de Copacabana, nosso hotel oferece quartos espaçosos e elegantemente decorados.</p>
+                </div>
+
+                <div class="hotel-section-box">
+                    <h3>Comodidades</h3>
+                    <div class="amenities-features-grid">
+                        <span class="amenity-item-tag"><i class="fa-solid fa-wifi"></i> Wi-Fi gratuito</span>
+                        <span class="amenity-item-tag"><i class="fa-solid fa-mug-hot"></i> Café da manhã</span>
+                        <span class="amenity-item-tag"><i class="fa-solid fa-car"></i> Estacionamento</span>
+                        <span class="amenity-item-tag"><i class="fa-solid fa-wind"></i> Ar condicionado</span>
+                        <span class="amenity-item-tag"><i class="fa-solid fa-dumbbell"></i> Academia</span>
+                    </div>
+                </div>
+
+                <div class="hotel-section-box">
+                    <h3>Quartos disponíveis a partir de</h3>
+                    <div class="rooms-list-container">
+                        
+                        <div class="room-row-item">
+                            <div class="room-info-meta">
+                                <h4>Quarto Standard</h4>
+                                <p><i class="fa-solid fa-users"></i> 2 pessoas &nbsp;&bull;&nbsp; <i class="fa-solid fa-vector-square"></i> 22m²</p>
+                            </div>
+                            <div class="room-price-action">
+                                <span class="room-row-price">R$ 450<small>/noite</small></span>
+                                <button class="btn-goToRoom" data-room="standard">Ver ofertas</button>
+                            </div>
+                        </div>
+
+                        <div class="room-row-item">
+                            <div class="room-info-meta">
+                                <h4>Quarto Deluxe</h4>
+                                <p><i class="fa-solid fa-users"></i> 3 pessoas &nbsp;&bull;&nbsp; <i class="fa-solid fa-vector-square"></i> 45m²</p>
+                            </div>
+                            <div class="room-price-action">
+                                <span class="room-row-price">R$ 650<small>/noite</small></span>
+                                <button class="btn-goToRoom" data-room="deluxe">Ver ofertas</button>
+                            </div>
+                        </div>
+
+                        <div class="room-row-item">
+                            <div class="room-info-meta">
+                                <h4>Suite Master</h4>
+                                <p><i class="fa-solid fa-users"></i> 4 pessoas &nbsp;&bull;&nbsp; <i class="fa-solid fa-vector-square"></i> 68m²</p>
+                            </div>
+                            <div class="room-price-action">
+                                <span class="room-row-price">R$ 980<small>/noite</small></span>
+                                <button class="btn-goToRoom" data-room="master">Ver ofertas</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="hotel-section-box">
+                    <div class="reviews-section-header">
+                        <h3>Avaliações</h3>
+                        <button class="btn-write-review">Escrever avaliação</button>
+                    </div>
+                    <div class="comments-stack">
+                        <div class="comment-card-item">
+                            <div class="comment-user-row">
+                                <span class="user-avatar-sm">MS</span>
+                                <div>
+                                    <h5>Maria Silva</h5>
+                                    <span class="stars-gold"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></span>
+                                </div>
+                                <span class="comment-date">2026-05-10</span>
+                            </div>
+                            <p class="comment-text-body">Experiência incrível! O hotel superou todas as expectativas. Quartos espaçosos, equipe atenciosa e localização perfeita.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="hotel-sticky-booking-sidebar">
+                <div class="sticky-price-box">
+                    <small>A partir de</small>
+                    <h2>R$ 450 <small>/noite</small></h2>
+                    <span class="promo-pill-green">Economize 15%</span>
+                </div>
+                <form class="sticky-booking-form">
+                    <div class="auth-input-group">
+                        <label>Check-in</label>
+                        <input type="date" value="2026-06-20">
+                    </div>
+                    <div class="auth-input-group">
+                        <label>Check-out</label>
+                        <input type="date" value="2026-06-25">
+                    </div>
+                    <div class="auth-input-group">
+                        <label>Hóspedes</label>
+                        <input type="number" value="2" min="1">
+                    </div>
+                    
+                    <div class="booking-summary-calc">
+                        <div class="calc-row"><span>R$ 450 x 5 noites</span><span>R$ 2.250</span></div>
+                        <div class="calc-row"><span>Taxa de serviço</span><span>R$ 80</span></div>
+                        <hr>
+                        <div class="calc-row total"><span>Total estimado</span><span>R$ 2.330</span></div>
+                    </div>
+                </form>
+            </aside>
+
+        </div>
+    </main>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

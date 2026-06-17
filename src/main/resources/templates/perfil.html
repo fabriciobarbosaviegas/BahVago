@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HotelHub - Meu Perfil</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- NAVBAR LOGADO -->
+    <header class="navbar">
+        <div class="container nav-container">
+            <div class="logo" style="cursor: pointer;" onclick="window.location.href='index.html'">
+                <span class="logo-icon">H</span>
+                <span class="logo-text">HotelHub</span>
+            </div>
+            <nav class="nav-actions-logged">
+                <a href="favoritos.html" class="nav-icon-link" title="Favoritos"><i class="fa-regular fa-heart"></i></a>
+                <a href="perfil.html" class="nav-icon-link active" title="Minha Conta"><i class="fa-regular fa-user"></i></a>
+                <button id="btnLogoutTop" class="btn-logout-icon" title="Sair"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- CONTAINER PRINCIPAL DO PERFIL -->
+    <main class="container profile-layout">
+        
+        <!-- Painel Lateral Esquerdo (Menu de Abas) -->
+        <aside class="profile-sidebar">
+            <div class="profile-avatar-box">
+                <div class="avatar-large">PO</div>
+                <h3>Pedro Oliveira</h3>
+                <p>pedro@email.com</p>
+            </div>
+            <nav class="profile-tabs">
+                <button class="tab-btn active" data-tab="pessoais">
+                    <i class="fa-regular fa-user"></i> Informações pessoais
+                </button>
+                <button class="tab-btn" data-tab="seguranca">
+                    <i class="fa-solid fa-lock"></i> Segurança
+                </button>
+                <button class="tab-btn" data-tab="notificacoes">
+                    <i class="fa-regular fa-bell"></i> Notificações
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Painel Direito Conteúdo Dinâmico -->
+        <section class="profile-content-box">
+            
+            <!-- ABA 1: INFORMAÇÕES PESSOAIS -->
+            <div class="tab-content active" id="tab-pessoais">
+                <h2>Informações pessoais</h2>
+                <form class="profile-form">
+                    <div class="form-grid-2">
+                        <div class="auth-input-group">
+                            <label><i class="fa-regular fa-user"></i> Nome completo</label>
+                            <input type="text" value="Pedro Oliveira">
+                        </div>
+                        <div class="auth-input-group">
+                            <label><i class="fa-regular fa-envelope"></i> E-mail</label>
+                            <input type="email" value="pedro@email.com">
+                        </div>
+                        <div class="auth-input-group">
+                            <label><i class="fa-solid fa-phone"></i> Telefone</label>
+                            <input type="tel" value="+55 53 98165-4321">
+                        </div>
+                        <div class="auth-input-group">
+                            <label><i class="fa-regular fa-address-card"></i> CPF</label>
+                            <input type="text" value="123.456.789-00">
+                        </div>
+                    </div>
+
+                    <h3 class="form-section-title">Endereço</h3>
+                    <div class="auth-input-group">
+                        <label>Rua</label>
+                        <input type="text" value="Rua dos bobos">
+                    </div>
+                    <div class="form-grid-2">
+                        <div class="auth-input-group">
+                            <label>Número</label>
+                            <input type="text" value="01">
+                        </div>
+                        <div class="auth-input-group">
+                            <label>Complemento</label>
+                            <input type="text" value="Apto 670">
+                        </div>
+                        <div class="auth-input-group">
+                            <label>Bairro</label>
+                            <input type="text" value="Porto">
+                        </div>
+                        <div class="auth-input-group">
+                            <label>Cidade</label>
+                            <input type="text" value="Pelotas">
+                        </div>
+                        <div class="auth-input-group">
+                            <label>Estado</label>
+                            <input type="text" value="RS">
+                        </div>
+                        <div class="auth-input-group">
+                            <label>CEP</label>
+                            <input type="text" value="00000-000">
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-save">Salvar alterações</button>
+                        <button type="button" class="btn-cancel" onclick="window.location.href='index.html'">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- ABA 2: SEGURANÇA -->
+            <div class="tab-content" id="tab-seguranca">
+                <h2>Segurança da Conta</h2>
+                <p class="section-desc">Gerencie suas credenciais de acesso, senhas e integridade do seu perfil.</p>
+                
+                <form class="profile-form">
+                    <h3 class="form-section-title">Alterar Senha</h3>
+                    <div class="auth-input-group">
+                        <label>Senha atual</label>
+                        <input type="password" placeholder="••••••••">
+                    </div>
+                    <div class="form-grid-2">
+                        <div class="auth-input-group">
+                            <label>Nova senha</label>
+                            <input type="password" placeholder="Mínimo 8 caracteres">
+                        </div>
+                        <div class="auth-input-group">
+                            <label>Confirmar nova senha</label>
+                            <input type="password" placeholder="Repita a nova senha">
+                        </div>
+                    </div>
+
+                    <h3 class="form-section-title">Verificação em duas etapas (2FA)</h3>
+                    <div class="security-toggle-row">
+                        <div>
+                            <h4>Proteger conta com código SMS/E-mail</h4>
+                            <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Exigir um código de verificação a cada novo login efetuado.</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="form-actions" style="margin-top: 30px;">
+                        <button type="submit" class="btn-save">Atualizar Segurança</button>
+                    </div>
+                </form>
+
+                <hr class="section-divider">
+
+                <div class="danger-zone">
+                    <h3>Zona de Perigo</h3>
+                    <p>Uma vez excluída, todos os históricos de hospedagem e dados da sua conta serão apagados permanentemente.</p>
+                    <button type="button" id="btnDeleteAccount" class="btn-danger">Excluir minha conta</button>
+                </div>
+            </div>
+
+            <!-- ABA 3: NOTIFICAÇÕES -->
+            <div class="tab-content" id="tab-notificacoes">
+                <h2>Notificações</h2>
+                <p class="section-desc">Escolha quais alertas você deseja receber sobre ofertas, preços e atualizações do HotelHub.</p>
+
+                <div class="notifications-list">
+                    <div class="notification-item-toggle">
+                        <div>
+                            <h4>Alertas de redução de preço</h4>
+                            <p>Receba avisos quando hotéis na sua lista de desejos sofrerem quedas de preço.</p>
+                        </div>
+                        <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+                    </div>
+
+                    <div class="notification-item-toggle">
+                        <div>
+                            <h4>Ofertas exclusivas da temporada</h4>
+                            <p>Promoções de hotéis com até 40% de desconto para feriados e finais de semana.</p>
+                        </div>
+                        <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+                    </div>
+
+                    <div class="notification-item-toggle">
+                        <div>
+                            <h4>Boletim informativo (Newsletter)</h4>
+                            <p>Dicas de viagem e novos hotéis adicionados à plataforma mensalmente.</p>
+                        </div>
+                        <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

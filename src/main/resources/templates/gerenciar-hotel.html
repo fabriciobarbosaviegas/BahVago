@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HotelHub Admin - Gerenciar Hotel</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="admin-panel-body">
+
+    <div class="admin-layout-wrapper">
+        <aside class="admin-sidebar">
+            <div class="sidebar-brand">
+                <span class="logo-icon">H</span>
+                <div><h4>HotelHub</h4><small>Gerente</small></div>
+            </div>
+            <nav class="sidebar-menu">
+                <a href="dashboard.html" class="menu-item"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+                <a href="gerenciar-hotel.html" class="menu-item active"><i class="fa-solid fa-hotel"></i> Meu hotel</a>
+                <a href="gerenciar-quartos.html" class="menu-item"><i class="fa-solid fa-bed"></i> Quartos</a>
+                <a href="estatisticas.html" class="menu-item"><i class="fa-solid fa-chart-bar"></i> Estatísticas</a>
+                <a href="gerenciar-avaliacoes.html" class="menu-item"><i class="fa-solid fa-comment-dots"></i> Avaliações</a>
+            </nav>
+            <div class="sidebar-footer"><a href="index.html" class="menu-item logout"><i class="fa-solid fa-arrow-left"></i> Voltar ao site</a></div>
+        </aside>
+
+        <main class="admin-main-content">
+            <header class="admin-content-header">
+                <div>
+                    <h1>Gerenciar hotel</h1>
+                    <p>Edite os dados públicos do seu estabelecimento</p>
+                </div>
+            </header>
+
+            <div class="admin-forms-stack">
+                <form class="admin-card-form" id="formInfoHotel">
+                    <h3>Informações básicas</h3>
+                    <div class="form-inputs-row columns-2">
+                        <div class="auth-input-group"><label>Nome do hotel</label><input type="text" value="Grand Luxury Hotel & Spa"></div>
+                        <div class="auth-input-group"><label>Cidade</label><input type="text" value="Rio de Janeiro"></div>
+                    </div>
+                    <div class="form-inputs-row columns-2">
+                        <div class="auth-input-group"><label>Estado</label><input type="text" value="RJ"></div>
+                        <div class="auth-input-group"><label>Endereço completo</label><input type="text" value="Av. Atlântica, 1020 - Copacabana"></div>
+                    </div>
+                    <div class="form-inputs-row columns-2">
+                        <div class="auth-input-group"><label>Telefone</label><input type="text" value="+55 21 3234-5678"></div>
+                        <div class="auth-input-group"><label>E-mail</label><input type="email" value="contato@grandluxury.com.br"></div>
+                    </div>
+                    <div class="auth-input-group">
+                        <label>Descrição</label>
+                        <textarea rows="4">Experimente o luxo incomparável no Grand Luxury Hotel & Spa, localizado no coração do Rio de Janeiro. Com vistas deslumbrantes para a praia de Copacabana, nosso hotel oferece quartos espaçosos e elegantemente decorados.</textarea>
+                    </div>
+                    <button type="submit" class="btn-primary w-fit">Salvar alterações</button>
+                </form>
+
+                <div class="admin-grid-two-columns">
+                    <div class="admin-card-form">
+                        <h3>Fotos do hotel</h3>
+                        <div class="admin-thumb-gallery-preview">
+                            <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=150&q=80">
+                            <img src="https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=150&q=80">
+                            <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=150&q=80">
+                        </div>
+                        <button class="btn-secondary-outline mt-16"><i class="fa-solid fa-plus"></i> Adicionar fotos</button>
+                    </div>
+
+                    <form class="admin-card-form" id="formComodidadesHotel">
+                        <h3>Comodidades</h3>
+                        <div class="admin-checkbox-list-stack">
+                            <label class="checkbox-container"><input type="checkbox" checked> Wi-Fi gratuito</label>
+                            <label class="checkbox-container"><input type="checkbox" checked> Estacionamento</label>
+                            <label class="checkbox-container"><input type="checkbox" checked> Piscina</label>
+                            <label class="checkbox-container"><input type="checkbox" checked> Academia</label>
+                            <label class="checkbox-container"><input type="checkbox" checked> Café da manhã</label>
+                            <label class="checkbox-container"><input type="checkbox" checked> Ar condicionado</label>
+                        </div>
+                        <button type="submit" class="btn-secondary-outline mt-16">Salvar comodidades</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

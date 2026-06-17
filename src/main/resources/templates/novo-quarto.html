@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HotelHub Admin - Cadastrar Quarto</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="admin-panel-body">
+
+    <div class="admin-layout-wrapper">
+        <aside class="admin-sidebar">
+            <div class="sidebar-brand">
+                <span class="logo-icon">H</span>
+                <div><h4>HotelHub</h4><small>Gerente</small></div>
+            </div>
+            <nav class="sidebar-menu">
+                <a href="dashboard.html" class="menu-item"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+                <a href="gerenciar-hotel.html" class="menu-item"><i class="fa-solid fa-hotel"></i> Meu hotel</a>
+                <a href="gerenciar-quartos.html" class="menu-item active"><i class="fa-solid fa-bed"></i> Quartos</a>
+                <a href="estatisticas.html" class="menu-item"><i class="fa-solid fa-chart-bar"></i> Estatísticas</a>
+                <a href="gerenciar-avaliacoes.html" class="menu-item"><i class="fa-solid fa-comment-dots"></i> Avaliações</a>
+            </nav>
+            <div class="sidebar-footer"><a href="index.html" class="menu-item logout"><i class="fa-solid fa-arrow-left"></i> Voltar ao site</a></div>
+        </aside>
+
+        <main class="admin-main-content">
+            <header class="admin-content-header">
+                <div>
+                    <h1>Cadastrar novo quarto</h1>
+                    <p>Adicione um novo modelo de acomodação</p>
+                </div>
+            </header>
+
+            <form class="admin-card-form" id="formNovoQuarto">
+                <div class="auth-input-group">
+                    <label>Nome/Tipo do quarto</label>
+                    <input type="text" placeholder="Ex: Quarto Standard Deluxe" required>
+                </div>
+
+                <div class="form-inputs-row columns-3">
+                    <div class="auth-input-group"><label>Preço por noite (R$)</label><input type="number" placeholder="450" required></div>
+                    <div class="auth-input-group"><label>Capacidade (pessoas)</label><input type="number" placeholder="2" required></div>
+                    <div class="auth-input-group"><label>Tamanho (m²)</label><input type="number" placeholder="32" required></div>
+                </div>
+
+                <div class="auth-input-group">
+                    <label>Descrição</label>
+                    <textarea rows="4" placeholder="Descreva as características do quarto..."></textarea>
+                </div>
+
+                <div class="admin-checkbox-amenities-section">
+                    <label class="section-subtitle-label">Comodidades do quarto</label>
+                    <div class="admin-checkbox-grid-two-cols">
+                        <label class="checkbox-container"><input type="checkbox"> Wi-Fi gratuito</label>
+                        <label class="checkbox-container"><input type="checkbox"> Ar condicionado</label>
+                        <label class="checkbox-container"><input type="checkbox"> TV a cabo</label>
+                        <label class="checkbox-container"><input type="checkbox"> Frigobar</label>
+                        <label class="checkbox-container"><input type="checkbox"> Cofre</label>
+                        <label class="checkbox-container"><input type="checkbox"> Varanda</label>
+                        <label class="checkbox-container"><input type="checkbox"> Vista para o mar</label>
+                        <label class="checkbox-container"><input type="checkbox"> Banheira</label>
+                    </div>
+                </div>
+
+                <div class="admin-upload-zone-wrapper">
+                    <label class="section-subtitle-label">Fotos do quarto</label>
+                    <div class="upload-dropzone-box" id="dropzoneQuarto">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <p>Clique para fazer upload ou arraste as fotos aqui</p>
+                        <small>PNG, JPG até 5MB</small>
+                    </div>
+                </div>
+
+                <div class="admin-actions-form-row">
+                    <button type="submit" class="btn-primary">Salvar quarto</button>
+                    <button type="button" class="btn-secondary-outline" onclick="window.location.href='gerenciar-quartos.html'">Cancelar</button>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HotelHub Admin - Estatísticas</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="admin-panel-body">
+
+    <div class="admin-layout-wrapper">
+        <aside class="admin-sidebar">
+            <div class="sidebar-brand">
+                <span class="logo-icon">H</span>
+                <div><h4>HotelHub</h4><small>Gerente</small></div>
+            </div>
+            <nav class="sidebar-menu">
+                <a href="dashboard.html" class="menu-item"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+                <a href="gerenciar-hotel.html" class="menu-item"><i class="fa-solid fa-hotel"></i> Meu hotel</a>
+                <a href="gerenciar-quartos.html" class="menu-item"><i class="fa-solid fa-bed"></i> Quartos</a>
+                <a href="estatisticas.html" class="menu-item active"><i class="fa-solid fa-chart-bar"></i> Estatísticas</a>
+                <a href="gerenciar-avaliacoes.html" class="menu-item"><i class="fa-solid fa-comment-dots"></i> Avaliações</a>
+            </nav>
+            <div class="sidebar-footer"><a href="index.html" class="menu-item logout"><i class="fa-solid fa-arrow-left"></i> Voltar ao site</a></div>
+        </aside>
+
+        <main class="admin-main-content">
+            <header class="admin-content-header split-row">
+                <div>
+                    <h1>Estatísticas detalhadas</h1>
+                    <p>Análise completa de desempenho</p>
+                </div>
+                <button class="btn-secondary-outline" id="btnExportReport"><i class="fa-solid fa-download"></i> Exportar relatório</button>
+            </header>
+
+            <section class="metrics-row-grid column-3">
+                <div class="metric-card">
+                    <div class="metric-header"><span>Taxa de conversão</span><span class="badge-trend positive">+8%</span></div>
+                    <h3>68%</h3>
+                    <p>De visualizações para reservas</p>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-header"><span>Tempo médio de estadia</span><span class="badge-stable">3.2 dias</span></div>
+                    <h3>3.8</h3>
+                    <p>Noites por reserva</p>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-header"><span>Taxa de retorno</span><span class="badge-trend positive">+15%</span></div>
+                    <h3>42%</h3>
+                    <p>Clientes que retornam</p>
+                </div>
+            </section>
+
+            <section class="charts-row-grid">
+                <div class="chart-card-box"><h4>Evolução de ocupação</h4><div class="chart-placeholder-mock line-chart-bg"></div></div>
+                <div class="chart-card-box"><h4>Receita por tipo de quarto</h4><div class="chart-placeholder-mock bar-chart-bg-types"></div></div>
+            </section>
+
+            <section class="admin-card-table-box">
+                <h4>Principais métricas mensais</h4>
+                <table class="admin-data-table">
+                    <thead>
+                        <tr><th>Mês</th><th>Reservas</th><th>Receita</th><th>Taxa ocupação</th><th>Avaliação</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Jan</td><td>98</td><td>R$ 42.500</td><td>85%</td><td class="text-blue">4.7</td></tr>
+                        <tr><td>Fev</td><td>112</td><td>R$ 48.900</td><td>86%</td><td class="text-blue">4.8</td></tr>
+                        <tr><td>Mar</td><td>145</td><td>R$ 62.300</td><td>87%</td><td class="text-blue">4.9</td></tr>
+                        <tr><td>Abr</td><td>167</td><td>R$ 71.200</td><td>88%</td><td class="text-blue">4.7</td></tr>
+                        <tr><td>Mai</td><td>189</td><td>R$ 85.400</td><td>89%</td><td class="text-blue">4.8</td></tr>
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

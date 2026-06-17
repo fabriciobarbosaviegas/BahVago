@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HotelHub - Meus Favoritos</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- NAVBAR LOGADO -->
+    <header class="navbar">
+        <div class="container nav-container">
+            <div class="logo" style="cursor: pointer;" onclick="window.location.href='index.html'">
+                <span class="logo-icon">H</span>
+                <span class="logo-text">HotelHub</span>
+            </div>
+            <nav class="nav-actions-logged">
+                <a href="favoritos.html" class="nav-icon-link active" title="Favoritos"><i class="fa-regular fa-heart"></i></a>
+                <a href="perfil.html" class="nav-icon-link" title="Minha Conta"><i class="fa-regular fa-user"></i></a>
+                <button id="btnLogoutTop" class="btn-logout-icon" title="Sair"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- SEÇÃO FAVORITOS -->
+    <main class="container fav-page-wrapper">
+        <div class="fav-header">
+            <h1><i class="fa-regular fa-heart" style="color: var(--accent-blue); margin-right: 8px;"></i> Meus favoritos</h1>
+            <p id="favCount">2 hotéis salvos</p>
+        </div>
+
+        <!-- Grid de Favoritos idêntico ao Figma -->
+        <div class="hotels-grid" id="favGrid">
+            
+            <!-- Card 1 -->
+            <div class="hotel-card" data-hotel-id="fav-1">
+                <div class="card-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=500&q=80" alt="Grand Luxury Hotel">
+                    <span class="badge-discount">-15%</span>
+                    <button class="btn-heart fav-active"><i class="fa-solid fa-heart"></i></button>
+                </div>
+                <div class="card-content">
+                    <div class="card-title-row">
+                        <h3>Grand Luxury Hotel & Spa</h3>
+                        <span class="rating"><i class="fa-solid fa-star"></i> 4.8</span>
+                    </div>
+                    <p class="location"><i class="fa-solid fa-location-dot"></i> Rio de Janeiro, RJ</p>
+                    <p class="amenities"><i class="fa-solid fa-wifi"></i> <i class="fa-solid fa-mug-hot"></i> <i class="fa-solid fa-car"></i></p>
+                    <div class="card-footer">
+                        <span class="reviews">1247 avaliações</span>
+                        <div class="price-box">
+                            <small>a partir de</small>
+                            <span class="price">R$ 450<small>/noite</small></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="hotel-card" data-hotel-id="fav-2">
+                <div class="card-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=500&q=80" alt="Urban Design Hotel">
+                    <span class="badge-discount">-20%</span>
+                    <button class="btn-heart fav-active"><i class="fa-solid fa-heart"></i></button>
+                </div>
+                <div class="card-content">
+                    <div class="card-title-row">
+                        <h3>Urban Design Hotel</h3>
+                        <span class="rating"><i class="fa-solid fa-star"></i> 4.7</span>
+                    </div>
+                    <p class="location"><i class="fa-solid fa-location-dot"></i> São Paulo, SP</p>
+                    <p class="amenities"><i class="fa-solid fa-wifi"></i> <i class="fa-solid fa-mug-hot"></i></p>
+                    <div class="card-footer">
+                        <span class="reviews">2103 avaliações</span>
+                        <div class="price-box">
+                            <small>a partir de</small>
+                            <span class="price">R$ 380<small>/noite</small></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Mensagem caso a lista zere -->
+        <div class="empty-fav-message hidden" id="emptyState">
+            <i class="fa-regular fa-folder-open"></i>
+            <h3>Você não possui nenhum hotel favoritado</h3>
+            <p>Volte para a tela inicial e explore as opções clicando no ícone de coração.</p>
+            <button class="btn-primary" onclick="window.location.href='index.html'" style="border:none; margin-top:15px; cursor:pointer;">Explorar Hotéis</button>
+        </div>
+    </main>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
