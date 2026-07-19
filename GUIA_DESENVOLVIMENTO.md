@@ -4,7 +4,7 @@
 
 ```bash
 # 1. Clonar o repositório
-git clone <seu-repo>
+git clone https://github.com/fabriciobarbosaviegas/BahVago
 
 # 2. Entrar na pasta
 cd BahVago

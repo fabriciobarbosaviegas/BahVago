@@ -1,25 +1,25 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BahVago - Pesquisar Hotéis</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css">
 </head>
 <body>
 
     <!-- NAVBAR -->
     <header class="navbar">
         <div class="container nav-container">
-            <div class="logo" style="cursor: pointer;" onclick="window.location.href='index.html'">
+            <div class="logo" style="cursor: pointer;" onclick="window.location.href='/'">
                 <span class="logo-icon">B</span>
                 <span class="logo-text">BahVago</span>
             </div>
             <!-- Gerenciado dinamicamente via JS (Entrar/Cadastrar ou Ícones Logado) -->
             <nav class="nav-actions" id="navActionsSearch">
-                <a href="login.html" class="btn-text">Entrar</a>
-                <a href="login.html" class="btn-primary">Cadastrar</a>
+                <a th:href="@{/login}" href="/login" class="btn-text">Entrar</a>
+                <a th:href="@{/cadastro}" href="/cadastro" class="btn-primary">Cadastrar</a>
             </nav>
         </div>
     </header>
@@ -30,7 +30,7 @@
             <form class="search-compact-form" id="compactSearchForm">
                 <div class="search-compact-input">
                     <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" placeholder="Para onde você vai?" value="Rio de Janeiro, RJ">
+                    <input type="text" name="termo" placeholder="Para onde você vai?" th:value="${termo}" value="Rio de Janeiro, RJ">
                 </div>
                 <button type="submit" class="btn-compact-search">Buscar</button>
             </form>
@@ -123,7 +123,7 @@
             <div class="search-hotels-grid">
                 
                 <!-- Card 1 -->
-                <div class="hotel-card" data-id="1">
+                <div class="hotel-card" th:each="hotel : ${hoteis}" th:if="${hoteis != null and !hoteis.isEmpty()}" th:object="${hotel}">
                     <div class="card-image-wrapper">
                         <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=500&q=80" alt="Hotel 1">
                         <span class="badge-discount">-15%</span>
@@ -131,16 +131,16 @@
                     </div>
                     <div class="card-content">
                         <div class="card-title-row">
-                            <h3>Grand Luxury Hotel & Spa</h3>
-                            <span class="rating"><i class="fa-solid fa-star"></i> 4.8</span>
+                            <h3 th:text="*{nome}">Hotel</h3>
+                            <span class="rating"><i class="fa-solid fa-star"></i> <span th:text="${hotel.avaliacao != null ? #numbers.formatDecimal(hotel.avaliacao, 1, 1) : '0.0'}">0.0</span></span>
                         </div>
-                        <p class="location"><i class="fa-solid fa-location-dot"></i> Rio de Janeiro, RJ</p>
+                        <p class="location"><i class="fa-solid fa-location-dot"></i> <span th:text="*{cidade}">Cidade</span>, <span th:text="*{estado}">UF</span></p>
                         <p class="amenities"><i class="fa-solid fa-wifi"></i> <i class="fa-solid fa-mug-hot"></i> <i class="fa-solid fa-car"></i></p>
                         <div class="card-footer">
-                            <span class="reviews">1247 avaliações</span>
+                            <span class="reviews">Resultado do banco</span>
                             <div class="price-box">
                                 <small>a partir de</small>
-                                <span class="price">R$ 450<small>/noite</small></span>
+                                <span class="price">R$ <span th:text="${hotel.id}">0</span><small>/noite</small></span>
                             </div>
                         </div>
                     </div>
@@ -267,6 +267,6 @@
         </section>
     </main>
 
-    <script src="script.js"></script>
+    <script th:src="@{/js/script.js}" src="/js/script.js"></script>
 </body>
 </html>

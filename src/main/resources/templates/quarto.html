@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
+<head xmlns:th="http://www.thymeleaf.org">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BahVago - Comparador de Ofertas</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css">
 </head>
 <body>
 
@@ -16,8 +16,8 @@
                 <span class="logo-text">BahVago</span>
             </div>
             <nav class="nav-actions" id="navActionsRoom">
-                <a href="login.html" class="btn-text">Entrar</a>
-                <a href="login.html" class="btn-primary">Cadastrar</a>
+                <a th:href="@{/login}" href="/login" class="btn-text">Entrar</a>
+                <a th:href="@{/cadastro}" href="/cadastro" class="btn-primary">Cadastrar</a>
             </nav>
         </div>
     </header>
@@ -42,14 +42,14 @@
                 </div>
 
                 <div class="room-header-box">
-                    <h2 id="roomMainTitle">Quarto Deluxe</h2>
-                    <p class="room-description-text">Quarto espaçoso e elegante com vista panorâmica para o mar. Decoração moderna com todos os confortos para uma estadia inesquecível.</p>
+                    <h2 id="roomMainTitle" th:text="${quarto != null ? quarto.tipo : 'Quarto'}">Quarto</h2>
+                    <p class="room-description-text" th:text="${quarto != null ? quarto.descricao : 'Quarto disponível.'}">Descrição do quarto</p>
                     
                     <div class="room-specs-tags-container">
-                        <span><i class="fa-solid fa-vector-square"></i> Tamanho: <b>45m²</b></span>
-                        <span><i class="fa-solid fa-users"></i> Capacidade: <b>3 pessoas</b></span>
-                        <span><i class="fa-solid fa-bed"></i> Cama: <b>King Size</b></span>
-                        <span><i class="fa-solid fa-cloud"></i> Vista: <b>Mar</b></span>
+                        <span><i class="fa-solid fa-vector-square"></i> Número: <b th:text="${quarto != null ? quarto.numero : '-'}">-</b></span>
+                        <span><i class="fa-solid fa-users"></i> Capacidade: <b th:text="${quarto != null ? quarto.capacidade : '-'}">-</b></span>
+                        <span><i class="fa-solid fa-bed"></i> Tipo: <b th:text="${quarto != null ? quarto.tipo : '-'}">-</b></span>
+                        <span><i class="fa-solid fa-cloud"></i> Disponível: <b th:text="${quarto != null and quarto.disponivel ? 'Sim' : 'Não'}">Não</b></span>
                     </div>
                 </div>
 
@@ -81,7 +81,7 @@
                             <div class="platform-pricing-action">
                                 <div class="price-stack">
                                     <span class="old-price">R$ 720</span>
-                                    <span class="current-price">R$ 650<small>/noite</small></span>
+                                    <span class="current-price" th:text="${quarto != null ? 'R$ ' + quarto.precoNoite : 'R$ 0'}">R$ 0<small>/noite</small></span>
                                     <small class="tax-info">+ R$ 50 taxas</small>
                                 </div>
                                 <button class="btn-redirect-offer" data-url="https://www.booking.com">Ver oferta</button>
@@ -157,7 +157,7 @@
             <aside class="room-sticky-booking-sidebar">
                 <div class="sticky-price-box">
                     <small>Melhor preço encontrado</small>
-                    <h2>R$ 650 <small>/noite</small></h2>
+                    <h2 th:text="${quarto != null ? 'R$ ' + quarto.precoNoite : 'R$ 0'}">R$ 0<small>/noite</small></h2>
                     <p class="provider-tag">via Booking.com</p>
                 </div>
                 <div class="sticky-booking-form">
@@ -177,6 +177,6 @@
         </div>
     </main>
 
-    <script src="script.js"></script>
+    <script th:src="@{/js/script.js}" src="/js/script.js"></script>
 </body>
 </html>

@@ -1,24 +1,24 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BahVago - Meu Perfil</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css">
 </head>
 <body>
 
     <!-- NAVBAR LOGADO -->
     <header class="navbar">
         <div class="container nav-container">
-            <div class="logo" style="cursor: pointer;" onclick="window.location.href='index.html'">
+            <div class="logo" style="cursor: pointer;" onclick="window.location.href='/'">
                 <span class="logo-icon">B</span>
                 <span class="logo-text">BahVago</span>
             </div>
             <nav class="nav-actions-logged">
-                <a href="favoritos.html" class="nav-icon-link" title="Favoritos"><i class="fa-regular fa-heart"></i></a>
-                <a href="perfil.html" class="nav-icon-link active" title="Minha Conta"><i class="fa-regular fa-user"></i></a>
+                <a href="/favoritos/usuario/1" class="nav-icon-link" title="Favoritos"><i class="fa-regular fa-heart"></i></a>
+                <a href="/usuarios/perfil/1" class="nav-icon-link active" title="Minha Conta"><i class="fa-regular fa-user"></i></a>
                 <button id="btnLogoutTop" class="btn-logout-icon" title="Sair"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
             </nav>
         </div>
@@ -195,6 +195,6 @@
         </section>
     </main>
 
-    <script src="script.js"></script>
+    <script th:src="@{/js/script.js}" src="/js/script.js"></script>
 </body>
 </html>
