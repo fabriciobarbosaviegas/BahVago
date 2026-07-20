@@ -12,38 +12,43 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "hoteis")
+@Table(name = "HotelEstatisticas")
 public class Hotel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "CodigoHotel")
+    private Integer id;
 
-    @Column(nullable = false)
+    @Column(name = "Nome", nullable = false, length = 100)
     private String nome;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "Descricao", nullable = false, length = 2000)
     private String descricao;
 
-    @Column(nullable = false)
-    private String localizacao;
+    @Column(name = "NumeroAcesso")
+    private Integer numeroAcesso;
 
-    @Column(nullable = false)
-    private String cidade;
+    @Column(name = "AvaliacaoMedia", columnDefinition = "DECIMAL(10,2)")
+    private Double avaliacaoMedia;
 
-    @Column(nullable = false)
-    private String estado;
+    @Column(name = "CPF", nullable = false, length = 11)
+    private String cpf;
 
-    @Column(nullable = false)
-    private String cep;
+    @Column(name = "Latitude", nullable = false)
+    private Integer latitude;
 
-    @Column(columnDefinition = "DECIMAL(10, 2)")
-    private Double avaliacao;
+    @Column(name = "Longitude", nullable = false)
+    private Integer longitude;
 
-    @Column(name = "id_hoteleiro", nullable = false)
-    private Long idHoteleiro;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumns({
+        @JoinColumn(name = "Latitude", referencedColumnName = "Latitude", insertable = false, updatable = false),
+        @JoinColumn(name = "Longitude", referencedColumnName = "Longitude", insertable = false, updatable = false)
+    })
+    private Localizacao localizacao;
 
-    @Column(name = "data_criacao", nullable = false, updatable = false)
+    @Column(name = "DataCriacao", nullable = false, updatable = false)
     private LocalDateTime dataCriacao;
 
     @PrePersist

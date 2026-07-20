@@ -1,6 +1,7 @@
 package com.bahvago.controller;
 
 import com.bahvago.model.Favorito;
+import com.bahvago.model.FavoritoId;
 import com.bahvago.service.FavoritoService;
 import com.bahvago.service.HotelService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,33 +21,31 @@ public class FavoritoController {
     @Autowired
     private HotelService hotelService;
 
-    @GetMapping("/usuario/{idUsuario}")
-    public String meusFavoritos(@PathVariable Long idUsuario, Model model) {
-        List<Favorito> favoritos = favoritoService.buscarFavoritosPorUsuario(idUsuario);
+    @GetMapping("/usuario/{cpf}")
+    public String meusFavoritos(@PathVariable String cpf, Model model) {
+        List<Favorito> favoritos = favoritoService.buscarFavoritosPorUsuario(cpf);
         model.addAttribute("favoritos", favoritos);
         return "favoritos";
     }
 
     @PostMapping("/adicionar")
-    public String adicionarFavorito(@RequestParam Long idUsuario,
-                                   @RequestParam Long idHotel,
-                                   RedirectAttributes redirectAttributes) {
+    public String adicionarFavorito(@RequestParam String cpf,
+                                     @RequestParam Integer codigoHotel,
+                                     RedirectAttributes redirectAttributes) {
         Favorito favorito = Favorito.builder()
-            .idUsuario(idUsuario)
-            .idHotel(idHotel)
-            .build();
-        
+                .id(new FavoritoId(cpf, codigoHotel))
+                .build();
         favoritoService.adicionarFavorito(favorito);
         redirectAttributes.addFlashAttribute("mensagem", "Hotel adicionado aos favoritos!");
-        return "redirect:/hoteis/" + idHotel;
+        return "redirect:/hoteis/" + codigoHotel;
     }
 
-    @GetMapping("/remover/{idUsuario}/{idHotel}")
-    public String removerFavorito(@PathVariable Long idUsuario,
-                                 @PathVariable Long idHotel,
-                                 RedirectAttributes redirectAttributes) {
-        favoritoService.removerFavoritoPorUsuarioEHotel(idUsuario, idHotel);
+    @GetMapping("/remover/{cpf}/{codigoHotel}")
+    public String removerFavorito(@PathVariable String cpf,
+                                   @PathVariable Integer codigoHotel,
+                                   RedirectAttributes redirectAttributes) {
+        favoritoService.removerFavoritoPorUsuarioEHotel(cpf, codigoHotel);
         redirectAttributes.addFlashAttribute("mensagem", "Hotel removido dos favoritos!");
-        return "redirect:/hoteis/" + idHotel;
+        return "redirect:/hoteis/" + codigoHotel;
     }
 }

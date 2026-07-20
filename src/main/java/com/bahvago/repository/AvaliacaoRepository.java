@@ -6,8 +6,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface AvaliacaoRepository extends JpaRepository<Avaliacao, Long> {
-    List<Avaliacao> findByIdHotel(Long idHotel);
-    List<Avaliacao> findByIdUsuario(Long idUsuario);
-    List<Avaliacao> findByIdHotelAndIdUsuario(Long idHotel, Long idUsuario);
+public interface AvaliacaoRepository extends JpaRepository<Avaliacao, Integer> {
+    List<Avaliacao> findByCodigoHotel(Integer codigoHotel);
+    List<Avaliacao> findByCpf(String cpf);
+    List<Avaliacao> findByCodigoHotelAndCpf(Integer codigoHotel, String cpf);
 }

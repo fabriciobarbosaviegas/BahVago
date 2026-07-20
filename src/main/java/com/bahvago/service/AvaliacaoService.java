@@ -17,7 +17,7 @@ public class AvaliacaoService {
         return avaliacaoRepository.save(avaliacao);
     }
 
-    public Optional<Avaliacao> buscarPorId(Long id) {
+    public Optional<Avaliacao> buscarPorId(Integer id) {
         return avaliacaoRepository.findById(id);
     }
 
@@ -25,29 +25,29 @@ public class AvaliacaoService {
         return avaliacaoRepository.findAll();
     }
 
-    public List<Avaliacao> buscarPorHotel(Long idHotel) {
-        return avaliacaoRepository.findByIdHotel(idHotel);
+    public List<Avaliacao> buscarPorHotel(Integer codigoHotel) {
+        return avaliacaoRepository.findByCodigoHotel(codigoHotel);
     }
 
-    public List<Avaliacao> buscarPorUsuario(Long idUsuario) {
-        return avaliacaoRepository.findByIdUsuario(idUsuario);
+    public List<Avaliacao> buscarPorUsuario(String cpf) {
+        return avaliacaoRepository.findByCpf(cpf);
     }
 
     public Avaliacao atualizarAvaliacao(Avaliacao avaliacao) {
         return avaliacaoRepository.save(avaliacao);
     }
 
-    public void deletarAvaliacao(Long id) {
+    public void deletarAvaliacao(Integer id) {
         avaliacaoRepository.deleteById(id);
     }
 
-    public Double calcularMediaAvaliacoes(Long idHotel) {
-        List<Avaliacao> avaliacoes = buscarPorHotel(idHotel);
+    public Double calcularMediaAvaliacoes(Integer codigoHotel) {
+        List<Avaliacao> avaliacoes = buscarPorHotel(codigoHotel);
         if (avaliacoes.isEmpty()) {
             return 0.0;
         }
         return avaliacoes.stream()
-            .mapToInt(Avaliacao::getNota)
+            .mapToDouble(Avaliacao::getNota)
             .average()
             .orElse(0.0);
     }

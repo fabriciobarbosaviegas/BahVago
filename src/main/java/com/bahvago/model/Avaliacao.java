@@ -5,37 +5,43 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "avaliacoes")
+@Table(name = "Avaliacao")
 public class Avaliacao {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "CodigoAvaliacao")
+    private Integer id;
 
-    @Column(name = "id_hotel", nullable = false)
-    private Long idHotel;
+    @Column(name = "Nota", nullable = false)
+    private Float nota; // 0 a 5
 
-    @Column(name = "id_usuario", nullable = false)
-    private Long idUsuario;
-
-    @Column(nullable = false)
-    private Integer nota; // 1 a 5
-
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "Comentario", length = 200)
     private String comentario;
 
-    @Column(name = "data_criacao", nullable = false, updatable = false)
-    private LocalDateTime dataCriacao;
+    @Column(name = "Data", nullable = false)
+    private LocalDate data;
+
+    @Column(name = "Resposta", length = 200)
+    private String resposta;
+
+    @Column(name = "CodigoHotel", nullable = false)
+    private Integer codigoHotel;
+
+    @Column(name = "CPF", nullable = false, length = 11)
+    private String cpf;
 
     @PrePersist
     protected void onCreate() {
-        this.dataCriacao = LocalDateTime.now();
+        if (this.data == null) {
+            this.data = LocalDate.now();
+        }
     }
 }

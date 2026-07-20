@@ -1,6 +1,7 @@
 package com.bahvago.service;
 
 import com.bahvago.model.Favorito;
+import com.bahvago.model.FavoritoId;
 import com.bahvago.repository.FavoritoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,24 +18,23 @@ public class FavoritoService {
         return favoritoRepository.save(favorito);
     }
 
-    public void removerFavorito(Long id) {
+    public void removerFavorito(FavoritoId id) {
         favoritoRepository.deleteById(id);
     }
 
-    public void removerFavoritoPorUsuarioEHotel(Long idUsuario, Long idHotel) {
-        Optional<Favorito> favorito = favoritoRepository.findByIdUsuarioAndIdHotel(idUsuario, idHotel);
-        favorito.ifPresent(f -> favoritoRepository.deleteById(f.getId()));
+    public void removerFavoritoPorUsuarioEHotel(String cpf, Integer codigoHotel) {
+        favoritoRepository.deleteById(new FavoritoId(cpf, codigoHotel));
     }
 
-    public List<Favorito> buscarFavoritosPorUsuario(Long idUsuario) {
-        return favoritoRepository.findByIdUsuario(idUsuario);
+    public List<Favorito> buscarFavoritosPorUsuario(String cpf) {
+        return favoritoRepository.findByIdCpf(cpf);
     }
 
-    public boolean isFavorito(Long idUsuario, Long idHotel) {
-        return favoritoRepository.existsByIdUsuarioAndIdHotel(idUsuario, idHotel);
+    public boolean isFavorito(String cpf, Integer codigoHotel) {
+        return favoritoRepository.existsByIdCpfAndIdCodigoHotel(cpf, codigoHotel);
     }
 
-    public Optional<Favorito> buscarFavorito(Long idUsuario, Long idHotel) {
-        return favoritoRepository.findByIdUsuarioAndIdHotel(idUsuario, idHotel);
+    public Optional<Favorito> buscarFavorito(String cpf, Integer codigoHotel) {
+        return favoritoRepository.findByIdCpfAndIdCodigoHotel(cpf, codigoHotel);
     }
 }

@@ -44,9 +44,9 @@ public class HotelController {
     }
 
     @GetMapping("/{id}")
-    public String detalheHotel(@PathVariable Long id, Model model) {
+    public String detalheHotel(@PathVariable Integer id, Model model) {
         Hotel hotel = hotelService.buscarPorId(id)
-            .orElseThrow(() -> new RuntimeException("Hotel não encontrado"));
+                .orElseThrow(() -> new RuntimeException("Hotel não encontrado"));
         Double mediaAvaliacoes = avaliacaoService.calcularMediaAvaliacoes(id);
         model.addAttribute("hotel", hotel);
         model.addAttribute("mediaAvaliacoes", mediaAvaliacoes);
@@ -55,17 +55,17 @@ public class HotelController {
     }
 
     @PostMapping("/criar")
-    public String criarHotel(@ModelAttribute Hotel hotel, 
-                            RedirectAttributes redirectAttributes) {
+    public String criarHotel(@ModelAttribute Hotel hotel,
+                              RedirectAttributes redirectAttributes) {
         Hotel novoHotel = hotelService.criarHotel(hotel);
         redirectAttributes.addFlashAttribute("mensagem", "Hotel criado com sucesso!");
         return "redirect:/hoteis/" + novoHotel.getId();
     }
 
     @PostMapping("/atualizar/{id}")
-    public String atualizarHotel(@PathVariable Long id, 
-                                @ModelAttribute Hotel hotel,
-                                RedirectAttributes redirectAttributes) {
+    public String atualizarHotel(@PathVariable Integer id,
+                                  @ModelAttribute Hotel hotel,
+                                  RedirectAttributes redirectAttributes) {
         hotel.setId(id);
         hotelService.atualizarHotel(hotel);
         redirectAttributes.addFlashAttribute("mensagem", "Hotel atualizado com sucesso!");
@@ -73,7 +73,7 @@ public class HotelController {
     }
 
     @GetMapping("/deletar/{id}")
-    public String deletarHotel(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    public String deletarHotel(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
         hotelService.deletarHotel(id);
         redirectAttributes.addFlashAttribute("mensagem", "Hotel deletado com sucesso!");
         return "redirect:/hoteis";

@@ -17,7 +17,7 @@ public class HotelService {
         return hotelRepository.save(hotel);
     }
 
-    public Optional<Hotel> buscarPorId(Long id) {
+    public Optional<Hotel> buscarPorId(Integer id) {
         return hotelRepository.findById(id);
     }
 
@@ -33,8 +33,8 @@ public class HotelService {
         return hotelRepository.findByEstado(estado);
     }
 
-    public List<Hotel> buscarPorHoteleiro(Long idHoteleiro) {
-        return hotelRepository.findByIdHoteleiro(idHoteleiro);
+    public List<Hotel> buscarPorHoteleiro(String cpf) {
+        return hotelRepository.findByCpf(cpf);
     }
 
     public List<Hotel> buscarPorNomeOuCidade(String termo) {
@@ -45,7 +45,7 @@ public class HotelService {
         return hotelRepository.save(hotel);
     }
 
-    public void deletarHotel(Long id) {
+    public void deletarHotel(Integer id) {
         hotelRepository.deleteById(id);
     }
 }

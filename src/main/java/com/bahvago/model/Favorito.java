@@ -12,20 +12,13 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "favoritos")
+@Table(name = "HotelFavorito")
 public class Favorito {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @EmbeddedId
+    private FavoritoId id;
 
-    @Column(name = "id_usuario", nullable = false)
-    private Long idUsuario;
-
-    @Column(name = "id_hotel", nullable = false)
-    private Long idHotel;
-
-    @Column(name = "data_criacao", nullable = false, updatable = false)
+    @Column(name = "DataCriacao", nullable = false, updatable = false)
     private LocalDateTime dataCriacao;
 
     @PrePersist

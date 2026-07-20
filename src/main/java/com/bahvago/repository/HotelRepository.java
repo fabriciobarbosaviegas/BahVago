@@ -7,12 +7,17 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface HotelRepository extends JpaRepository<Hotel, Long> {
-    List<Hotel> findByIdHoteleiro(Long idHoteleiro);
+public interface HotelRepository extends JpaRepository<Hotel, Integer> {
+
+    List<Hotel> findByCpf(String cpf);
+
+    @Query("SELECT h FROM Hotel h WHERE LOWER(h.localizacao.cidade) = LOWER(?1)")
     List<Hotel> findByCidade(String cidade);
+
+    @Query("SELECT h FROM Hotel h WHERE LOWER(h.localizacao.estado) = LOWER(?1)")
     List<Hotel> findByEstado(String estado);
-    
+
     @Query("SELECT h FROM Hotel h WHERE LOWER(h.nome) LIKE LOWER(CONCAT('%', ?1, '%')) " +
-           "OR LOWER(h.cidade) LIKE LOWER(CONCAT('%', ?1, '%'))")
+           "OR LOWER(h.localizacao.cidade) LIKE LOWER(CONCAT('%', ?1, '%'))")
     List<Hotel> buscarPorNomeOuCidade(String termo);
 }
