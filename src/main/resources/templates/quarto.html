@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head xmlns:th="http://www.thymeleaf.org">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css">
 </head>
+
 <body>
 
     <header class="navbar">
@@ -27,64 +29,74 @@
     </div>
 
     <main class="container room-page-layout">
-        
+
         <div class="room-columns-grid">
-            
+
             <div class="room-main-content">
-                
+
                 <div class="room-hero-display">
-                    <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1000&q=80" alt="Quarto" id="roomDisplayImg">
+                    <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1000&q=80"
+                        alt="Quarto" id="roomDisplayImg">
                     <div class="room-thumbnails-strip">
-                        <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=150&q=80" class="thumb active">
-                        <img src="https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=150&q=80" class="thumb">
-                        <img src="https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=150&q=80" class="thumb">
+                        <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=150&q=80"
+                            class="thumb active">
+                        <img src="https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=150&q=80"
+                            class="thumb">
+                        <img src="https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=150&q=80"
+                            class="thumb">
                     </div>
                 </div>
 
                 <div class="room-header-box">
                     <h2 id="roomMainTitle" th:text="${quarto != null ? quarto.tipo : 'Quarto'}">Quarto</h2>
-                    <p class="room-description-text" th:text="${quarto != null ? quarto.descricao : 'Quarto disponível.'}">Descrição do quarto</p>
-                    
+                    <p class="room-description-text"
+                        th:text="${quarto != null ? quarto.descricao : 'Quarto disponível.'}">Descrição do quarto</p>
+
                     <div class="room-specs-tags-container">
-                        <span><i class="fa-solid fa-vector-square"></i> Número: <b th:text="${quarto != null ? quarto.numero : '-'}">-</b></span>
-                        <span><i class="fa-solid fa-users"></i> Capacidade: <b th:text="${quarto != null ? quarto.capacidade : '-'}">-</b></span>
-                        <span><i class="fa-solid fa-bed"></i> Tipo: <b th:text="${quarto != null ? quarto.tipo : '-'}">-</b></span>
-                        <span><i class="fa-solid fa-cloud"></i> Disponível: <b th:text="${quarto != null and quarto.disponivel ? 'Sim' : 'Não'}">Não</b></span>
+                        <span><i class="fa-solid fa-vector-square"></i> Número: <b
+                                th:text="${quarto != null ? quarto.numero : '-'}">-</b></span>
+                        <span><i class="fa-solid fa-users"></i> Capacidade: <b
+                                th:text="${quarto != null ? quarto.capacidade : '-'}">-</b></span>
+                        <span><i class="fa-solid fa-bed"></i> Tipo: <b
+                                th:text="${quarto != null ? quarto.tipo : '-'}">-</b></span>
+                        <span><i class="fa-solid fa-cloud"></i> Disponível: <b
+                                th:text="${quarto != null and quarto.disponivel ? 'Sim' : 'Não'}">Não</b></span>
                     </div>
                 </div>
 
                 <div class="room-features-box">
                     <h3>Comodidades do quarto</h3>
                     <div class="features-grid-quad">
-                        <span><i class="fa-solid fa-wifi"></i> Wi-Fi gratuito</span>
-                        <span><i class="fa-solid fa-tv"></i> TV Smart 55"</span>
-                        <span><i class="fa-solid fa-snowflake"></i> Ar condicionado</span>
-                        <span><i class="fa-solid fa-glass-water"></i> Frigobar</span>
-                        <span><i class="fa-solid fa-mug-hot"></i> Café incluído</span>
-                        <span><i class="fa-solid fa-bath"></i> Banheira</span>
+                        <span th:if="${quarto != null and quarto.aceitaPet}"><i class="fa-solid fa-paw"></i> Aceita PET</span>
+                        <span th:unless="${quarto != null and quarto.aceitaPet}"><i class="fa-solid fa-ban"></i> Não aceita PET</span>
                     </div>
                 </div>
 
                 <div class="room-comparison-box">
                     <h3>Compare preços em diferentes plataformas</h3>
                     <div class="offers-stack">
-                        
+
                         <div class="offer-card-row">
                             <div class="platform-meta">
                                 <span class="platform-logo-mock booking-color">B.com</span>
                                 <div>
                                     <h4>Booking.com <span class="badge-best-choice">Melhor preço</span></h4>
-                                    <p class="rating-sub text-blue"><i class="fa-solid fa-star"></i> 9.2 &nbsp;&bull;&nbsp; 1.240 avaliações</p>
-                                    <p class="perks-text">&check; Cancelamento grátis &nbsp;&bull;&nbsp; &check; Café da manhã incluso</p>
+                                    <p class="rating-sub text-blue"><i class="fa-solid fa-star"></i> 9.2
+                                        &nbsp;&bull;&nbsp; 1.240 avaliações</p>
+                                    <p class="perks-text">&check; Cancelamento grátis &nbsp;&bull;&nbsp; &check; Café da
+                                        manhã incluso</p>
                                 </div>
                             </div>
                             <div class="platform-pricing-action">
                                 <div class="price-stack">
                                     <span class="old-price">R$ 720</span>
-                                    <span class="current-price" th:text="${quarto != null ? 'R$ ' + quarto.precoNoite : 'R$ 0'}">R$ 0<small>/noite</small></span>
+                                    <span class="current-price"
+                                        th:text="${quarto != null ? 'R$ ' + quarto.preco : 'R$ 0'}">R$
+                                        0<small>/noite</small></span>
                                     <small class="tax-info">+ R$ 50 taxas</small>
                                 </div>
-                                <button class="btn-redirect-offer" data-url="https://www.booking.com">Ver oferta</button>
+                                <button class="btn-redirect-offer" data-url="https://www.booking.com">Ver
+                                    oferta</button>
                             </div>
                         </div>
 
@@ -93,7 +105,8 @@
                                 <span class="platform-logo-mock expedia-color">Expedia</span>
                                 <div>
                                     <h4>Expedia</h4>
-                                    <p class="rating-sub"><i class="fa-solid fa-star"></i> 8.8 &nbsp;&bull;&nbsp; 950 avaliações</p>
+                                    <p class="rating-sub"><i class="fa-solid fa-star"></i> 8.8 &nbsp;&bull;&nbsp; 950
+                                        avaliações</p>
                                     <p class="perks-text">&check; Cancelamento grátis</p>
                                 </div>
                             </div>
@@ -102,7 +115,8 @@
                                     <span class="current-price">R$ 680<small>/noite</small></span>
                                     <small class="tax-info">+ R$ 55 taxas</small>
                                 </div>
-                                <button class="btn-redirect-offer" data-url="https://www.expedia.com">Ver oferta</button>
+                                <button class="btn-redirect-offer" data-url="https://www.expedia.com">Ver
+                                    oferta</button>
                             </div>
                         </div>
 
@@ -111,7 +125,8 @@
                                 <span class="platform-logo-mock decolar-color">Decolar</span>
                                 <div>
                                     <h4>Decolar</h4>
-                                    <p class="rating-sub"><i class="fa-solid fa-star"></i> 8.5 &nbsp;&bull;&nbsp; 587 avaliações</p>
+                                    <p class="rating-sub"><i class="fa-solid fa-star"></i> 8.5 &nbsp;&bull;&nbsp; 587
+                                        avaliações</p>
                                     <p class="perks-text">&bull; Parcelamento 12x</p>
                                 </div>
                             </div>
@@ -120,35 +135,11 @@
                                     <span class="current-price">R$ 695<small>/noite</small></span>
                                     <small class="tax-info">+ R$ 60 taxas</small>
                                 </div>
-                                <button class="btn-redirect-offer" data-url="https://www.decolar.com">Ver oferta</button>
+                                <button class="btn-redirect-offer" data-url="https://www.decolar.com">Ver
+                                    oferta</button>
                             </div>
                         </div>
 
-                    </div>
-                </div>
-
-                <div class="room-history-box">
-                    <div class="history-header-row">
-                        <h3>Histórico de preços</h3>
-                        <span class="trend-indicator-green"><i class="fa-solid fa-arrow-trend-down"></i> Preço caiu 12% esta semana</span>
-                    </div>
-                    <div class="chart-container-mock">
-                        <div class="chart-y-axis">
-                            <span>700</span>
-                            <span>650</span>
-                            <span>600</span>
-                        </div>
-                        <div class="chart-canvas-area">
-                            <div class="chart-line-svg-fallback"></div>
-                            <span class="chart-dot dot1" data-price="R$ 690"></span>
-                            <span class="chart-dot dot2" data-price="R$ 670"></span>
-                            <span class="chart-dot dot3 active" data-price="R$ 650"></span>
-                        </div>
-                        <div class="chart-x-axis">
-                            <span>20/05</span>
-                            <span>21/05</span>
-                            <span>22/05</span>
-                        </div>
                     </div>
                 </div>
 
@@ -157,12 +148,14 @@
             <aside class="room-sticky-booking-sidebar">
                 <div class="sticky-price-box">
                     <small>Melhor preço encontrado</small>
-                    <h2 th:text="${quarto != null ? 'R$ ' + quarto.precoNoite : 'R$ 0'}">R$ 0<small>/noite</small></h2>
+                    <h2 th:text="${quarto != null ? 'R$ ' + quarto.preco : 'R$ 0'}">R$ 0<small>/noite</small></h2>
                     <p class="provider-tag">via Booking.com</p>
                 </div>
                 <div class="sticky-booking-form">
-                    <div class="auth-input-group"><label>Check-in / Check-out</label><input type="text" value="20/06/2026 - 25/06/2026" disabled></div>
-                    <div class="auth-input-group"><label>Hóspedes</label><input type="text" value="2 Hóspedes" disabled></div>
+                    <div class="auth-input-group"><label>Check-in / Check-out</label><input type="text"
+                            value="20/06/2026 - 25/06/2026" disabled></div>
+                    <div class="auth-input-group"><label>Hóspedes</label><input type="text" value="2 Hóspedes" disabled>
+                    </div>
                     <div class="booking-summary-calc">
                         <div class="calc-row"><span>R$ 650 x 3 noites</span><span>R$ 1.950</span></div>
                         <div class="calc-row"><span>Taxas e impostos</span><span>R$ 80</span></div>
@@ -170,7 +163,8 @@
                         <div class="calc-row total"><span>Total</span><span>R$ 2.030</span></div>
                     </div>
                     <button class="btn-checkout-redirect" id="btnMainRedirect">Ir para a página</button>
-                    <p class="secure-checkout-notice"><i class="fa-solid fa-shield-halved"></i> Melhor preço garantido &bull; Cancelamento grátis</p>
+                    <p class="secure-checkout-notice"><i class="fa-solid fa-shield-halved"></i> Melhor preço garantido
+                        &bull; Cancelamento grátis</p>
                 </div>
             </aside>
 
@@ -179,4 +173,5 @@
 
     <script th:src="@{/js/script.js}" src="/js/script.js"></script>
 </body>
+
 </html>

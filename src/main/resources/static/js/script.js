@@ -88,8 +88,18 @@ document.addEventListener("DOMContentLoaded", () => {
     const botoesVerOfertaQuarto = document.querySelectorAll(".btn-goToRoom");
     botoesVerOfertaQuarto.forEach(botao => {
         botao.addEventListener("click", (e) => {
-            const tipoQuarto = botao.getAttribute("data-room") || "deluxe";
-            gerenciarAcesso(e, `quarto.html?type=${tipoQuarto}`);
+            const numeroQuarto = botao.getAttribute("data-room");
+            const codigoHotel = botao.getAttribute("data-hotel");
+            
+            if (numeroQuarto && codigoHotel) {
+                window.location.href = `/quartos/hotel/${codigoHotel}/numero/${numeroQuarto}`;
+            } else {
+                if (typeof gerenciarAcesso === "function") {
+                    gerenciarAcesso(e, `quarto.html?type=${numeroQuarto || 'deluxe'}`);
+                } else {
+                    window.location.href = `quarto.html?type=${numeroQuarto || 'deluxe'}`;
+                }
+            }
         });
     });
 

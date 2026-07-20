@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css">
 </head>
+
 <body>
 
     <header class="navbar">
@@ -23,11 +25,12 @@
     </header>
 
     <main class="container hotel-page-layout">
-        
+
         <section class="hotel-gallery">
             <div class="gallery-main-wrapper">
                 <button class="gallery-nav prev"><i class="fa-solid fa-chevron-left"></i></button>
-                <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80" alt="Grand Luxury Hotel" id="mainGalleryImg">
+                <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80"
+                    alt="Grand Luxury Hotel" id="mainGalleryImg">
                 <button class="gallery-nav next"><i class="fa-solid fa-chevron-right"></i></button>
                 <div class="gallery-dots">
                     <span class="dot active"></span>
@@ -38,13 +41,16 @@
         </section>
 
         <div class="hotel-columns-grid">
-            
+
             <div class="hotel-details-column">
                 <div class="hotel-title-header" th:if="${hotel != null}" th:object="${hotel}">
                     <h1 th:text="*{nome}">Hotel</h1>
-                    <span class="rating-badge"><i class="fa-solid fa-star"></i> <span th:text="${mediaAvaliacoes != null ? #numbers.formatDecimal(mediaAvaliacoes, 1, 1) : '0.0'}">0.0</span></span>
+                    <span class="rating-badge"><i class="fa-solid fa-star"></i> <span
+                            th:text="${mediaAvaliacoes != null ? #numbers.formatDecimal(mediaAvaliacoes, 1, 1) : '0.0'}">0.0</span></span>
                 </div>
-                <p class="hotel-location-text" th:if="${hotel != null}" th:object="${hotel}"><i class="fa-solid fa-location-dot"></i> <span th:text="*{cidade}">Cidade</span>, <span th:text="*{estado}">UF</span></p>
+                <p class="hotel-location-text" th:if="${hotel != null}" th:object="${hotel}"><i
+                        class="fa-solid fa-location-dot"></i> <span th:text="*{localizacao.cidade}">Cidade</span>, <span
+                        th:text="*{localizacao.estado}">UF</span></p>
 
                 <div class="hotel-section-box">
                     <h3>Sobre este hotel</h3>
@@ -54,26 +60,30 @@
                 <div class="hotel-section-box">
                     <h3>Comodidades</h3>
                     <div class="amenities-features-grid">
-                        <span class="amenity-item-tag"><i class="fa-solid fa-wifi"></i> Wi-Fi gratuito</span>
-                        <span class="amenity-item-tag"><i class="fa-solid fa-mug-hot"></i> Café da manhã</span>
-                        <span class="amenity-item-tag"><i class="fa-solid fa-car"></i> Estacionamento</span>
-                        <span class="amenity-item-tag"><i class="fa-solid fa-wind"></i> Ar condicionado</span>
-                        <span class="amenity-item-tag"><i class="fa-solid fa-dumbbell"></i> Academia</span>
+                        <span class="amenity-item-tag" th:if="${aceitaPet}"><i class="fa-solid fa-paw"></i> Aceita
+                            PET</span>
+                        <span class="amenity-item-tag" th:unless="${aceitaPet}"><i class="fa-solid fa-ban"></i> Não
+                            aceita PET</span>
                     </div>
                 </div>
 
                 <div class="hotel-section-box">
                     <h3>Quartos disponíveis a partir de</h3>
                     <div class="rooms-list-container">
-                        
-                        <div class="room-row-item" th:each="quarto : ${quartos}" th:if="${quartos != null and !quartos.isEmpty()}" th:object="${quarto}">
+
+                        <div class="room-row-item" th:each="quarto : ${quartos}"
+                            th:if="${quartos != null and !quartos.isEmpty()}" th:object="${quarto}">
                             <div class="room-info-meta">
                                 <h4 th:text="*{tipo}">Quarto</h4>
-                                <p><i class="fa-solid fa-users"></i> <span th:text="*{capacidade}">0</span> pessoas &nbsp;&bull;&nbsp; <i class="fa-solid fa-vector-square"></i> Quarto <span th:text="*{numero}">0</span></p>
+                                <p><i class="fa-solid fa-users"></i> <span th:text="*{capacidade}">0</span> pessoas
+                                    &nbsp;&bull;&nbsp; <i class="fa-solid fa-vector-square"></i> Quarto <span
+                                        th:text="*{numero}">0</span></p>
                             </div>
                             <div class="room-price-action">
-                                <span class="room-row-price">R$ <span th:text="*{precoNoite}">0</span><small>/noite</small></span>
-                                <button class="btn-goToRoom" th:attr="data-room=*{id}">Ver ofertas</button>
+                                <span class="room-row-price">R$ <span
+                                        th:text="${#numbers.formatDecimal(quarto.preco, 1, 'POINT', 2, 'COMMA')}">0,00</span><small>/noite</small></span>
+                                <button class="btn-goToRoom"
+                                    th:attr="data-room=*{numero}, data-hotel=*{codigoHotel}">Ver ofertas</button>
                             </div>
                         </div>
 
@@ -84,88 +94,88 @@
                             </div>
                         </div>
 
-                        <div class="room-row-item">
-                            <div class="room-info-meta">
-                                <h4>Quarto Deluxe</h4>
-                                <p><i class="fa-solid fa-users"></i> 3 pessoas &nbsp;&bull;&nbsp; <i class="fa-solid fa-vector-square"></i> 45m²</p>
-                            </div>
-                            <div class="room-price-action">
-                                <span class="room-row-price">R$ 650<small>/noite</small></span>
-                                <button class="btn-goToRoom" data-room="deluxe">Ver ofertas</button>
-                            </div>
-                        </div>
 
-                        <div class="room-row-item">
-                            <div class="room-info-meta">
-                                <h4>Suite Master</h4>
-                                <p><i class="fa-solid fa-users"></i> 4 pessoas &nbsp;&bull;&nbsp; <i class="fa-solid fa-vector-square"></i> 68m²</p>
-                            </div>
-                            <div class="room-price-action">
-                                <span class="room-row-price">R$ 980<small>/noite</small></span>
-                                <button class="btn-goToRoom" data-room="master">Ver ofertas</button>
-                            </div>
-                        </div>
 
                     </div>
                 </div>
 
                 <div class="hotel-section-box">
-                    <div class="reviews-section-header">
-                        <h3>Avaliações</h3>
-                        <button class="btn-write-review">Escrever avaliação</button>
+                    <div class="header">
+                        <h2>Avaliações</h2>
+                        <button>Escrever avaliação</button>
                     </div>
-                    <div class="comments-stack">
-                        <div class="comment-card-item" th:each="avaliacao : ${avaliacoes}" th:if="${avaliacoes != null and !avaliacoes.isEmpty()}" th:object="${avaliacao}">
-                            <div class="comment-user-row">
-                                <span class="user-avatar-sm">MS</span>
-                                <div>
-                                    <h5 th:text="*{idUsuario}">Usuário</h5>
-                                    <span class="stars-gold"><i class="fa-solid fa-star"></i><span th:text="*{nota}">0</span></span>
-                                </div>
-                                <span class="comment-date" th:text="*{dataCriacao}">Data</span>
-                            </div>
-                            <p class="comment-text-body" th:text="*{comentario}">Comentário</p>
-                        </div>
 
-                        <div class="comment-card-item" th:if="${avaliacoes == null or avaliacoes.isEmpty()}">
-                            <p class="comment-text-body">Ainda não há avaliações para este hotel.</p>
+                    <div class="review">
+                        <div class="avatar">Mr</div>
+
+                        <div class="content">
+                            <div class="top">
+                                <div>
+                                    <h3>Maria Silva</h3>
+                                    <div class="stars">★★★★★</div>
+                                </div>
+
+                                <span class="date">2026-05-10</span>
+                            </div>
+
+                            <p>
+                                Experiência incrível! O hotel superou todas as expectativas.
+                                Quartos espaçosos, equipe atenciosa e localização perfeita.
+                            </p>
                         </div>
+                    </div>
+
+                    <div class="review">
+                        <div class="avatar">J</div>
+
+                        <div class="content">
+                            <div class="top">
+                                <div>
+                                    <h3>João Santos</h3>
+                                    <div class="stars">★★★★☆</div>
+                                </div>
+
+                                <span class="date">2026-05-08</span>
+                            </div>
+
+                            <p>
+                                Muito bom! Apenas o café da manhã poderia ter mais opções,
+                                mas no geral recomendo.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="review">
+                        <div class="avatar">AC</div>
+
+                        <div class="content">
+                            <div class="top">
+                                <div>
+                                    <h3>Ana Costa</h3>
+                                    <div class="stars">★★★★★</div>
+                                </div>
+
+                                <span class="date">2026-05-05</span>
+                            </div>
+
+                            <p>
+                                Simplesmente perfeito! Voltarei com certeza.
+                            </p>
+                        </div>
+                    </div>
+
+
+                    <div class="comment-card-item" th:if="${avaliacoes == null or avaliacoes.isEmpty()}">
+                        <p class="comment-text-body">Ainda não há avaliações para este hotel.</p>
                     </div>
                 </div>
             </div>
-
-            <aside class="hotel-sticky-booking-sidebar">
-                <div class="sticky-price-box">
-                    <small>A partir de</small>
-                    <h2>R$ 450 <small>/noite</small></h2>
-                    <span class="promo-pill-green">Economize 15%</span>
-                </div>
-                <form class="sticky-booking-form">
-                    <div class="auth-input-group">
-                        <label>Check-in</label>
-                        <input type="date" value="2026-06-20">
-                    </div>
-                    <div class="auth-input-group">
-                        <label>Check-out</label>
-                        <input type="date" value="2026-06-25">
-                    </div>
-                    <div class="auth-input-group">
-                        <label>Hóspedes</label>
-                        <input type="number" value="2" min="1">
-                    </div>
-                    
-                    <div class="booking-summary-calc">
-                        <div class="calc-row"><span>R$ 450 x 5 noites</span><span>R$ 2.250</span></div>
-                        <div class="calc-row"><span>Taxa de serviço</span><span>R$ 80</span></div>
-                        <hr>
-                        <div class="calc-row total"><span>Total estimado</span><span>R$ 2.330</span></div>
-                    </div>
-                </form>
-            </aside>
+        </div>
 
         </div>
     </main>
 
     <script th:src="@{/js/script.js}" src="/js/script.js"></script>
 </body>
+
 </html>

@@ -5,6 +5,7 @@ import com.bahvago.model.Oferta;
 import com.bahvago.service.HotelService;
 import com.bahvago.service.AvaliacaoService;
 import com.bahvago.service.OfertaService;
+import com.bahvago.service.QuartoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,6 +27,9 @@ public class HotelController {
 
     @Autowired
     private OfertaService ofertaService;
+
+    @Autowired
+    private QuartoService quartoService;
 
     @GetMapping
     public String listarHoteis(Model model) {
@@ -58,9 +62,16 @@ public class HotelController {
         Hotel hotel = hotelService.buscarPorId(id)
                 .orElseThrow(() -> new RuntimeException("Hotel não encontrado"));
         Double mediaAvaliacoes = avaliacaoService.calcularMediaAvaliacoes(id);
+        
+        List<com.bahvago.model.Quarto> quartos = quartoService.buscarPorHotel(id.longValue());
+        boolean aceitaPet = quartos.stream().anyMatch(q -> Boolean.TRUE.equals(q.getAceitaPet()));
+        
         model.addAttribute("hotel", hotel);
         model.addAttribute("mediaAvaliacoes", mediaAvaliacoes);
         model.addAttribute("avaliacoes", avaliacaoService.buscarPorHotel(id));
+        model.addAttribute("quartos", quartos);
+        model.addAttribute("aceitaPet", aceitaPet);
+        
         return "hotel";
     }
 
