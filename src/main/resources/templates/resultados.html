@@ -129,7 +129,7 @@
                         <span class="badge-discount">-15%</span>
                         <button class="btn-heart"
                                 th:if="${ofertasPorHotel != null and ofertasPorHotel[hotel.id] != null}"
-                                th:attr="data-codigo-oferta=${ofertasPorHotel[hotel.id]}">
+                                th:attr="data-codigo-oferta=${ofertasPorHotel[hotel.id].id}">
                             <i class="fa-regular fa-heart"></i>
                         </button>
                     </div>
@@ -144,7 +144,7 @@
                             <span class="reviews">Resultado do banco</span>
                             <div class="price-box">
                                 <small>a partir de</small>
-                                <span class="price">R$ <span th:text="${hotel.id}">0</span><small>/noite</small></span>
+                                <span class="price">R$ <span th:text="${ofertasPorHotel != null and ofertasPorHotel[hotel.id] != null ? #numbers.formatDecimal(ofertasPorHotel[hotel.id].preco, 1, 'POINT', 2, 'COMMA') : '-'}">-</span><small>/noite</small></span>
                             </div>
                         </div>
                     </div>

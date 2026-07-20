@@ -1,6 +1,7 @@
 package com.bahvago.controller;
 
 import com.bahvago.model.Hotel;
+import com.bahvago.model.Oferta;
 import com.bahvago.service.HotelService;
 import com.bahvago.service.OfertaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +70,7 @@ public class HomeController {
         return "login-hoteleiro";
     }
 
-    private Map<Integer, Integer> mapOfertasPorHotel(List<Hotel> hoteis) {
+    private Map<Integer, Oferta> mapOfertasPorHotel(List<Hotel> hoteis) {
         List<Integer> ids = hoteis.stream().map(Hotel::getId).collect(Collectors.toList());
         return ofertaService.mapOfertaPrincipalPorHotel(ids);
     }

@@ -28,11 +28,11 @@ public class OfertaService {
         return ofertaRepository.findFirstByCodigoHotelOrderByPrecoAsc(codigoHotel);
     }
 
-    public Map<Integer, Integer> mapOfertaPrincipalPorHotel(List<Integer> codigosHotel) {
-        Map<Integer, Integer> mapa = new HashMap<>();
+    public Map<Integer, Oferta> mapOfertaPrincipalPorHotel(List<Integer> codigosHotel) {
+        Map<Integer, Oferta> mapa = new HashMap<>();
         for (Integer codigoHotel : codigosHotel) {
             buscarOfertaPrincipalPorHotel(codigoHotel)
-                .ifPresent(oferta -> mapa.put(codigoHotel, oferta.getId()));
+                .ifPresent(oferta -> mapa.put(codigoHotel, oferta));
         }
         return mapa;
     }

@@ -136,7 +136,7 @@
                     <a href="#" th:href="@{/hoteis/{id}(id=*{id})}"><img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=500&q=80" alt="Hotel"></a>
                     <button class="btn-heart"
                             th:if="${ofertasPorHotel != null and ofertasPorHotel[hotel.id] != null}"
-                            th:attr="data-codigo-oferta=${ofertasPorHotel[hotel.id]}">
+                            th:attr="data-codigo-oferta=${ofertasPorHotel[hotel.id].id}">
                         <i class="fa-regular fa-heart"></i>
                     </button>
                 </div>
@@ -152,7 +152,7 @@
                         <span class="reviews" th:text="${hotel.avaliacaoMedia != null ? 'Avaliação média' : 'Sem avaliações'}">Sem avaliações</span>
                         <div class="price-box">
                             <small>a partir de</small>
-                            <span class="price">R$ <span th:text="${200 + hotel.id}">0</span><small>/noite</small></span>
+                            <span class="price">R$ <span th:text="${ofertasPorHotel != null and ofertasPorHotel[hotel.id] != null ? #numbers.formatDecimal(ofertasPorHotel[hotel.id].preco, 1, 'POINT', 2, 'COMMA') : '-'}">-</span><small>/noite</small></span>
                         </div>
                     </div>
                 
