@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
             credentials: "same-origin"
         });
     };
-    
+
     // Verifica se existe a marcação de login salvo no localStorage do navegador
     const usuarioEstaLogado = localStorage.getItem('hotelhub_logged') === 'true';
     const adminEstaLogado = localStorage.getItem('hotelhub_admin_logged') === 'true';
@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const navActionsSearch = document.getElementById("navActionsSearch");
     const navActionsHotel = document.getElementById("navActionsHotel");
     const navActionsRoom = document.getElementById("navActionsRoom");
-    
+
     // Agrupa todos os alvos possíveis de navbar das novas telas
     const targetNav = navActionsSearch || navActionsHotel || navActionsRoom || navActions;
 
@@ -71,14 +71,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Form de busca da Home -> Resultados
+    // Form de busca da Home (Agora usa a action padrão HTML para o backend)
     const formularioBusca = document.getElementById("mainSearchForm");
-    if (formularioBusca) {
-        formularioBusca.addEventListener("submit", (e) => {
-            e.preventDefault();
-            window.location.href = "resultados.html"; 
-        });
-    }
 
     // Clique nos Cards de Hotel (Geral) -> Abre página do Hotel
     const cardsHoteis = document.querySelectorAll(".hotel-card");
@@ -104,16 +98,16 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==========================================
     const urlParams = new URLSearchParams(window.location.search);
     const quartoTipo = urlParams.get('type');
-    
+
     const labelBread = document.getElementById("breadRoomName");
     const labelTitle = document.getElementById("roomMainTitle");
 
     if (quartoTipo && labelTitle) {
         if (quartoTipo === "standard") {
-            if(labelBread) labelBread.textContent = "Quarto Standard";
+            if (labelBread) labelBread.textContent = "Quarto Standard";
             labelTitle.textContent = "Quarto Standard";
         } else if (quartoTipo === "master") {
-            if(labelBread) labelBread.textContent = "Suite Master";
+            if (labelBread) labelBread.textContent = "Suite Master";
             labelTitle.textContent = "Suite Master";
         }
     }
@@ -388,9 +382,9 @@ document.addEventListener("DOMContentLoaded", () => {
         botao.addEventListener("click", () => {
             const containerForm = botao.closest(".admin-reply-form-zone");
             const caixaTexto = containerForm ? containerForm.querySelector("textarea") : null;
-            
+
             if (caixaTexto && caixaTexto.value.trim() !== "") {
-                caixaTexto.value = ""; 
+                caixaTexto.value = "";
                 const cardReview = botao.closest(".admin-review-item-box");
                 const badgeStatus = cardReview ? cardReview.querySelector(".status-pill") : null;
                 if (badgeStatus) {
@@ -419,7 +413,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const galleryNavNext = document.querySelector(".gallery-nav.next");
     const galleryDots = document.querySelectorAll(".gallery-dots .dot");
     const mainGalleryImg = document.getElementById("mainGalleryImg");
-    
+
     if (galleryNavPrev && galleryNavNext && mainGalleryImg) {
         const imagens = [
             "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80",
@@ -427,7 +421,7 @@ document.addEventListener("DOMContentLoaded", () => {
             "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1200&q=80"
         ];
         let indiceAtual = 0;
-        
+
         const atualizarGaleria = () => {
             mainGalleryImg.src = imagens[indiceAtual];
             galleryDots.forEach((dot, index) => {
@@ -438,17 +432,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             });
         };
-        
+
         galleryNavPrev.addEventListener("click", () => {
             indiceAtual = (indiceAtual - 1 + imagens.length) % imagens.length;
             atualizarGaleria();
         });
-        
+
         galleryNavNext.addEventListener("click", () => {
             indiceAtual = (indiceAtual + 1) % imagens.length;
             atualizarGaleria();
         });
-        
+
         galleryDots.forEach((dot, index) => {
             dot.addEventListener("click", () => {
                 indiceAtual = index;
@@ -484,7 +478,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==========================================
     const checkboxesComodidades = document.querySelectorAll(".admin-checkbox-list-stack input[type='checkbox']");
     checkboxesComodidades.forEach(checkbox => {
-        checkbox.addEventListener("change", function() {
+        checkbox.addEventListener("change", function () {
             // Aqui você pode adicionar lógica para salvar automaticamente
             console.log("Comodidade alterada:", this.nextElementSibling.textContent);
         });
@@ -498,21 +492,126 @@ document.addEventListener("DOMContentLoaded", () => {
         uploadDropzone.addEventListener("click", () => {
             alert("Funcionalidade de upload seria aberta aqui!");
         });
-        
+
         uploadDropzone.addEventListener("dragover", (e) => {
             e.preventDefault();
             uploadDropzone.style.borderColor = "var(--accent-blue)";
         });
-        
+
         uploadDropzone.addEventListener("dragleave", () => {
             uploadDropzone.style.borderColor = "rgba(255,255,255,0.12)";
         });
-        
+
         uploadDropzone.addEventListener("drop", (e) => {
             e.preventDefault();
             uploadDropzone.style.borderColor = "rgba(255,255,255,0.12)";
             alert("Arquivos soltos! Upload seria iniciado.");
         });
+    }
+
+    // ==========================================
+    // 5. FILTROS E ORDENAÇÃO DE RESULTADOS
+    // ==========================================
+    const filtersForm = document.getElementById("filtersForm");
+    const sortSelect = document.getElementById("sortSelect");
+    const hotelsGrid = document.getElementById("hotelsGrid");
+    const priceRange = document.getElementById("priceRange");
+    const priceRangeMax = document.getElementById("priceRangeMax");
+    const clearFiltersBtn = document.getElementById("clearFilters");
+
+    if (hotelsGrid && (filtersForm || sortSelect)) {
+        const allCards = Array.from(hotelsGrid.querySelectorAll(".hotel-card"));
+
+        const applyFiltersAndSort = () => {
+            const maxPrice = priceRange ? parseFloat(priceRange.value) : Infinity;
+
+            const ratingCheckboxes = document.querySelectorAll('input[data-filter="rating"]:checked');
+            const selectedRatings = Array.from(ratingCheckboxes).map(cb => parseFloat(cb.value));
+
+            let visibleCards = allCards.filter(card => {
+                const price = parseFloat(card.getAttribute("data-price"));
+                const rating = parseFloat(card.getAttribute("data-rating"));
+
+                if (price > maxPrice) return false;
+
+                if (selectedRatings.length > 0) {
+                    const minSelectedRating = Math.min(...selectedRatings);
+                    if (rating < minSelectedRating) return false;
+                }
+
+                return true;
+            });
+
+            if (sortSelect) {
+                const sortValue = sortSelect.value;
+                visibleCards.sort((a, b) => {
+                    const priceA = parseFloat(a.getAttribute("data-price"));
+                    const priceB = parseFloat(b.getAttribute("data-price"));
+                    const ratingA = parseFloat(a.getAttribute("data-rating"));
+                    const ratingB = parseFloat(b.getAttribute("data-rating"));
+
+                    if (sortValue === "preco_asc") return priceA - priceB;
+                    if (sortValue === "preco_desc") return priceB - priceA;
+                    if (sortValue === "avaliacao") return ratingB - ratingA;
+                    return 0;
+                });
+            }
+
+            allCards.forEach(card => card.style.display = "none");
+            visibleCards.forEach(card => {
+                card.style.display = "";
+                hotelsGrid.appendChild(card);
+            });
+
+            const resultsCount = document.querySelector(".results-count");
+            if (resultsCount) {
+                resultsCount.textContent = `${visibleCards.length} ${visibleCards.length === 1 ? 'opção encontrada' : 'opções encontradas'}`;
+            }
+
+            const emptyState = document.querySelector(".empty-search-state");
+            if (emptyState) {
+                if (visibleCards.length === 0) {
+                    emptyState.style.display = "flex";
+                } else {
+                    emptyState.style.display = "none";
+                }
+            } else if (visibleCards.length === 0) {
+                const emptyHTML = document.createElement("div");
+                emptyHTML.className = "empty-search-state";
+                emptyHTML.innerHTML = `
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <h3>Nenhum hotel encontrado</h3>
+                    <p>Nenhum hotel corresponde aos filtros selecionados.</p>
+                    <button class="btn-primary" onclick="document.getElementById('clearFilters').click()">Limpar Filtros</button>
+                `;
+                hotelsGrid.appendChild(emptyHTML);
+            }
+        };
+
+        if (filtersForm) {
+            filtersForm.addEventListener("submit", (e) => {
+                e.preventDefault();
+                applyFiltersAndSort();
+            });
+
+            if (priceRange && priceRangeMax) {
+                priceRange.addEventListener("input", (e) => {
+                    priceRangeMax.textContent = `R$ ${e.target.value}`;
+                });
+            }
+
+            if (clearFiltersBtn) {
+                clearFiltersBtn.addEventListener("click", () => {
+                    filtersForm.reset();
+                    if (priceRangeMax) priceRangeMax.textContent = `R$ ${priceRange ? priceRange.max : 5000}+`;
+                    applyFiltersAndSort();
+                });
+            }
+        }
+
+        if (sortSelect) {
+            sortSelect.addEventListener("change", applyFiltersAndSort);
+        }
     }
 
     console.log("HotelHub - Sistema inicializado com sucesso! 🚀");
