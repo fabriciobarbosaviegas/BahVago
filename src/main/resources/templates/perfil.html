@@ -18,7 +18,7 @@
             </div>
             <nav class="nav-actions-logged">
                 <a href="/favoritos/usuario/1" class="nav-icon-link" title="Favoritos"><i class="fa-regular fa-heart"></i></a>
-                <a href="/usuarios/perfil/1" class="nav-icon-link active" title="Minha Conta"><i class="fa-regular fa-user"></i></a>
+                <a href="/usuarios/perfil" class="nav-icon-link active" title="Minha Conta"><i class="fa-regular fa-user"></i></a>
                 <button id="btnLogoutTop" class="btn-logout-icon" title="Sair"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
             </nav>
         </div>
@@ -30,19 +30,16 @@
         <!-- Painel Lateral Esquerdo (Menu de Abas) -->
         <aside class="profile-sidebar">
             <div class="profile-avatar-box">
-                <div class="avatar-large">PO</div>
-                <h3>Pedro Oliveira</h3>
-                <p>pedro@email.com</p>
+                <div class="avatar-large" th:text="${#strings.substring(usuario.nome, 0, 1)}">U</div>
+                <h3 th:text="${usuario.nome}">Nome Usuario</h3>
+                <p th:text="${usuario.email}">email@exemplo.com</p>
             </div>
             <nav class="profile-tabs">
-                <button class="tab-btn active" data-tab="pessoais">
+                <button class="tab-btn" th:classappend="${abaAtiva == null || abaAtiva == 'pessoais'} ? ' active'" data-tab="pessoais">
                     <i class="fa-regular fa-user"></i> Informações pessoais
                 </button>
-                <button class="tab-btn" data-tab="seguranca">
+                <button class="tab-btn" th:classappend="${abaAtiva == 'seguranca'} ? ' active'" data-tab="seguranca">
                     <i class="fa-solid fa-lock"></i> Segurança
-                </button>
-                <button class="tab-btn" data-tab="notificacoes">
-                    <i class="fa-regular fa-bell"></i> Notificações
                 </button>
             </nav>
         </aside>
@@ -51,99 +48,66 @@
         <section class="profile-content-box">
             
             <!-- ABA 1: INFORMAÇÕES PESSOAIS -->
-            <div class="tab-content active" id="tab-pessoais">
+            <div class="tab-content" th:classappend="${abaAtiva == null || abaAtiva == 'pessoais'} ? ' active'" id="tab-pessoais">
                 <h2>Informações pessoais</h2>
-                <form class="profile-form">
+                <div th:if="${mensagemPerfil}" class="auth-input-group">
+                    <p th:text="${mensagemPerfil}" style="color: #0a7b34; margin: 0; font-size: 0.9rem;"></p>
+                </div>
+
+                <form class="profile-form" th:action="@{/usuarios/perfil}" th:object="${atualizarPerfilForm}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                     <div class="form-grid-2">
                         <div class="auth-input-group">
                             <label><i class="fa-regular fa-user"></i> Nome completo</label>
-                            <input type="text" value="Pedro Oliveira">
+                            <input type="text" th:field="*{nome}" maxlength="120" required>
+                            <small th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}" style="color: #cc0000;"></small>
                         </div>
                         <div class="auth-input-group">
                             <label><i class="fa-regular fa-envelope"></i> E-mail</label>
-                            <input type="email" value="pedro@email.com">
-                        </div>
-                        <div class="auth-input-group">
-                            <label><i class="fa-solid fa-phone"></i> Telefone</label>
-                            <input type="tel" value="+55 53 98165-4321">
+                            <input type="email" th:field="*{email}" maxlength="255" required>
+                            <small th:if="${#fields.hasErrors('email')}" th:errors="*{email}" style="color: #cc0000;"></small>
                         </div>
                         <div class="auth-input-group">
                             <label><i class="fa-regular fa-address-card"></i> CPF</label>
-                            <input type="text" value="123.456.789-00">
-                        </div>
-                    </div>
-
-                    <h3 class="form-section-title">Endereço</h3>
-                    <div class="auth-input-group">
-                        <label>Rua</label>
-                        <input type="text" value="Rua dos bobos">
-                    </div>
-                    <div class="form-grid-2">
-                        <div class="auth-input-group">
-                            <label>Número</label>
-                            <input type="text" value="01">
-                        </div>
-                        <div class="auth-input-group">
-                            <label>Complemento</label>
-                            <input type="text" value="Apto 670">
-                        </div>
-                        <div class="auth-input-group">
-                            <label>Bairro</label>
-                            <input type="text" value="Porto">
-                        </div>
-                        <div class="auth-input-group">
-                            <label>Cidade</label>
-                            <input type="text" value="Pelotas">
-                        </div>
-                        <div class="auth-input-group">
-                            <label>Estado</label>
-                            <input type="text" value="RS">
-                        </div>
-                        <div class="auth-input-group">
-                            <label>CEP</label>
-                            <input type="text" value="00000-000">
+                            <input type="text" th:value="${usuario.cpf}" disabled>
                         </div>
                     </div>
 
                     <div class="form-actions">
                         <button type="submit" class="btn-save">Salvar alterações</button>
-                        <button type="button" class="btn-cancel" onclick="window.location.href='index.html'">Cancelar</button>
+                        <button type="button" class="btn-cancel" onclick="window.location.href='/'">Cancelar</button>
                     </div>
                 </form>
             </div>
 
             <!-- ABA 2: SEGURANÇA -->
-            <div class="tab-content" id="tab-seguranca">
+            <div class="tab-content" th:classappend="${abaAtiva == 'seguranca'} ? ' active'" id="tab-seguranca">
                 <h2>Segurança da Conta</h2>
                 <p class="section-desc">Gerencie suas credenciais de acesso, senhas e integridade do seu perfil.</p>
+
+                <div th:if="${mensagemSenha}" class="auth-input-group">
+                    <p th:text="${mensagemSenha}" style="color: #0a7b34; margin: 0; font-size: 0.9rem;"></p>
+                </div>
                 
-                <form class="profile-form">
+                <form class="profile-form" th:action="@{/usuarios/perfil/senha}" th:object="${alterarSenhaForm}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                     <h3 class="form-section-title">Alterar Senha</h3>
                     <div class="auth-input-group">
                         <label>Senha atual</label>
-                        <input type="password" placeholder="••••••••">
+                        <input type="password" th:field="*{senhaAtual}" placeholder="********" autocomplete="current-password" required>
+                        <small th:if="${#fields.hasErrors('senhaAtual')}" th:errors="*{senhaAtual}" style="color: #cc0000;"></small>
                     </div>
                     <div class="form-grid-2">
                         <div class="auth-input-group">
                             <label>Nova senha</label>
-                            <input type="password" placeholder="Mínimo 8 caracteres">
+                            <input type="password" th:field="*{novaSenha}" placeholder="Minimo 8 caracteres" autocomplete="new-password" required>
+                            <small th:if="${#fields.hasErrors('novaSenha')}" th:errors="*{novaSenha}" style="color: #cc0000;"></small>
                         </div>
                         <div class="auth-input-group">
                             <label>Confirmar nova senha</label>
-                            <input type="password" placeholder="Repita a nova senha">
+                            <input type="password" th:field="*{confirmarNovaSenha}" placeholder="Repita a nova senha" autocomplete="new-password" required>
+                            <small th:if="${#fields.hasErrors('confirmarNovaSenha')}" th:errors="*{confirmarNovaSenha}" style="color: #cc0000;"></small>
                         </div>
-                    </div>
-
-                    <h3 class="form-section-title">Verificação em duas etapas (2FA)</h3>
-                    <div class="security-toggle-row">
-                        <div>
-                            <h4>Proteger conta com código SMS/E-mail</h4>
-                            <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Exigir um código de verificação a cada novo login efetuado.</p>
-                        </div>
-                        <label class="switch">
-                            <input type="checkbox" checked>
-                            <span class="slider"></span>
-                        </label>
                     </div>
 
                     <div class="form-actions" style="margin-top: 30px;">
@@ -156,45 +120,20 @@
                 <div class="danger-zone">
                     <h3>Zona de Perigo</h3>
                     <p>Uma vez excluída, todos os históricos de hospedagem e dados da sua conta serão apagados permanentemente.</p>
-                    <button type="button" id="btnDeleteAccount" class="btn-danger">Excluir minha conta</button>
+                    <form th:action="@{/usuarios/deletar}" method="post" onsubmit="return confirm('Tem certeza que deseja excluir sua conta? Esta acao nao pode ser desfeita.');">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                        <button type="submit" id="btnDeleteAccount" class="btn-danger">Excluir minha conta</button>
+                    </form>
                 </div>
             </div>
-
-            <!-- ABA 3: NOTIFICAÇÕES -->
-            <div class="tab-content" id="tab-notificacoes">
-                <h2>Notificações</h2>
-                <p class="section-desc">Escolha quais alertas você deseja receber sobre ofertas, preços e atualizações do BahVago.</p>
-
-                <div class="notifications-list">
-                    <div class="notification-item-toggle">
-                        <div>
-                            <h4>Alertas de redução de preço</h4>
-                            <p>Receba avisos quando hotéis na sua lista de desejos sofrerem quedas de preço.</p>
-                        </div>
-                        <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
-                    </div>
-
-                    <div class="notification-item-toggle">
-                        <div>
-                            <h4>Ofertas exclusivas da temporada</h4>
-                            <p>Promoções de hotéis com até 40% de desconto para feriados e finais de semana.</p>
-                        </div>
-                        <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
-                    </div>
-
-                    <div class="notification-item-toggle">
-                        <div>
-                            <h4>Boletim informativo (Newsletter)</h4>
-                            <p>Dicas de viagem e novos hotéis adicionados à plataforma mensalmente.</p>
-                        </div>
-                        <label class="switch"><input type="checkbox"><span class="slider"></span></label>
-                    </div>
-                </div>
-            </div>
-
         </section>
     </main>
 
     <script th:src="@{/js/script.js}" src="/js/script.js"></script>
+    <script>
+        document.querySelector('#btnDeleteAccount').addEventListener('click', () => {
+            localStorage.setItem('hotelhub_logged','false');
+        });
+    </script>
 </body>
 </html>

@@ -5,6 +5,7 @@ import com.bahvago.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -38,8 +39,8 @@ public class UsuarioService {
         return usuarioRepository.save(usuario);
     }
 
-    public Optional<Usuario> buscarPorId(Long id) {
-        return usuarioRepository.findById(id);
+    public Optional<Usuario> buscarPorCpf(String cpf) {
+        return usuarioRepository.findById(normalizarCpf(cpf));
     }
 
     public Optional<Usuario> buscarPorEmail(String email) {
@@ -67,8 +68,12 @@ public class UsuarioService {
         return usuarioRepository.save(usuario);
     }
 
-    public void deletarUsuario(Long id) {
-        usuarioRepository.deleteById(id);
+    public boolean senhaConfere(String senhaEmTextoPlano, String senhaHash) {
+        return passwordEncoder.matches(senhaEmTextoPlano, senhaHash);
+    }
+
+    public void deletarUsuario(String cpf) {
+        usuarioRepository.deleteById(normalizarCpf(cpf));
     }
 
     public boolean existeEmail(String email) {

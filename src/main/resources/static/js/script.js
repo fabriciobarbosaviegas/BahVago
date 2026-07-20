@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
         targetNav.className = "nav-actions-logged";
         targetNav.innerHTML = `
             <a href="favoritos.html" class="nav-icon-link" title="Favoritos"><i class="fa-regular fa-heart"></i></a>
-            <a href="perfil.html" class="nav-icon-link" title="Minha Conta"><i class="fa-regular fa-user"></i></a>
+            <a href="/usuarios/perfil" class="nav-icon-link" title="Minha Conta"><i class="fa-regular fa-user"></i></a>
             <button id="btnLogoutTop" class="btn-logout-icon" title="Sair"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
         `;
     }

@@ -27,9 +27,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             .orElseThrow(() -> new UsernameNotFoundException("Usuario nao encontrado"));
 
         Integer tipoUsuario = usuario.getTipoUsuario();
-        String role = "ROLE_" + (tipoUsuario == null || tipoUsuario == 0
-            ? 0
-            : 0);
+        String role = (tipoUsuario != null && tipoUsuario == 1) ? "ROLE_HOTELEIRO" : "ROLE_USUARIO";
 
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(role));
 
