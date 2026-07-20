@@ -1,10 +1,19 @@
 package com.bahvago.service;
 
-import com.bahvago.model.Favorito;
-import com.bahvago.model.FavoritoId;
-import com.bahvago.repository.FavoritoRepository;
+import com.bahvago.controller.dto.OfertaSalvaView;
+import com.bahvago.model.Hotel;
+import com.bahvago.model.Oferta;
+import com.bahvago.model.Quarto;
+import com.bahvago.model.QuartoId;
+import com.bahvago.model.Salva;
+import com.bahvago.repository.OfertaRepository;
+import com.bahvago.repository.QuartoRepository;
+import com.bahvago.repository.SalvaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,29 +21,78 @@ import java.util.Optional;
 public class FavoritoService {
 
     @Autowired
-    private FavoritoRepository favoritoRepository;
+    private SalvaRepository salvaRepository;
 
-    public Favorito adicionarFavorito(Favorito favorito) {
-        return favoritoRepository.save(favorito);
+    @Autowired
+    private OfertaRepository ofertaRepository;
+
+    @Autowired
+    private QuartoRepository quartoRepository;
+
+    public List<Integer> listarCodigosOfertaPorUsuario(String cpf) {
+        return salvaRepository.findCodigosOfertaByCpf(cpf);
     }
 
-    public void removerFavorito(FavoritoId id) {
-        favoritoRepository.deleteById(id);
+    public boolean isSalva(String cpf, Integer codigoOferta) {
+        return salvaRepository.existsByCpfAndCodigoOferta(cpf, codigoOferta);
     }
 
-    public void removerFavoritoPorUsuarioEHotel(String cpf, Integer codigoHotel) {
-        favoritoRepository.deleteById(new FavoritoId(cpf, codigoHotel));
+    @Transactional
+    public boolean alternar(String cpf, Integer codigoOferta) {
+        if (!ofertaRepository.existsById(codigoOferta)) {
+            throw new RuntimeException("Oferta nao encontrada");
+        }
+
+        if (salvaRepository.existsByCpfAndCodigoOferta(cpf, codigoOferta)) {
+            salvaRepository.deleteByCpfAndCodigoOferta(cpf, codigoOferta);
+            return false;
+        }
+
+        salvaRepository.save(Salva.builder()
+            .cpf(cpf)
+            .codigoOferta(codigoOferta)
+            .build());
+        return true;
     }
 
-    public List<Favorito> buscarFavoritosPorUsuario(String cpf) {
-        return favoritoRepository.findByIdCpf(cpf);
+    @Transactional
+    public void remover(String cpf, Integer codigoOferta) {
+        salvaRepository.deleteByCpfAndCodigoOferta(cpf, codigoOferta);
     }
 
-    public boolean isFavorito(String cpf, Integer codigoHotel) {
-        return favoritoRepository.existsByIdCpfAndIdCodigoHotel(cpf, codigoHotel);
-    }
+    @Transactional(readOnly = true)
+    public List<OfertaSalvaView> listarOfertasSalvas(String cpf) {
+        List<Salva> salvas = salvaRepository.findByCpf(cpf);
+        List<OfertaSalvaView> views = new ArrayList<>();
 
-    public Optional<Favorito> buscarFavorito(String cpf, Integer codigoHotel) {
-        return favoritoRepository.findByIdCpfAndIdCodigoHotel(cpf, codigoHotel);
+        for (Salva salva : salvas) {
+            Optional<Oferta> ofertaOpt = ofertaRepository.findById(salva.getCodigoOferta());
+            if (ofertaOpt.isEmpty()) {
+                continue;
+            }
+
+            Oferta oferta = ofertaOpt.get();
+            Hotel hotel = oferta.getHotel();
+            String tipoQuarto = quartoRepository.findById(
+                new QuartoId(oferta.getNumero(), oferta.getCodigoHotel().longValue())
+            ).map(Quarto::getTipo).orElse("Quarto");
+
+            views.add(OfertaSalvaView.builder()
+                .codigoOferta(oferta.getId())
+                .codigoHotel(oferta.getCodigoHotel())
+                .nomeHotel(hotel != null ? hotel.getNome() : "Hotel")
+                .cidade(hotel != null && hotel.getLocalizacao() != null ? hotel.getLocalizacao().getCidade() : "")
+                .estado(hotel != null && hotel.getLocalizacao() != null ? hotel.getLocalizacao().getEstado() : "")
+                .avaliacaoMedia(hotel != null ? hotel.getAvaliacaoMedia() : null)
+                .preco(oferta.getPreco())
+                .dataCheckIn(oferta.getDataCheckIn())
+                .dataCheckOut(oferta.getDataCheckOut())
+                .urlOrigem(oferta.getUrlOrigem())
+                .numeroQuarto(oferta.getNumero())
+                .tipoQuarto(tipoQuarto)
+                .build());
+        }
+
+        return views;
     }
 }

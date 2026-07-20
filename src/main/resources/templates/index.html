@@ -131,146 +131,38 @@
 
         <div class="hotels-grid">
             <div class="hotel-card" th:each="hotel : ${hoteis}" th:if="${hoteis != null and !hoteis.isEmpty()}" th:object="${hotel}">
+                
                 <div class="card-image-wrapper">
-                    <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=500&q=80" alt="Hotel">
-                    <button class="btn-heart"><i class="fa-regular fa-heart"></i></button>
+                    <a href="#" th:href="@{/hoteis/{id}(id=*{id})}"><img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=500&q=80" alt="Hotel"></a>
+                    <button class="btn-heart"
+                            th:if="${ofertasPorHotel != null and ofertasPorHotel[hotel.id] != null}"
+                            th:attr="data-codigo-oferta=${ofertasPorHotel[hotel.id]}">
+                        <i class="fa-regular fa-heart"></i>
+                    </button>
                 </div>
+                <a href="#" th:href="@{/hoteis/{id}(id=*{id})}">
                 <div class="card-content">
                     <div class="card-title-row">
                         <h3 th:text="*{nome}">Hotel</h3>
-                        <span class="rating"><i class="fa-solid fa-star"></i> <span th:text="${hotel.avaliacao != null ? #numbers.formatDecimal(hotel.avaliacao, 1, 1) : '0.0'}">0.0</span></span>
+                        <span class="rating"><i class="fa-solid fa-star" style="color:#3b82f6"></i> <span th:text="${hotel.avaliacaoMedia != null ? #numbers.formatDecimal(hotel.avaliacaoMedia, 1, 1) : '0.0'}">0.0</span></span>
                     </div>
-                    <p class="location"><i class="fa-solid fa-location-dot"></i> <span th:text="*{cidade}">Cidade</span>, <span th:text="*{estado}">UF</span></p>
-                    <p class="amenities"><i class="fa-solid fa-wifi"></i> <i class="fa-solid fa-clock"></i></p>
+                    <p class="location"><i class="fa-solid fa-location-dot"></i> <span th:text="${hotel.localizacao?.cidade != null ? hotel.localizacao.cidade : 'Cidade'}">Cidade</span>, <span th:text="${hotel.localizacao?.estado != null ? hotel.localizacao.estado : 'UF'}">UF</span></p>
+                    <p class="amenities"><i class="fa-solid fa-dog"></i></p>
                     <div class="card-footer">
-                        <span class="reviews" th:text="${hotel.avaliacao != null ? 'Avaliação média' : 'Sem avaliações'}">Sem avaliações</span>
+                        <span class="reviews" th:text="${hotel.avaliacaoMedia != null ? 'Avaliação média' : 'Sem avaliações'}">Sem avaliações</span>
                         <div class="price-box">
                             <small>a partir de</small>
-                            <span class="price">R$ <span th:text="${hotel.id}">0</span><small>/noite</small></span>
+                            <span class="price">R$ <span th:text="${200 + hotel.id}">0</span><small>/noite</small></span>
                         </div>
                     </div>
-                    <div style="margin-top: 12px;">
-                        <a class="btn-primary" th:href="@{/hoteis/{id}(id=*{id})}" href="#">Ver detalhes</a>
-                    </div>
-                </div>
+                
+                </div></a>
             </div>
 
             <div class="hotel-card" th:if="${hoteis == null or hoteis.isEmpty()}">
                 <div class="card-content">
                     <h3>Nenhum hotel encontrado</h3>
                     <p>Cadastre hotéis para que eles apareçam aqui.</p>
-                </div>
-            </div>
-
-            <div class="hotel-card" th:unless="${hoteis != null and !hoteis.isEmpty()}">
-                <div class="card-image-wrapper">
-                    <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=500&q=80" alt="Oceanview Resort">
-                    <button class="btn-heart"><i class="fa-regular fa-heart"></i></button>
-                </div>
-                <div class="card-content">
-                    <div class="card-title-row">
-                        <h3>Oceanview Resort Paradise</h3>
-                        <span class="rating"><i class="fa-solid fa-star"></i> 4.9</span>
-                    </div>
-                    <p class="location"><i class="fa-solid fa-location-dot"></i> Florianópolis, SC</p>
-                    <p class="amenities"><i class="fa-solid fa-wifi"></i> <i class="fa-solid fa-clock"></i></p>
-                    <div class="card-footer">
-                        <span class="reviews">882 avaliações</span>
-                        <div class="price-box">
-                            <small>a partir de</small>
-                            <span class="price">R$ 580<small>/noite</small></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="hotel-card">
-                <div class="card-image-wrapper">
-                    <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=500&q=80" alt="Urban Design Hotel">
-                    <span class="badge-discount">-10%</span>
-                    <button class="btn-heart"><i class="fa-regular fa-heart"></i></button>
-                </div>
-                <div class="card-content">
-                    <div class="card-title-row">
-                        <h3>Urban Design Hotel</h3>
-                        <span class="rating"><i class="fa-solid fa-star"></i> 4.7</span>
-                    </div>
-                    <p class="location"><i class="fa-solid fa-location-dot"></i> São Paulo, SP</p>
-                    <p class="amenities"><i class="fa-solid fa-wifi"></i> <i class="fa-solid fa-clock"></i></p>
-                    <div class="card-footer">
-                        <span class="reviews">2103 avaliações</span>
-                        <div class="price-box">
-                            <small>a partir de</small>
-                            <span class="price">R$ 380<small>/noite</small></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="hotel-card">
-                <div class="card-image-wrapper">
-                    <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=500&q=80" alt="Mountain View Lodge">
-                    <button class="btn-heart"><i class="fa-regular fa-heart"></i></button>
-                </div>
-                <div class="card-content">
-                    <div class="card-title-row">
-                        <h3>Mountain View Lodge</h3>
-                        <span class="rating"><i class="fa-solid fa-star"></i> 4.6</span>
-                    </div>
-                    <p class="location"><i class="fa-solid fa-location-dot"></i> Campos do Jordão, SP</p>
-                    <p class="amenities"><i class="fa-solid fa-wifi"></i> <i class="fa-solid fa-clock"></i></p>
-                    <div class="card-footer">
-                        <span class="reviews">634 avaliações</span>
-                        <div class="price-box">
-                            <small>a partir de</small>
-                            <span class="price">R$ 520<small>/noite</small></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="hotel-card">
-                <div class="card-image-wrapper">
-                    <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=500&q=80" alt="Tropical Beach Resort">
-                    <button class="btn-heart"><i class="fa-regular fa-heart"></i></button>
-                </div>
-                <div class="card-content">
-                    <div class="card-title-row">
-                        <h3>Tropical Beach Resort</h3>
-                        <span class="rating"><i class="fa-solid fa-star"></i> 4.8</span>
-                    </div>
-                    <p class="location"><i class="fa-solid fa-location-dot"></i> Porto de Galinhas, PE</p>
-                    <p class="amenities"><i class="fa-solid fa-wifi"></i> <i class="fa-solid fa-clock"></i></p>
-                    <div class="card-footer">
-                        <span class="reviews">1456 avaliações</span>
-                        <div class="price-box">
-                            <small>a partir de</small>
-                            <span class="price">R$ 680<small>/noite</small></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="hotel-card">
-                <div class="card-image-wrapper">
-                    <img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=500&q=80" alt="Historic Downtown Hotel">
-                    <span class="badge-discount">-20%</span>
-                    <button class="btn-heart"><i class="fa-regular fa-heart"></i></button>
-                </div>
-                <div class="card-content">
-                    <div class="card-title-row">
-                        <h3>Historic Downtown Hotel</h3>
-                        <span class="rating"><i class="fa-solid fa-star"></i> 4.5</span>
-                    </div>
-                    <p class="location"><i class="fa-solid fa-location-dot"></i> Salvador, BA</p>
-                    <p class="amenities"><i class="fa-solid fa-wifi"></i> <i class="fa-solid fa-clock"></i></p>
-                    <div class="card-footer">
-                        <span class="reviews">789 avaliações</span>
-                        <div class="price-box">
-                            <small>a partir de</small>
-                            <span class="price">R$ 320<small>/noite</small></span>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

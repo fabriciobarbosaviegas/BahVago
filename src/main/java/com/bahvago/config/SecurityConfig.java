@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -48,9 +49,17 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
+        // No Spring Security 6, o CookieCsrfTokenRepository sozinho não grava
+        // o cookie XSRF-TOKEN em toda resposta. O CsrfTokenRequestAttributeHandler
+        // garante que o token seja resolvido e o cookie seja gravado em cada request,
+        // permitindo que o JavaScript leia o token e o envie nos POSTs (AJAX/fetch).
+        CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
+        requestHandler.setCsrfRequestAttributeName(null);
+
         http
             .csrf(csrf -> csrf
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                .csrfTokenRequestHandler(requestHandler)
             )
 
             .authorizeHttpRequests(auth -> auth
@@ -97,7 +106,9 @@ public class SecurityConfig {
                 .requestMatchers(
                         "/usuarios/perfil/**",
                         "/usuarios/atualizar/**",
-                        "/usuarios/deletar/**"
+                        "/usuarios/deletar/**",
+                        "/favoritos",
+                        "/favoritos/**"
                 ).authenticated()
 
                 // Todo o restante exige autenticação

@@ -1,7 +1,8 @@
 DROP DATABASE IF EXISTS bahvagoBD;
 
 CREATE DATABASE bahvagoBD;
-
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_0900_ai_ci;
 USE bahvagoBD;
 
 -- =========================================================

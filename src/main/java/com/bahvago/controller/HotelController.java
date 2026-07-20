@@ -3,12 +3,15 @@ package com.bahvago.controller;
 import com.bahvago.model.Hotel;
 import com.bahvago.service.HotelService;
 import com.bahvago.service.AvaliacaoService;
+import com.bahvago.service.OfertaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/hoteis")
@@ -20,10 +23,14 @@ public class HotelController {
     @Autowired
     private AvaliacaoService avaliacaoService;
 
+    @Autowired
+    private OfertaService ofertaService;
+
     @GetMapping
     public String listarHoteis(Model model) {
         List<Hotel> hoteis = hotelService.listarTodos();
         model.addAttribute("hoteis", hoteis);
+        model.addAttribute("ofertasPorHotel", mapOfertasPorHotel(hoteis));
         return "hotel";
     }
 
@@ -32,6 +39,7 @@ public class HotelController {
         List<Hotel> hoteis = hotelService.buscarPorNomeOuCidade(termo);
         model.addAttribute("hoteis", hoteis);
         model.addAttribute("termo", termo);
+        model.addAttribute("ofertasPorHotel", mapOfertasPorHotel(hoteis));
         return "resultados";
     }
 
@@ -40,6 +48,7 @@ public class HotelController {
         List<Hotel> hoteis = hotelService.buscarPorCidade(cidade);
         model.addAttribute("hoteis", hoteis);
         model.addAttribute("cidade", cidade);
+        model.addAttribute("ofertasPorHotel", mapOfertasPorHotel(hoteis));
         return "resultados";
     }
 
@@ -77,5 +86,10 @@ public class HotelController {
         hotelService.deletarHotel(id);
         redirectAttributes.addFlashAttribute("mensagem", "Hotel deletado com sucesso!");
         return "redirect:/hoteis";
+    }
+
+    private Map<Integer, Integer> mapOfertasPorHotel(List<Hotel> hoteis) {
+        List<Integer> ids = hoteis.stream().map(Hotel::getId).collect(Collectors.toList());
+        return ofertaService.mapOfertaPrincipalPorHotel(ids);
     }
 }

@@ -9,7 +9,6 @@
 </head>
 <body>
 
-    <!-- NAVBAR LOGADO -->
     <header class="navbar">
         <div class="container nav-container">
             <div class="logo" style="cursor: pointer;" onclick="window.location.href='/'">
@@ -17,79 +16,71 @@
                 <span class="logo-text">BahVago</span>
             </div>
             <nav class="nav-actions-logged">
-                <a href="/favoritos/usuario/1" class="nav-icon-link active" title="Favoritos"><i class="fa-regular fa-heart"></i></a>
-                <a href="/usuarios/perfil" class="nav-icon-link" title="Minha Conta"><i class="fa-regular fa-user"></i></a>
+                <a th:href="@{/favoritos}" href="/favoritos" class="nav-icon-link active" title="Favoritos"><i class="fa-regular fa-heart"></i></a>
+                <a th:href="@{/usuarios/perfil}" href="/usuarios/perfil" class="nav-icon-link" title="Minha Conta"><i class="fa-regular fa-user"></i></a>
                 <button id="btnLogoutTop" class="btn-logout-icon" title="Sair"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
             </nav>
         </div>
     </header>
 
-    <!-- SEÇÃO FAVORITOS -->
     <main class="container fav-page-wrapper">
         <div class="fav-header">
             <h1><i class="fa-regular fa-heart" style="color: var(--accent-blue); margin-right: 8px;"></i> Meus favoritos</h1>
-            <p id="favCount">2 hotéis salvos</p>
+            <p id="favCount" th:text="${ofertasSalvas != null ? ofertasSalvas.size() + (ofertasSalvas.size() == 1 ? ' oferta salva' : ' ofertas salvas') : '0 ofertas salvas'}">0 ofertas salvas</p>
         </div>
 
-        <!-- Grid de Favoritos idêntico ao Figma -->
-        <div class="hotels-grid" id="favGrid">
-            
-            <!-- Card 1 -->
-            <div class="hotel-card" data-hotel-id="fav-1">
+        <div class="hotels-grid" id="favGrid" th:if="${ofertasSalvas != null and !ofertasSalvas.isEmpty()}">
+            <div class="hotel-card" th:each="oferta : ${ofertasSalvas}"
+                 th:attr="data-codigo-oferta=${oferta.codigoOferta}">
                 <div class="card-image-wrapper">
-                    <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=500&q=80" alt="Grand Luxury Hotel">
-                    <span class="badge-discount">-15%</span>
-                    <button class="btn-heart fav-active"><i class="fa-solid fa-heart"></i></button>
+                    <a th:href="@{/hoteis/{id}(id=${oferta.codigoHotel})}">
+                        <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=500&q=80" alt="Hotel">
+                    </a>
+                    <button class="btn-heart fav-active" th:attr="data-codigo-oferta=${oferta.codigoOferta}">
+                        <i class="fa-solid fa-heart"></i>
+                    </button>
                 </div>
-                <div class="card-content">
-                    <div class="card-title-row">
-                        <h3>Grand Luxury Hotel & Spa</h3>
-                        <span class="rating"><i class="fa-solid fa-star"></i> 4.8</span>
-                    </div>
-                    <p class="location"><i class="fa-solid fa-location-dot"></i> Rio de Janeiro, RJ</p>
-                    <p class="amenities"><i class="fa-solid fa-wifi"></i> <i class="fa-solid fa-mug-hot"></i> <i class="fa-solid fa-car"></i></p>
-                    <div class="card-footer">
-                        <span class="reviews">1247 avaliações</span>
-                        <div class="price-box">
-                            <small>a partir de</small>
-                            <span class="price">R$ 450<small>/noite</small></span>
+                <a th:href="@{/hoteis/{id}(id=${oferta.codigoHotel})}">
+                    <div class="card-content">
+                        <div class="card-title-row">
+                            <h3 th:text="${oferta.nomeHotel}">Hotel</h3>
+                            <span class="rating" th:if="${oferta.avaliacaoMedia != null}">
+                                <i class="fa-solid fa-star"></i>
+                                <span th:text="${#numbers.formatDecimal(oferta.avaliacaoMedia, 1, 1)}">0.0</span>
+                            </span>
+                        </div>
+                        <p class="location">
+                            <i class="fa-solid fa-location-dot"></i>
+                            <span th:text="${oferta.cidade}">Cidade</span>,
+                            <span th:text="${oferta.estado}">UF</span>
+                        </p>
+                        <p class="amenities">
+                            <i class="fa-solid fa-bed"></i>
+                            <span th:text="${oferta.tipoQuarto}">Quarto</span>
+                            &nbsp;&bull;&nbsp;
+                            <i class="fa-solid fa-calendar"></i>
+                            <span th:text="${#temporals.format(oferta.dataCheckIn, 'dd/MM')}">Check-in</span>
+                            -
+                            <span th:text="${#temporals.format(oferta.dataCheckOut, 'dd/MM')}">Check-out</span>
+                        </p>
+                        <div class="card-footer">
+                            <span class="reviews">Oferta salva</span>
+                            <div class="price-box">
+                                <small>preço da oferta</small>
+                                <span class="price">R$ <span th:text="${#numbers.formatDecimal(oferta.preco, 1, 2)}">0</span></span>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
-
-            <!-- Card 2 -->
-            <div class="hotel-card" data-hotel-id="fav-2">
-                <div class="card-image-wrapper">
-                    <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=500&q=80" alt="Urban Design Hotel">
-                    <span class="badge-discount">-20%</span>
-                    <button class="btn-heart fav-active"><i class="fa-solid fa-heart"></i></button>
-                </div>
-                <div class="card-content">
-                    <div class="card-title-row">
-                        <h3>Urban Design Hotel</h3>
-                        <span class="rating"><i class="fa-solid fa-star"></i> 4.7</span>
-                    </div>
-                    <p class="location"><i class="fa-solid fa-location-dot"></i> São Paulo, SP</p>
-                    <p class="amenities"><i class="fa-solid fa-wifi"></i> <i class="fa-solid fa-mug-hot"></i></p>
-                    <div class="card-footer">
-                        <span class="reviews">2103 avaliações</span>
-                        <div class="price-box">
-                            <small>a partir de</small>
-                            <span class="price">R$ 380<small>/noite</small></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
         </div>
 
-        <!-- Mensagem caso a lista zere -->
-        <div class="empty-fav-message hidden" id="emptyState">
+        <div class="empty-fav-message" id="emptyState"
+             th:classappend="${ofertasSalvas == null or ofertasSalvas.isEmpty()} ? '' : 'hidden'">
             <i class="fa-regular fa-folder-open"></i>
-            <h3>Você não possui nenhum hotel favoritado</h3>
+            <h3>Você não possui nenhuma oferta salva</h3>
             <p>Volte para a tela inicial e explore as opções clicando no ícone de coração.</p>
-            <button class="btn-primary" onclick="window.location.href='index.html'" style="border:none; margin-top:15px; cursor:pointer;">Explorar Hotéis</button>
+            <button class="btn-primary" onclick="window.location.href='/'" style="border:none; margin-top:15px; cursor:pointer;">Explorar Hotéis</button>
         </div>
     </main>
 

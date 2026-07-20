@@ -16,48 +16,52 @@ public class QuartoController {
     @Autowired
     private QuartoService quartoService;
 
-    @GetMapping("/hotel/{idHotel}")
-    public String listarQuartosPorHotel(@PathVariable Long idHotel, Model model) {
-        List<Quarto> quartos = quartoService.buscarPorHotel(idHotel);
+    @GetMapping("/hotel/{codigoHotel}")
+    public String listarQuartosPorHotel(@PathVariable Long codigoHotel, Model model) {
+        List<Quarto> quartos = quartoService.buscarPorHotel(codigoHotel);
         model.addAttribute("quartos", quartos);
-        model.addAttribute("idHotel", idHotel);
+        model.addAttribute("codigoHotel", codigoHotel);
         return "novo-quarto";
     }
 
-    @GetMapping("/{id}")
-    public String detalheQuarto(@PathVariable Long id, Model model) {
-        Quarto quarto = quartoService.buscarPorId(id)
-            .orElseThrow(() -> new RuntimeException("Quarto não encontrado"));
+    @GetMapping("/hotel/{codigoHotel}/numero/{numero}")
+    public String detalheQuarto(@PathVariable Long codigoHotel,
+                                 @PathVariable Integer numero,
+                                 Model model) {
+        Quarto quarto = quartoService.buscarPorId(numero, codigoHotel)
+                .orElseThrow(() -> new RuntimeException("Quarto não encontrado"));
         model.addAttribute("quarto", quarto);
         return "quarto";
     }
 
     @PostMapping("/criar")
     public String criarQuarto(@ModelAttribute Quarto quarto,
-                             RedirectAttributes redirectAttributes) {
-        Quarto novoQuarto = quartoService.criarQuarto(quarto);
-        redirectAttributes.addFlashAttribute("mensagem", "Quarto criado com sucesso!");
-        return "redirect:/quartos/hotel/" + quarto.getIdHotel();
-    }
-
-    @PostMapping("/atualizar/{id}")
-    public String atualizarQuarto(@PathVariable Long id,
-                                 @ModelAttribute Quarto quarto,
-                                 RedirectAttributes redirectAttributes) {
-        quarto.setId(id);
-        Quarto quartoAtualizado = quartoService.atualizarQuarto(quarto);
-        redirectAttributes.addFlashAttribute("mensagem", "Quarto atualizado com sucesso!");
-        return "redirect:/quartos/" + id;
-    }
-
-    @GetMapping("/deletar/{id}")
-    public String deletarQuarto(@PathVariable Long id, 
                                RedirectAttributes redirectAttributes) {
-        Quarto quarto = quartoService.buscarPorId(id)
-            .orElseThrow(() -> new RuntimeException("Quarto não encontrado"));
-        Long idHotel = quarto.getIdHotel();
-        quartoService.deletarQuarto(id);
+        quartoService.criarQuarto(quarto);
+        redirectAttributes.addFlashAttribute("mensagem", "Quarto criado com sucesso!");
+        return "redirect:/quartos/hotel/" + quarto.getCodigoHotel();
+    }
+
+    @PostMapping("/atualizar/{codigoHotel}/{numero}")
+    public String atualizarQuarto(@PathVariable Long codigoHotel,
+                                   @PathVariable Integer numero,
+                                   @ModelAttribute Quarto quarto,
+                                   RedirectAttributes redirectAttributes) {
+        quarto.setNumero(numero);
+        quarto.setCodigoHotel(codigoHotel);
+        quartoService.atualizarQuarto(quarto);
+        redirectAttributes.addFlashAttribute("mensagem", "Quarto atualizado com sucesso!");
+        return "redirect:/quartos/hotel/" + codigoHotel + "/numero/" + numero;
+    }
+
+    @GetMapping("/deletar/{codigoHotel}/{numero}")
+    public String deletarQuarto(@PathVariable Long codigoHotel,
+                                 @PathVariable Integer numero,
+                                 RedirectAttributes redirectAttributes) {
+        quartoService.buscarPorId(numero, codigoHotel)
+                .orElseThrow(() -> new RuntimeException("Quarto não encontrado"));
+        quartoService.deletarQuarto(numero, codigoHotel);
         redirectAttributes.addFlashAttribute("mensagem", "Quarto deletado com sucesso!");
-        return "redirect:/quartos/hotel/" + idHotel;
+        return "redirect:/quartos/hotel/" + codigoHotel;
     }
 }

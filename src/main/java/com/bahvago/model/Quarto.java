@@ -12,35 +12,37 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "quartos")
+@Table(name = "Quarto")
+@IdClass(QuartoId.class)
 public class Quarto {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "Numero", nullable = false)
+    private Integer numero;
 
-    @Column(name = "id_hotel", nullable = false)
-    private Long idHotel;
+    @Id
+    @Column(name = "CodigoHotel", nullable = false)
+    private Long codigoHotel;
 
-    @Column(nullable = false)
-    private String numero;
-
-    @Column(nullable = false)
+    @Column(name = "Tipo", nullable = false)
     private String tipo; // 'simples', 'duplo', 'suite', etc
 
-    @Column(nullable = false)
+    @Column(name = "Preco", nullable = false)
+    private Double preco;
+
+    @Column(name = "Capacidade", nullable = false)
     private Integer capacidade;
 
-    @Column(name = "preco_noite", nullable = false, columnDefinition = "DECIMAL(10, 2)")
-    private Double precoNoite;
-
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "Descricao", nullable = false, length = 2000)
     private String descricao;
 
-    @Column(nullable = false)
+    @Column(name = "AceitaPet", nullable = false)
+    private Boolean aceitaPet;
+
+    @Column(name = "Disponivel", nullable = false)
     private Boolean disponivel;
 
-    @Column(name = "data_criacao", nullable = false, updatable = false)
+    @Column(name = "DataCriacao", nullable = false, updatable = false)
     private LocalDateTime dataCriacao;
 
     @PrePersist
@@ -48,6 +50,9 @@ public class Quarto {
         this.dataCriacao = LocalDateTime.now();
         if (this.disponivel == null) {
             this.disponivel = true;
+        }
+        if (this.aceitaPet == null) {
+            this.aceitaPet = false;
         }
     }
 }

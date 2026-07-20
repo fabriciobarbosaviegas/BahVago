@@ -15,6 +15,6 @@ public class FavoritoId implements Serializable {
     @jakarta.persistence.Column(name = "CPF", length = 11)
     private String cpf;
 
-    @jakarta.persistence.Column(name = "CodigoHotel")
-    private Integer codigoHotel;
+    @jakarta.persistence.Column(name = "CodigoOferta")
+    private Integer codigoOferta;
 }

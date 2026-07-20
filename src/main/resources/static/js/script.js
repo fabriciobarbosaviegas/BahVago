@@ -9,14 +9,20 @@ document.addEventListener("DOMContentLoaded", () => {
         return null;
     };
 
-    const logoutServidor = async () => {
+    const obterHeadersCsrf = () => {
         const csrfToken = obterCookie("XSRF-TOKEN");
-        const headers = {
-            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
-        };
+        const headers = {};
         if (csrfToken) {
             headers["X-XSRF-TOKEN"] = decodeURIComponent(csrfToken);
         }
+        return headers;
+    };
+
+    const logoutServidor = async () => {
+        const headers = {
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            ...obterHeadersCsrf()
+        };
 
         await fetch("/logout", {
             method: "POST",
@@ -43,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (usuarioEstaLogado && targetNav) {
         targetNav.className = "nav-actions-logged";
         targetNav.innerHTML = `
-            <a href="favoritos.html" class="nav-icon-link" title="Favoritos"><i class="fa-regular fa-heart"></i></a>
+            <a href="/favoritos" class="nav-icon-link" title="Favoritos"><i class="fa-regular fa-heart"></i></a>
             <a href="/usuarios/perfil" class="nav-icon-link" title="Minha Conta"><i class="fa-regular fa-user"></i></a>
             <button id="btnLogoutTop" class="btn-logout-icon" title="Sair"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
         `;
@@ -64,19 +70,6 @@ document.addEventListener("DOMContentLoaded", () => {
             window.location.href = "/login?logout";
         });
     }
-
-    // ==========================================
-    // 2. CONTROLE CONDICIONAL DE ACESSO
-    // ==========================================
-    const gerenciarAcesso = (evento, destinoSucesso) => {
-        if (!usuarioEstaLogado) {
-            evento.preventDefault();
-            window.location.href = "login.html";
-        } else if (destinoSucesso) {
-            evento.preventDefault();
-            window.location.href = destinoSucesso;
-        }
-    };
 
     // Form de busca da Home -> Resultados
     const formularioBusca = document.getElementById("mainSearchForm");
@@ -163,42 +156,129 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================================
-    // 6. LÓGICA DE FAVORITOS (CORAÇÃO)
+    // 6. LÓGICA DE FAVORITOS (OFERTAS SALVAS)
     // ==========================================
     const favGrid = document.getElementById("favGrid");
-    const botoesCoracao = document.querySelectorAll(".btn-heart");
+    const botoesCoracao = document.querySelectorAll(".btn-heart[data-codigo-oferta]");
+    const favoritosSalvos = new Set();
 
-    botoesCoracao.forEach(botao => {
-        botao.addEventListener("click", (e) => {
+    const atualizarIconeCoracao = (botao, salvo) => {
+        const icone = botao.querySelector("i");
+        if (!icone) return;
+
+        if (salvo) {
+            icone.classList.remove("fa-regular");
+            icone.classList.add("fa-solid");
+            icone.style.color = "#ef4444";
+            botao.classList.add("fav-active");
+        } else {
+            icone.classList.remove("fa-solid");
+            icone.classList.add("fa-regular");
+            icone.style.color = "white";
+            botao.classList.remove("fav-active");
+        }
+    };
+
+    const carregarFavoritos = async () => {
+        try {
+            const response = await fetch("/favoritos/ids", {
+                credentials: "same-origin"
+            });
+
+            if (response.status === 401) return;
+            if (!response.ok) return;
+
+            const ids = await response.json();
+            ids.forEach((id) => favoritosSalvos.add(String(id)));
+
+            document.querySelectorAll(".btn-heart[data-codigo-oferta]").forEach((botao) => {
+                const codigoOferta = botao.getAttribute("data-codigo-oferta");
+                if (favoritosSalvos.has(String(codigoOferta))) {
+                    atualizarIconeCoracao(botao, true);
+                }
+            });
+        } catch (error) {
+            console.error("Falha ao carregar favoritos", error);
+        }
+    };
+
+    const alternarFavorito = async (codigoOferta) => {
+        const response = await fetch(`/favoritos/toggle/${codigoOferta}`, {
+            method: "POST",
+            headers: obterHeadersCsrf(),
+            credentials: "same-origin"
+        });
+
+        if (response.status === 401) {
+            window.location.href = "/login";
+            return null;
+        }
+
+        if (!response.ok) {
+            throw new Error("Falha ao alternar favorito");
+        }
+
+        return response.json();
+    };
+
+    const removerFavorito = async (codigoOferta) => {
+        const response = await fetch(`/favoritos/remover/${codigoOferta}`, {
+            method: "DELETE",
+            headers: obterHeadersCsrf(),
+            credentials: "same-origin"
+        });
+
+        if (response.status === 401) {
+            window.location.href = "/login";
+            return false;
+        }
+
+        return response.ok;
+    };
+
+    carregarFavoritos();
+
+    botoesCoracao.forEach((botao) => {
+        botao.addEventListener("click", async (e) => {
             e.stopPropagation();
-            
+            e.preventDefault();
+
+            const codigoOferta = botao.getAttribute("data-codigo-oferta");
+            if (!codigoOferta) return;
+
             if (favGrid) {
                 const cardHotel = botao.closest(".hotel-card");
-                if (cardHotel) {
-                    cardHotel.remove();
-                    const itensRestantes = favGrid.querySelectorAll(".hotel-card").length;
-                    const contadorTexto = document.getElementById("favCount");
-                    if (contadorTexto) {
-                        contadorTexto.textContent = `${itensRestantes} ${itensRestantes === 1 ? 'hotel salvo' : 'hotéis salvos'}`;
-                    }
-                    if (itensRestantes === 0) {
-                        const estadoVazio = document.getElementById("emptyState");
-                        if (estadoVazio) estadoVazio.classList.remove("hidden");
-                    }
+                const removido = await removerFavorito(codigoOferta);
+                if (!removido) return;
+
+                favoritosSalvos.delete(String(codigoOferta));
+                if (cardHotel) cardHotel.remove();
+
+                const itensRestantes = favGrid.querySelectorAll(".hotel-card").length;
+                const contadorTexto = document.getElementById("favCount");
+                if (contadorTexto) {
+                    contadorTexto.textContent = `${itensRestantes} ${itensRestantes === 1 ? "oferta salva" : "ofertas salvas"}`;
                 }
-            } else {
-                if (!usuarioEstaLogado) {
-                    window.location.href = "login.html";
+                if (itensRestantes === 0) {
+                    const estadoVazio = document.getElementById("emptyState");
+                    if (estadoVazio) estadoVazio.classList.remove("hidden");
+                    if (favGrid) favGrid.style.display = "none";
+                }
+                return;
+            }
+
+            try {
+                const resultado = await alternarFavorito(codigoOferta);
+                if (!resultado) return;
+
+                if (resultado.salvo) {
+                    favoritosSalvos.add(String(codigoOferta));
                 } else {
-                    const icone = botao.querySelector('i');
-                    icone.classList.toggle('fa-regular');
-                    icone.classList.toggle('fa-solid');
-                    if (icone.classList.contains('fa-solid')) {
-                        icone.style.color = '#ef4444';
-                    } else {
-                        icone.style.color = 'white';
-                    }
+                    favoritosSalvos.delete(String(codigoOferta));
                 }
+                atualizarIconeCoracao(botao, resultado.salvo);
+            } catch (error) {
+                console.error("Erro ao salvar favorito", error);
             }
         });
     });

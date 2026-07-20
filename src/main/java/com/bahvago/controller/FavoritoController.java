@@ -1,15 +1,20 @@
 package com.bahvago.controller;
 
-import com.bahvago.model.Favorito;
-import com.bahvago.model.FavoritoId;
+import com.bahvago.model.Usuario;
 import com.bahvago.service.FavoritoService;
-import com.bahvago.service.HotelService;
+import com.bahvago.service.FavoritoService;
+import com.bahvago.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/favoritos")
@@ -19,33 +24,69 @@ public class FavoritoController {
     private FavoritoService favoritoService;
 
     @Autowired
-    private HotelService hotelService;
+    private UsuarioService usuarioService;
 
-    @GetMapping("/usuario/{cpf}")
-    public String meusFavoritos(@PathVariable String cpf, Model model) {
-        List<Favorito> favoritos = favoritoService.buscarFavoritosPorUsuario(cpf);
-        model.addAttribute("favoritos", favoritos);
+    @GetMapping
+    public String listarFavoritos(Authentication authentication, Model model) {
+        Usuario usuario = buscarUsuarioAutenticado(authentication);
+        model.addAttribute("ofertasSalvas", favoritoService.listarOfertasSalvas(usuario.getCpf()));
         return "favoritos";
     }
 
-    @PostMapping("/adicionar")
-    public String adicionarFavorito(@RequestParam String cpf,
-                                     @RequestParam Integer codigoHotel,
-                                     RedirectAttributes redirectAttributes) {
-        Favorito favorito = Favorito.builder()
-                .id(new FavoritoId(cpf, codigoHotel))
-                .build();
-        favoritoService.adicionarFavorito(favorito);
-        redirectAttributes.addFlashAttribute("mensagem", "Hotel adicionado aos favoritos!");
-        return "redirect:/hoteis/" + codigoHotel;
+    @GetMapping("/usuario/{cpf}")
+    public String listarFavoritosLegado(@PathVariable String cpf, Authentication authentication) {
+        if (authentication != null) {
+            return "redirect:/favoritos";
+        }
+        return "redirect:/login";
     }
 
-    @GetMapping("/remover/{cpf}/{codigoHotel}")
-    public String removerFavorito(@PathVariable String cpf,
-                                   @PathVariable Integer codigoHotel,
-                                   RedirectAttributes redirectAttributes) {
-        favoritoService.removerFavoritoPorUsuarioEHotel(cpf, codigoHotel);
-        redirectAttributes.addFlashAttribute("mensagem", "Hotel removido dos favoritos!");
-        return "redirect:/hoteis/" + codigoHotel;
+    @GetMapping("/ids")
+    @ResponseBody
+    public ResponseEntity<List<Integer>> listarIds(Authentication authentication) {
+        if (authentication == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        Usuario usuario = buscarUsuarioAutenticado(authentication);
+        return ResponseEntity.ok(favoritoService.listarCodigosOfertaPorUsuario(usuario.getCpf()));
+    }
+
+    @PostMapping("/toggle/{codigoOferta}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> alternar(@PathVariable Integer codigoOferta,
+                                                          Authentication authentication) {
+        if (authentication == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Usuario usuario = buscarUsuarioAutenticado(authentication);
+        boolean salvo = favoritoService.alternar(usuario.getCpf(), codigoOferta);
+
+        Map<String, Object> resposta = new HashMap<>();
+        resposta.put("salvo", salvo);
+        resposta.put("codigoOferta", codigoOferta);
+        return ResponseEntity.ok(resposta);
+    }
+
+    @DeleteMapping("/remover/{codigoOferta}")
+    @ResponseBody
+    public ResponseEntity<Void> remover(@PathVariable Integer codigoOferta,
+                                        Authentication authentication) {
+        if (authentication == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Usuario usuario = buscarUsuarioAutenticado(authentication);
+        favoritoService.remover(usuario.getCpf(), codigoOferta);
+        return ResponseEntity.noContent().build();
+    }
+
+    private Usuario buscarUsuarioAutenticado(Authentication authentication) {
+        if (authentication == null || authentication.getName() == null) {
+            throw new RuntimeException("Usuario nao autenticado");
+        }
+
+        return usuarioService.buscarPorEmail(authentication.getName())
+            .orElseThrow(() -> new RuntimeException("Usuario autenticado nao encontrado"));
     }
 }
