@@ -38,7 +38,7 @@ public class HomeController {
 
     @GetMapping("/cadastro")
     public String cadastro() {
-        return "cadastro";
+        return "redirect:/usuarios/cadastro";
     }
 
     @GetMapping("/login")

@@ -1,4 +1,29 @@
 document.addEventListener("DOMContentLoaded", () => {
+
+    const obterCookie = (nome) => {
+        const cookieStr = `; ${document.cookie}`;
+        const partes = cookieStr.split(`; ${nome}=`);
+        if (partes.length === 2) {
+            return partes.pop().split(';').shift();
+        }
+        return null;
+    };
+
+    const logoutServidor = async () => {
+        const csrfToken = obterCookie("XSRF-TOKEN");
+        const headers = {
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+        };
+        if (csrfToken) {
+            headers["X-XSRF-TOKEN"] = decodeURIComponent(csrfToken);
+        }
+
+        await fetch("/logout", {
+            method: "POST",
+            headers,
+            credentials: "same-origin"
+        });
+    };
     
     // Verifica se existe a marcação de login salvo no localStorage do navegador
     const usuarioEstaLogado = localStorage.getItem('hotelhub_logged') === 'true';
@@ -27,10 +52,16 @@ document.addEventListener("DOMContentLoaded", () => {
     // Configura o botão de Logout global
     const interceptarLogout = document.getElementById("btnLogoutTop");
     if (interceptarLogout) {
-        interceptarLogout.addEventListener("click", (e) => {
+        interceptarLogout.addEventListener("click", async (e) => {
             e.preventDefault();
+            try {
+                await logoutServidor();
+            } catch (error) {
+                console.error("Falha ao encerrar sessao no servidor", error);
+            }
             localStorage.removeItem('hotelhub_logged');
-            window.location.href = "index.html";
+            localStorage.removeItem('hotelhub_admin_logged');
+            window.location.href = "/login?logout";
         });
     }
 
@@ -180,38 +211,68 @@ document.addEventListener("DOMContentLoaded", () => {
     const linkLoginGerente = document.getElementById("linkLoginGerente");
     if (linkLoginGerente) {
         linkLoginGerente.addEventListener("click", (e) => {
-            e.preventDefault(); 
-            window.location.href = "login-hoteleiro.html";
+            e.preventDefault();
+            window.location.href = "/login-hoteleiro";
         });
     }
+
+    const autenticarUsuario = async (form, destinoSucesso, storageKey) => {
+        const response = await fetch(form.action, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+            },
+            body: new URLSearchParams(new FormData(form)).toString(),
+            credentials: "same-origin"
+        });
+
+        if (!response.ok || response.url.includes("error")) {
+            throw new Error("Falha na autenticacao");
+        }
+
+        localStorage.setItem(storageKey, 'true');
+        window.location.href = destinoSucesso;
+    };
 
     // LOGIN DO HÓSPEDE
     const formLoginHospede = document.getElementById("formLoginHospede");
     if (formLoginHospede) {
-        formLoginHospede.addEventListener("submit", (e) => {
+        formLoginHospede.addEventListener("submit", async (e) => {
             e.preventDefault();
-            localStorage.setItem('hotelhub_logged', 'true');
-            window.location.href = "index.html"; 
+            try {
+                await autenticarUsuario(formLoginHospede, "/", 'hotelhub_logged');
+            } catch (error) {
+                window.location.href = "/login?error";
+            }
         });
     }
 
     // LOGIN DO GERENTE/HOTELEIRO
     const formLoginHoteleiro = document.getElementById("formLoginHoteleiro");
     if (formLoginHoteleiro) {
-        formLoginHoteleiro.addEventListener("submit", (e) => {
+        formLoginHoteleiro.addEventListener("submit", async (e) => {
             e.preventDefault();
-            localStorage.setItem('hotelhub_admin_logged', 'true');
-            window.location.href = "dashboard.html"; 
+            try {
+                await autenticarUsuario(formLoginHoteleiro, "/dashboard", 'hotelhub_admin_logged');
+            } catch (error) {
+                window.location.href = "/login-hoteleiro?error";
+            }
         });
     }
 
     // Logout do Admin
     const btnAdminLogout = document.getElementById("btnAdminLogout");
     if (btnAdminLogout) {
-        btnAdminLogout.addEventListener("click", (e) => {
+        btnAdminLogout.addEventListener("click", async (e) => {
             e.preventDefault();
+            try {
+                await logoutServidor();
+            } catch (error) {
+                console.error("Falha ao encerrar sessao no servidor", error);
+            }
+            localStorage.removeItem('hotelhub_logged');
             localStorage.removeItem('hotelhub_admin_logged');
-            window.location.href = "index.html";
+            window.location.href = "/login?logout";
         });
     }
 

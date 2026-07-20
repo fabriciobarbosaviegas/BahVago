@@ -12,27 +12,27 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "usuarios")
+@Table(name = "Usuario")
 public class Usuario {
-
+    
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "CPF", nullable = false, unique = true, length = 11)
+    private String cpf;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "Email", nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
+    @Column(name = "Senha", nullable = false)
     private String senha;
 
-    @Column(nullable = false)
+    @Column(name = "Nome", nullable = false)
     private String nome;
 
-    @Column(name = "data_criacao", nullable = false, updatable = false)
+    @Column(name = "DataCriacao", nullable = false, updatable = false)
     private LocalDateTime dataCriacao;
 
-    @Column(name = "tipo_usuario")
-    private String tipoUsuario; // 'usuario' ou 'hoteleiro'
+    @Column(name = "Tipo")
+    private Integer tipoUsuario; 
 
     @PrePersist
     protected void onCreate() {

@@ -35,7 +35,7 @@ CREATE TABLE CriterioBusca (
 CREATE TABLE Usuario (
     CPF char(11),
     Email varchar(255) NOT NULL,
-    Senha varchar(20) NOT NULL,
+    Senha VARCHAR(255) NOT NULL,
     Nome varchar(50) NOT NULL,
     Tipo bit NOT NULL,
     DataCriacao datetime NOT NULL,
