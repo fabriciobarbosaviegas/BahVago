@@ -12,9 +12,7 @@ import java.util.stream.Collectors;
 public class OfertaMatcher {
 
     private static final Map<String, List<String>> SINONIMOS_POR_TIPO = Map.of(
-            "simples", List.of("simples", "standard", "individual"),
-            "duplo", List.of("duplo", "casal", "solteiro", "dupla"),
-            "suite", List.of("suite", "suíte")
+
     );
 
     private OfertaMatcher() {

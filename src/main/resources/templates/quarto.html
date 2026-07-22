@@ -106,7 +106,7 @@
                                     <small class="tax-info" th:text="'Total: ' + ${oferta.precoTotal}">Total</small>
                                 </div>
                                 <button class="btn-redirect-offer" th:attr="data-url=${oferta.url}"
-                                    th:text="${oferta.botao != null ? oferta.parceiro : 'Ver oferta'}">Ver oferta</button>
+                                    th:text="${oferta.botao != null ? 'Ver oferta' : 'Ver oferta'}">Ver oferta</button>
                             </div>
                         </div>
 
