@@ -60,11 +60,20 @@ public class HotelController {
     }
 
     @GetMapping("/search")
-    public String buscarHoteis(@RequestParam String termo, Model model) {
+    public String buscarHoteis(@RequestParam String termo,
+                                @RequestParam(required = false) String checkin,
+                                @RequestParam(required = false) String checkout,
+                                @RequestParam(required = false) Integer pessoas,
+                                @RequestParam(required = false) Integer quartos,
+                                Model model) {
         List<Hotel> hoteis = hotelService.buscarPorNomeOuCidade(termo);
         model.addAttribute("hoteis", hoteis);
         model.addAttribute("termo", termo);
         model.addAttribute("ofertasPorHotel", mapOfertasPorHotel(hoteis));
+        model.addAttribute("checkin", checkin);
+        model.addAttribute("checkout", checkout);
+        model.addAttribute("pessoas", pessoas);
+        model.addAttribute("quartos", quartos);
         return "resultados";
     }
 
@@ -78,23 +87,32 @@ public class HotelController {
     }
 
     @GetMapping("/{id}")
-    public String detalheHotel(@PathVariable Integer id, Model model, Authentication authentication) {
+    public String detalheHotel(@PathVariable Integer id,
+                                @RequestParam(required = false) String checkin,
+                                @RequestParam(required = false) String checkout,
+                                @RequestParam(required = false) Integer pessoas,
+                                @RequestParam(required = false) Integer quartosBusca,
+                                Model model, Authentication authentication) {
         Hotel hotel = hotelService.buscarPorId(id)
                 .orElseThrow(() -> new RuntimeException("Hotel não encontrado"));
         Double mediaAvaliacoes = avaliacaoService.calcularMediaAvaliacoes(id);
-        
+
         List<com.bahvago.model.Quarto> quartos = quartoService.buscarPorHotel(id.longValue());
         boolean aceitaPet = quartos.stream().anyMatch(q -> Boolean.TRUE.equals(q.getAceitaPet()));
         boolean usuarioLogado = authentication != null && authentication.isAuthenticated()
                 && !"anonymousUser".equals(authentication.getName());
-        
+
         model.addAttribute("hotel", hotel);
         model.addAttribute("mediaAvaliacoes", mediaAvaliacoes);
         model.addAttribute("avaliacoes", avaliacaoService.buscarPorHotel(id));
         model.addAttribute("quartos", quartos);
         model.addAttribute("aceitaPet", aceitaPet);
         model.addAttribute("usuarioLogado", usuarioLogado);
-        
+        model.addAttribute("checkin", checkin);
+        model.addAttribute("checkout", checkout);
+        model.addAttribute("pessoas", pessoas);
+        model.addAttribute("quartosBusca", quartosBusca);
+
         return "hotel";
     }
 
