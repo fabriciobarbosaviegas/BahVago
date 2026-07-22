@@ -33,43 +33,46 @@
                 </div>
             </header>
 
-            <form class="admin-card-form" id="formNovoQuarto">
-                <div class="auth-input-group">
-                    <label>Nome/Tipo do quarto</label>
-                    <input type="text" placeholder="Ex: Quarto Standard Deluxe" required>
+            <form class="admin-card-form" id="formNovoQuarto" method="post" th:action="@{/quartos/criar}" enctype="multipart/form-data">
+                <input type="hidden" name="codigoHotel" th:value="${codigoHotel != null ? codigoHotel : 1}">
+                <div class="form-inputs-row columns-2">
+                    <div class="auth-input-group">
+                        <label>Número do quarto</label>
+                        <input type="number" name="numero" placeholder="101" required>
+                    </div>
+                    <div class="auth-input-group">
+                        <label>Tipo do quarto</label>
+                        <input type="text" name="tipo" placeholder="Ex: suite" required>
+                    </div>
                 </div>
 
-                <div class="form-inputs-row columns-3">
-                    <div class="auth-input-group"><label>Preço por noite (R$)</label><input type="number" placeholder="450" required></div>
-                    <div class="auth-input-group"><label>Capacidade (pessoas)</label><input type="number" placeholder="2" required></div>
-                    <div class="auth-input-group"><label>Tamanho (m²)</label><input type="number" placeholder="32" required></div>
+                <div class="form-inputs-row columns-2">
+                    <div class="auth-input-group"><label>Preço por noite (R$)</label><input type="number" step="0.01" name="preco" placeholder="450" required></div>
+                    <div class="auth-input-group"><label>Capacidade (pessoas)</label><input type="number" name="capacidade" placeholder="2" required></div>
                 </div>
 
                 <div class="auth-input-group">
                     <label>Descrição</label>
-                    <textarea rows="4" placeholder="Descreva as características do quarto..."></textarea>
+                    <textarea name="descricao" rows="4" placeholder="Descreva as características do quarto..." required></textarea>
                 </div>
 
                 <div class="admin-checkbox-amenities-section">
-                    <label class="section-subtitle-label">Comodidades do quarto</label>
+                    <label class="section-subtitle-label">Opções</label>
                     <div class="admin-checkbox-grid-two-cols">
-                        <label class="checkbox-container"><input type="checkbox"> Wi-Fi gratuito</label>
-                        <label class="checkbox-container"><input type="checkbox"> Ar condicionado</label>
-                        <label class="checkbox-container"><input type="checkbox"> TV a cabo</label>
-                        <label class="checkbox-container"><input type="checkbox"> Frigobar</label>
-                        <label class="checkbox-container"><input type="checkbox"> Cofre</label>
-                        <label class="checkbox-container"><input type="checkbox"> Varanda</label>
-                        <label class="checkbox-container"><input type="checkbox"> Vista para o mar</label>
-                        <label class="checkbox-container"><input type="checkbox"> Banheira</label>
+                        <label class="checkbox-container"><input type="checkbox" name="aceitaPet" value="true"> Aceita PET</label>
+                        <label class="checkbox-container"><input type="checkbox" name="disponivel" value="true" checked> Disponível</label>
                     </div>
                 </div>
 
                 <div class="admin-upload-zone-wrapper">
-                    <label class="section-subtitle-label">Fotos do quarto</label>
-                    <div class="upload-dropzone-box" id="dropzoneQuarto">
-                        <i class="fa-solid fa-cloud-arrow-up"></i>
-                        <p>Clique para fazer upload ou arraste as fotos aqui</p>
-                        <small>PNG, JPG até 5MB</small>
+                    <label class="section-subtitle-label">Imagens do Quarto</label>
+                    <div class="auth-input-group mb-16">
+                        <label>Arquivos das Fotos (do computador - Selecione 1 ou vários)</label>
+                        <input type="file" name="imagemArquivos" accept="image/*" multiple>
+                    </div>
+                    <div class="auth-input-group">
+                        <label>OU URLs das Imagens (Separadas por vírgula ou linha)</label>
+                        <textarea name="imagensUrls" rows="3" placeholder="https://exemplo.com/quarto1.jpg&#10;https://exemplo.com/quarto2.jpg"></textarea>
                     </div>
                 </div>
 

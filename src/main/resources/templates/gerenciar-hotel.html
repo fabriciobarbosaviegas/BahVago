@@ -34,24 +34,31 @@
             </header>
 
             <div class="admin-forms-stack">
-                <form class="admin-card-form" id="formInfoHotel">
+                <form class="admin-card-form" id="formInfoHotel" method="post" th:action="@{/hoteis/criar}" enctype="multipart/form-data">
                     <h3>Informações básicas</h3>
                     <div class="form-inputs-row columns-2">
-                        <div class="auth-input-group"><label>Nome do hotel</label><input type="text" value="Grand Luxury Hotel & Spa"></div>
-                        <div class="auth-input-group"><label>Cidade</label><input type="text" value="Rio de Janeiro"></div>
+                        <div class="auth-input-group"><label>Nome do hotel</label><input type="text" name="nome" value="Grand Luxury Hotel & Spa" required></div>
+                        <div class="auth-input-group"><label>Cidade</label><input type="text" name="localizacao.cidade" value="Rio de Janeiro"></div>
                     </div>
                     <div class="form-inputs-row columns-2">
-                        <div class="auth-input-group"><label>Estado</label><input type="text" value="RJ"></div>
-                        <div class="auth-input-group"><label>Endereço completo</label><input type="text" value="Av. Atlântica, 1020 - Copacabana"></div>
-                    </div>
-                    <div class="form-inputs-row columns-2">
-                        <div class="auth-input-group"><label>Telefone</label><input type="text" value="+55 21 3234-5678"></div>
-                        <div class="auth-input-group"><label>E-mail</label><input type="email" value="contato@grandluxury.com.br"></div>
+                        <div class="auth-input-group"><label>Estado</label><input type="text" name="localizacao.estado" value="RJ"></div>
+                        <div class="auth-input-group"><label>Endereço completo</label><input type="text" name="localizacao.enderecoAproximado" value="Av. Atlântica, 1020 - Copacabana"></div>
                     </div>
                     <div class="auth-input-group">
                         <label>Descrição</label>
-                        <textarea rows="4">Experimente o luxo incomparável no Grand Luxury Hotel & Spa, localizado no coração do Rio de Janeiro. Com vistas deslumbrantes para a praia de Copacabana, nosso hotel oferece quartos espaçosos e elegantemente decorados.</textarea>
+                        <textarea name="descricao" rows="4">Experimente o luxo incomparável no Grand Luxury Hotel & Spa, localizado no coração do Rio de Janeiro. Com vistas deslumbrantes para a praia de Copacabana, nosso hotel oferece quartos espaçosos e elegantemente decorados.</textarea>
                     </div>
+
+                    <div class="auth-input-group">
+                        <label>Imagens do Hotel (Arquivos do Computador - Selecione 1 ou vários)</label>
+                        <input type="file" name="imagemArquivos" accept="image/*" multiple class="form-control">
+                    </div>
+
+                    <div class="auth-input-group">
+                        <label>OU URLs das Imagens (Separadas por vírgula ou linha)</label>
+                        <textarea name="imagensUrls" rows="3" placeholder="https://exemplo.com/foto1.jpg&#10;https://exemplo.com/foto2.jpg"></textarea>
+                    </div>
+
                     <button type="submit" class="btn-primary w-fit">Salvar alterações</button>
                 </form>
 
@@ -59,11 +66,10 @@
                     <div class="admin-card-form">
                         <h3>Fotos do hotel</h3>
                         <div class="admin-thumb-gallery-preview">
-                            <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=150&q=80">
-                            <img src="https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=150&q=80">
-                            <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=150&q=80">
+                            <img th:each="img : ${hotel != null and hotel.imagens != null and !hotel.imagens.isEmpty() ? hotel.imagens : #arrays.toArray({'https://blog.iprocess.com.br/wp-content/uploads/2021/11/placeholder.png'})}"
+                                 th:src="${img}"
+                                 src="https://blog.iprocess.com.br/wp-content/uploads/2021/11/placeholder.png">
                         </div>
-                        <button class="btn-secondary-outline mt-16"><i class="fa-solid fa-plus"></i> Adicionar fotos</button>
                     </div>
 
                     <form class="admin-card-form" id="formComodidadesHotel">

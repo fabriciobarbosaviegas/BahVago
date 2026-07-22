@@ -8,12 +8,14 @@ import com.bahvago.service.HotelService;
 import com.bahvago.service.OfertaService;
 import com.bahvago.service.QuartoService;
 import com.bahvago.service.UsuarioService;
+import com.bahvago.service.FileStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +39,9 @@ public class HotelController {
 
     @Autowired
     private UsuarioService usuarioService;
+
+    @Autowired
+    private FileStorageService fileStorageService;
 
     @GetMapping
     public String listarHoteis(Model model) {
@@ -95,7 +100,21 @@ public class HotelController {
 
     @PostMapping("/criar")
     public String criarHotel(@ModelAttribute Hotel hotel,
+                              @RequestParam(value = "imagemArquivos", required = false) List<MultipartFile> imagemArquivos,
+                              @RequestParam(value = "imagensUrls", required = false) String imagensUrls,
                               RedirectAttributes redirectAttributes) {
+        List<String> novasUrls = fileStorageService.salvarArquivos(imagemArquivos, "hoteis");
+        if (imagensUrls != null && !imagensUrls.trim().isEmpty()) {
+            for (String url : imagensUrls.split("[\n,]+")) {
+                String cleanUrl = url.trim();
+                if (!cleanUrl.isEmpty()) {
+                    novasUrls.add(cleanUrl);
+                }
+            }
+        }
+        if (!novasUrls.isEmpty()) {
+            hotel.getImagens().addAll(novasUrls);
+        }
         Hotel novoHotel = hotelService.criarHotel(hotel);
         redirectAttributes.addFlashAttribute("mensagem", "Hotel criado com sucesso!");
         return "redirect:/hoteis/" + novoHotel.getId();
@@ -104,8 +123,29 @@ public class HotelController {
     @PostMapping("/atualizar/{id}")
     public String atualizarHotel(@PathVariable Integer id,
                                   @ModelAttribute Hotel hotel,
+                                  @RequestParam(value = "imagemArquivos", required = false) List<MultipartFile> imagemArquivos,
+                                  @RequestParam(value = "imagensUrls", required = false) String imagensUrls,
                                   RedirectAttributes redirectAttributes) {
         hotel.setId(id);
+        List<String> novasUrls = fileStorageService.salvarArquivos(imagemArquivos, "hoteis");
+        if (imagensUrls != null && !imagensUrls.trim().isEmpty()) {
+            for (String url : imagensUrls.split("[\n,]+")) {
+                String cleanUrl = url.trim();
+                if (!cleanUrl.isEmpty()) {
+                    novasUrls.add(cleanUrl);
+                }
+            }
+        }
+        if (!novasUrls.isEmpty()) {
+            hotel.getImagens().clear();
+            hotel.getImagens().addAll(novasUrls);
+        } else {
+            hotelService.buscarPorId(id).ifPresent(h -> {
+                if (h.getImagens() != null) {
+                    hotel.getImagens().addAll(h.getImagens());
+                }
+            });
+        }
         hotelService.atualizarHotel(hotel);
         redirectAttributes.addFlashAttribute("mensagem", "Hotel atualizado com sucesso!");
         return "redirect:/hoteis/" + id;

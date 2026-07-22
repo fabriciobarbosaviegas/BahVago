@@ -186,6 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const carregarFavoritos = async () => {
         try {
             const response = await fetch("/favoritos/ids", {
+                headers: { "Accept": "application/json" },
                 credentials: "same-origin"
             });
 
@@ -209,26 +210,32 @@ document.addEventListener("DOMContentLoaded", () => {
     const alternarFavorito = async (codigoOferta) => {
         const response = await fetch(`/favoritos/toggle/${codigoOferta}`, {
             method: "POST",
-            headers: obterHeadersCsrf(),
+            headers: { "Accept": "application/json", ...obterHeadersCsrf() },
             credentials: "same-origin"
         });
 
-        if (response.status === 401) {
+        if (response.status === 401 || response.status === 302) {
             window.location.href = "/login";
             return null;
         }
 
         if (!response.ok) {
-            throw new Error("Falha ao alternar favorito");
+            const text = await response.text();
+            throw new Error("Falha ao alternar favorito: " + response.status);
         }
 
-        return response.json();
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+            return response.json();
+        }
+
+        throw new Error("Resposta inesperada do servidor (não é JSON)");
     };
 
     const removerFavorito = async (codigoOferta) => {
         const response = await fetch(`/favoritos/remover/${codigoOferta}`, {
             method: "DELETE",
-            headers: obterHeadersCsrf(),
+            headers: { "Accept": "application/json", ...obterHeadersCsrf() },
             credentials: "same-origin"
         });
 
@@ -425,15 +432,26 @@ document.addEventListener("DOMContentLoaded", () => {
     const mainGalleryImg = document.getElementById("mainGalleryImg");
 
     if (galleryNavPrev && galleryNavNext && mainGalleryImg) {
-        const imagens = [
-            "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80",
-            "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1200&q=80",
-            "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1200&q=80"
-        ];
+        const imagens = [];
+        galleryDots.forEach(dot => {
+            const src = dot.getAttribute("data-src");
+            if (src && !imagens.includes(src)) {
+                imagens.push(src);
+            }
+        });
+        if (imagens.length === 0) {
+            const initialSrc = mainGalleryImg.getAttribute("src") || mainGalleryImg.src;
+            if (initialSrc) {
+                imagens.push(initialSrc);
+            }
+        }
+
         let indiceAtual = 0;
 
         const atualizarGaleria = () => {
-            mainGalleryImg.src = imagens[indiceAtual];
+            if (imagens.length > 0) {
+                mainGalleryImg.src = imagens[indiceAtual];
+            }
             galleryDots.forEach((dot, index) => {
                 if (index === indiceAtual) {
                     dot.classList.add("active");
@@ -444,19 +462,25 @@ document.addEventListener("DOMContentLoaded", () => {
         };
 
         galleryNavPrev.addEventListener("click", () => {
-            indiceAtual = (indiceAtual - 1 + imagens.length) % imagens.length;
-            atualizarGaleria();
+            if (imagens.length > 0) {
+                indiceAtual = (indiceAtual - 1 + imagens.length) % imagens.length;
+                atualizarGaleria();
+            }
         });
 
         galleryNavNext.addEventListener("click", () => {
-            indiceAtual = (indiceAtual + 1) % imagens.length;
-            atualizarGaleria();
+            if (imagens.length > 0) {
+                indiceAtual = (indiceAtual + 1) % imagens.length;
+                atualizarGaleria();
+            }
         });
 
         galleryDots.forEach((dot, index) => {
             dot.addEventListener("click", () => {
-                indiceAtual = index;
-                atualizarGaleria();
+                if (index < imagens.length) {
+                    indiceAtual = index;
+                    atualizarGaleria();
+                }
             });
         });
     }

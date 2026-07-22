@@ -7,6 +7,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -40,6 +43,16 @@ public class Hotel {
 
     @Column(name = "Longitude", nullable = false)
     private Integer longitude;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "ImagemHotel", joinColumns = @JoinColumn(name = "CodigoHotel"))
+    @Column(name = "Url", length = 1000)
+    @Builder.Default
+    private List<String> imagens = new ArrayList<>();
+
+    public String getImagemUrl() {
+        return (imagens != null && !imagens.isEmpty()) ? imagens.get(0) : null;
+    }
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumns({

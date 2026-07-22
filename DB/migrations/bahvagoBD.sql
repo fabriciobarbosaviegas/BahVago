@@ -66,6 +66,12 @@ CREATE TABLE HotelEstatisticas (
     FOREIGN KEY (Latitude,Longitude) REFERENCES Localizacao(Latitude,Longitude) ON DELETE CASCADE
 );
 
+CREATE TABLE ImagemHotel (
+    CodigoHotel int NOT NULL,
+    Url varchar(1000) NOT NULL,
+    FOREIGN KEY (CodigoHotel) REFERENCES HotelEstatisticas(CodigoHotel) ON DELETE CASCADE
+);
+
 -- =========================================================
 -- Quarto: adicionados Tipo, Disponivel e DataCriacao (existiam em sql1.quartos)
 -- =========================================================
@@ -81,6 +87,13 @@ CREATE TABLE Quarto (
     CodigoHotel int NOT NULL,
     PRIMARY KEY (Numero, CodigoHotel),
     FOREIGN KEY (CodigoHotel) REFERENCES HotelEstatisticas(CodigoHotel) ON DELETE CASCADE
+);
+
+CREATE TABLE ImagemQuarto (
+    Numero int NOT NULL,
+    CodigoHotel int NOT NULL,
+    Url varchar(1000) NOT NULL,
+    FOREIGN KEY (Numero, CodigoHotel) REFERENCES Quarto(Numero, CodigoHotel) ON DELETE CASCADE
 );
 
 CREATE TABLE Oferta (
@@ -177,10 +190,27 @@ INSERT INTO HotelEstatisticas
           ('Panamby Sao Paulo','The Hotel Panamby Sao Paulo is conveniently located just 600 meters from the Barra Funda subway and bus station. A complimentary breakfast and Wi-Fi are included, and valet service is available for a fee.',0,4.30,'00000000000',-23561414,-46655772,'2026-06-19 00:00:00'),
           ('Qoya São Paulo Paulista, Curio Collection by Hilton','O Qoya Hotel traz os conceitos de tranquilidade e bem-estar em conjunto com o melhor do design e da arquitetura para o equilíbrio completo da sua estada em meio ao principal ícone econômico e cultural de São Paulo.',0,5.00,'00000000001',-23548761,-46638590,'2026-06-19 00:00:00');
 
+INSERT INTO ImagemHotel (CodigoHotel, Url)
+    VALUES (1, 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80'),
+           (1, 'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80'),
+           (1, 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80'),
+           (2, 'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80'),
+           (2, 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80'),
+           (3, 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80'),
+           (3, 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80');
+
 INSERT INTO Quarto (Numero, Tipo, Preco, Capacidade, Descricao, AceitaPet, Disponivel, DataCriacao, CodigoHotel)
     VALUES (101, 'simples', 350.00, 2, 'Quarto casal standard.', 0, 1, '2026-06-19 00:00:00', 1),
            (201, 'suite', 580.00, 2, 'SUPERIOR TWIN 2 PAX ', 1, 1, '2026-06-19 00:00:00', 2),
            (301, 'suite', 900.00, 2, 'Suíte executiva.', 1, 1, '2026-06-19 00:00:00', 3);
+
+INSERT INTO ImagemQuarto (Numero, CodigoHotel, Url)
+    VALUES (101, 1, 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80'),
+           (101, 1, 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=800&q=80'),
+           (201, 2, 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=800&q=80'),
+           (201, 2, 'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80'),
+           (301, 3, 'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80'),
+           (301, 3, 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80');
 
 INSERT INTO Oferta
     (UrlOrigem, DataCheckIn, DataCheckOut, Preco, Numero,CodigoHotel)

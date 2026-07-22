@@ -123,7 +123,8 @@
 
                 <div class="card-image-wrapper">
                     <a href="#" th:href="@{/hoteis/{id}(id=*{id})}"><img
-                            src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=500&q=80"
+                            th:src="${hotel.imagemUrl != null and !#strings.isEmpty(hotel.imagemUrl) ? hotel.imagemUrl : 'https://blog.iprocess.com.br/wp-content/uploads/2021/11/placeholder.png'}"
+                            src="https://blog.iprocess.com.br/wp-content/uploads/2021/11/placeholder.png"
                             alt="Hotel"></a>
                     <button class="btn-heart" th:if="${ofertasPorHotel != null and ofertasPorHotel[hotel.id] != null}"
                         th:attr="data-codigo-oferta=${ofertasPorHotel[hotel.id].id}">
@@ -144,10 +145,10 @@
                         </p>
                         <p class="amenities"><i class="fa-solid fa-dog"></i></p>
                         <div class="card-footer">
-                            <span class="reviews"
-                                th:id="'totalAvaliacoes-' + ${hotel.id}"
+                            <span class="reviews" th:id="'totalAvaliacoes-' + ${hotel.id}"
                                 th:with="total=${totalAvaliacoesPorHotel != null and totalAvaliacoesPorHotel[hotel.id] != null ? totalAvaliacoesPorHotel[hotel.id] : 0}"
-                                th:text="${total == 0 ? 'Sem avaliações' : (total == 1 ? '1 avaliação' : total + ' avaliações')}">Sem avaliações</span>
+                                th:text="${total == 0 ? 'Sem avaliações' : (total == 1 ? '1 avaliação' : total + ' avaliações')}">Sem
+                                avaliações</span>
                             <div class="price-box">
                                 <small>a partir de</small>
                                 <span class="price">R$ <span

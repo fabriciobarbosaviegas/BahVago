@@ -76,7 +76,8 @@ public class SecurityConfig {
                         "/static/**",
                         "/css/**",
                         "/js/**",
-                        "/img/**"
+                        "/img/**",
+                        "/uploads/**"
                 ).permitAll()
 
                 // Login e cadastro

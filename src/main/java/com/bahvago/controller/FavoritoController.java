@@ -41,7 +41,7 @@ public class FavoritoController {
         return "redirect:/login";
     }
 
-    @GetMapping("/ids")
+    @GetMapping(value = "/ids", produces = "application/json")
     @ResponseBody
     public ResponseEntity<List<Integer>> listarIds(Authentication authentication) {
         if (authentication == null) {
@@ -51,7 +51,7 @@ public class FavoritoController {
         return ResponseEntity.ok(favoritoService.listarCodigosOfertaPorUsuario(usuario.getCpf()));
     }
 
-    @PostMapping("/toggle/{codigoOferta}")
+    @PostMapping(value = "/toggle/{codigoOferta}", produces = "application/json")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> alternar(@PathVariable Integer codigoOferta,
                                                           Authentication authentication) {
