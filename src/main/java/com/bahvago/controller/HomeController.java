@@ -2,10 +2,12 @@ package com.bahvago.controller;
 
 import com.bahvago.model.Hotel;
 import com.bahvago.model.Oferta;
+import com.bahvago.model.Quarto;
 import com.bahvago.model.Usuario;
 import com.bahvago.service.AvaliacaoService;
 import com.bahvago.service.HotelService;
 import com.bahvago.service.OfertaService;
+import com.bahvago.service.QuartoService;
 import com.bahvago.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -23,12 +25,15 @@ public class HomeController {
 
     @Autowired
     private UsuarioService usuarioService;
-    
+
     @Autowired
     private OfertaService ofertaService;
 
     @Autowired
     private AvaliacaoService avaliacaoService;
+
+    @Autowired
+    private QuartoService quartoService;
 
     @GetMapping("/")
     public String index(Model model) {
@@ -58,7 +63,21 @@ public class HomeController {
     }
 
     @GetMapping("/gerenciar-quartos")
-    public String gerenciarQuartos() {
+    public String gerenciarQuartos(Authentication authentication, Model model) {
+
+        Usuario usuario = usuarioService.buscarPorEmail(authentication.getName())
+                .orElseThrow();
+
+        Hotel hotel = hotelService.buscarPorHoteleiro(usuario.getCpf())
+                .stream()
+                .findFirst()
+                .orElseThrow();
+
+        List<Quarto> quartos = quartoService.buscarPorHotel(hotel.getId().longValue());
+
+        model.addAttribute("hotel", hotel);
+        model.addAttribute("quartos", quartos);
+
         return "gerenciar-quartos";
     }
 

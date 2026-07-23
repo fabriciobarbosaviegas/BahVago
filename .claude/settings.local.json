@@ -5,7 +5,10 @@
       "Bash(echo \"EXIT_CODE=$?\")",
       "Bash(command -v node)",
       "Bash(node --check /home/hasilion/Documentos/GitHub/BahVago/src/main/resources/static/js/script.js)",
-      "Bash(xargs -I{} echo {})"
+      "Bash(xargs -I{} echo {})",
+      "Bash(mvn -o -q dependency:build-classpath -Dmdep.outputFile=/tmp/claude-1002/-home-hasilion-Documentos-GitHub-BahVago/a58d470e-baac-4ed5-b444-f23a57dce42c/scratchpad/cp.txt)",
+      "Bash(echo \"EXIT=$?\")",
+      "Bash(javac -cp __TRACKED_VAR__:/home/hasilion/Documentos/GitHub/BahVago/target/classes -d /tmp/tcout ThymeleafCheck.java)"
     ]
   }
 }

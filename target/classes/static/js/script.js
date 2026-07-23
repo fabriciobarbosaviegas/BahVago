@@ -501,16 +501,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Formulários Administrativos
 
-    const formNovoQuarto = document.getElementById("formNovoQuarto");
-    if (formNovoQuarto) {
-        formNovoQuarto.addEventListener("submit", (e) => {
-            e.preventDefault();
-            alert("Quarto criado com sucesso!");
-            window.location.href = "gerenciar-quartos.html";
-        });
-    }
 
     // Envio de respostas da Central de Avaliações
     const botoesResponderReview = document.querySelectorAll(".btn-submit-reply");
@@ -636,6 +627,25 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // Checkbox "Em manutenção" (novo-quarto.html) força e trava "Disponível" como
+    // desmarcado, deixando explícito que a manutenção sobrepõe a disponibilidade.
+    const manutencaoCheckbox = document.getElementById("manutencaoCheckbox");
+    const disponivelCheckbox = document.getElementById("disponivelCheckbox");
+    if (manutencaoCheckbox && disponivelCheckbox) {
+        manutencaoCheckbox.addEventListener("change", () => {
+            if (manutencaoCheckbox.checked) {
+                disponivelCheckbox.checked = false;
+                disponivelCheckbox.disabled = true;
+            } else {
+                disponivelCheckbox.disabled = false;
+            }
+        });
+        if (manutencaoCheckbox.checked) {
+            disponivelCheckbox.checked = false;
+            disponivelCheckbox.disabled = true;
+        }
+    }
+
     // Indicativo de carregamento ao salvar o formulário de "Informações básicas"
     // (gerenciar-hotel.html) — o upload de imagens pode demorar alguns segundos.
     const formInfoHotelSalvar = document.getElementById("formInfoHotel");
@@ -708,6 +718,35 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             });
         });
+    }
+
+    // ==========================================
+    // 8.1 FILTRO DE HÓSPEDES (hotel.html - lista de quartos)
+    // ==========================================
+    const filtroHospedes = document.getElementById("filtroHospedes");
+    const roomsListContainer = document.getElementById("roomsListContainer");
+    if (filtroHospedes && roomsListContainer) {
+        const roomCards = Array.from(roomsListContainer.querySelectorAll(".room-row-item[data-capacidade]"));
+        const semResultadosFiltro = document.getElementById("roomsFilterEmptyState");
+
+        const aplicarFiltroHospedes = () => {
+            const minimo = parseInt(filtroHospedes.value, 10);
+            let algumVisivel = false;
+
+            roomCards.forEach((card) => {
+                const capacidade = parseInt(card.getAttribute("data-capacidade"), 10);
+                const visivel = !filtroHospedes.value || isNaN(minimo) || capacidade >= minimo;
+                card.style.display = visivel ? "" : "none";
+                if (visivel) algumVisivel = true;
+            });
+
+            if (semResultadosFiltro) {
+                semResultadosFiltro.style.display = (roomCards.length > 0 && !algumVisivel) ? "" : "none";
+            }
+        };
+
+        filtroHospedes.addEventListener("input", aplicarFiltroHospedes);
+        aplicarFiltroHospedes();
     }
 
     // ==========================================

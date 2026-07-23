@@ -140,7 +140,7 @@ public class HotelController {
                 .orElseThrow(() -> new RuntimeException("Hotel não encontrado"));
         Double mediaAvaliacoes = avaliacaoService.calcularMediaAvaliacoes(id);
 
-        List<com.bahvago.model.Quarto> quartos = quartoService.buscarPorHotel(id.longValue());
+        List<com.bahvago.model.Quarto> quartos = quartoService.buscarDisponiveisPorHotel(id.longValue());
         boolean aceitaPet = quartos.stream().anyMatch(q -> Boolean.TRUE.equals(q.getAceitaPet()));
         boolean usuarioLogado = authentication != null && authentication.isAuthenticated()
                 && !"anonymousUser".equals(authentication.getName());

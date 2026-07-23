@@ -95,8 +95,11 @@ public class SecurityConfig {
                         "/usuarios/cadastro"
                 ).permitAll()
 
-                // Área do hoteleiro (precisa vir antes de "/hoteis/**" abaixo, que é
-                // público — regras do authorizeHttpRequests usam a primeira que casar)
+                // Área do hoteleiro (precisa vir antes de "/hoteis/**"/"/quartos/**" abaixo,
+                // que são públicos — regras do authorizeHttpRequests usam a primeira que casar).
+                // "/quartos/hotel/*" (form de novo quarto) e ".../numero/*/editar" ficam aqui
+                // porque são administrativos; "/quartos/hotel/*/numero/*" (página pública do
+                // quarto) e ".../ofertas" continuam cobertos pela regra pública mais abaixo.
                 .requestMatchers(
                         "/dashboard",
                         "/estatisticas",
@@ -105,6 +108,11 @@ public class SecurityConfig {
                         "/hoteis/atualizar/**",
                         "/hoteis/deletar/**",
                         "/gerenciar-quartos",
+                        "/quartos/criar",
+                        "/quartos/atualizar/**",
+                        "/quartos/deletar/**",
+                        "/quartos/hotel/*",
+                        "/quartos/hotel/*/numero/*/editar",
                         "/gerenciar-avaliacoes"
                 ).hasRole("HOTELEIRO")
 

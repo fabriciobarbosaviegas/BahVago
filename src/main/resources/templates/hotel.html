@@ -71,10 +71,17 @@
 
                 <div class="hotel-section-box">
                     <h3>Quartos disponíveis a partir de</h3>
-                    <div class="rooms-list-container">
+
+                    <div class="room-guest-filter" th:if="${quartos != null and !quartos.isEmpty()}">
+                        <label for="filtroHospedes"><i class="fa-solid fa-users"></i> Hóspedes</label>
+                        <input type="number" id="filtroHospedes" min="1" th:value="${pessoas}" placeholder="Qualquer quantidade">
+                    </div>
+
+                    <div class="rooms-list-container" id="roomsListContainer">
 
                         <div class="room-row-item" th:each="quarto : ${quartos}"
-                            th:if="${quartos != null and !quartos.isEmpty()}" th:object="${quarto}">
+                            th:if="${quartos != null and !quartos.isEmpty()}" th:object="${quarto}"
+                            th:attr="data-capacidade=*{capacidade}">
                             <div class="room-info-meta">
                                 <h4 th:text="*{tipo}">Quarto</h4>
                                 <p><i class="fa-solid fa-users"></i> <span th:text="*{capacidade}">0</span> pessoas
@@ -96,7 +103,12 @@
                             </div>
                         </div>
 
-
+                        <div class="room-row-item" id="roomsFilterEmptyState" style="display:none;">
+                            <div class="room-info-meta">
+                                <h4>Nenhum quarto para essa quantidade de hóspedes</h4>
+                                <p>Tente reduzir o número de hóspedes ou limpar o filtro.</p>
+                            </div>
+                        </div>
 
                     </div>
                 </div>

@@ -4,11 +4,15 @@ import com.bahvago.dto.OfertaExterna;
 import com.bahvago.dto.OfertasQuartoResponse;
 import com.bahvago.model.Hotel;
 import com.bahvago.model.Quarto;
+import com.bahvago.model.Usuario;
 import com.bahvago.service.FileStorageService;
 import com.bahvago.service.HotelService;
+import com.bahvago.service.ManutencaoQuartoService;
 import com.bahvago.service.OfertaExternaService;
 import com.bahvago.service.QuartoService;
+import com.bahvago.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -32,16 +36,34 @@ public class QuartoController {
     private HotelService hotelService;
 
     @Autowired
+    private UsuarioService usuarioService;
+
+    @Autowired
     private OfertaExternaService ofertaExternaService;
 
     @Autowired
     private FileStorageService fileStorageService;
 
+    @Autowired
+    private ManutencaoQuartoService manutencaoQuartoService;
+
     @GetMapping("/hotel/{codigoHotel}")
-    public String listarQuartosPorHotel(@PathVariable Long codigoHotel, Model model) {
-        List<Quarto> quartos = quartoService.buscarPorHotel(codigoHotel);
-        model.addAttribute("quartos", quartos);
+    public String formularioNovoQuarto(@PathVariable Long codigoHotel, Authentication authentication, Model model) {
+        verificarPropriedadeHotel(codigoHotel, usuarioAutenticado(authentication));
         model.addAttribute("codigoHotel", codigoHotel);
+        return "novo-quarto";
+    }
+
+    @GetMapping("/hotel/{codigoHotel}/numero/{numero}/editar")
+    public String formularioEditarQuarto(@PathVariable Long codigoHotel, @PathVariable Integer numero,
+                                          Authentication authentication, Model model) {
+        verificarPropriedadeHotel(codigoHotel, usuarioAutenticado(authentication));
+        Quarto quarto = quartoService.buscarPorId(numero, codigoHotel)
+                .orElseThrow(() -> new RuntimeException("Quarto não encontrado"));
+
+        model.addAttribute("codigoHotel", codigoHotel);
+        model.addAttribute("quarto", quarto);
+        model.addAttribute("emManutencao", manutencaoQuartoService.estaEmManutencao(codigoHotel, numero));
         return "novo-quarto";
     }
 
@@ -121,7 +143,15 @@ public class QuartoController {
     public String criarQuarto(@ModelAttribute Quarto quarto,
                                @RequestParam(value = "imagemArquivos", required = false) List<MultipartFile> imagemArquivos,
                                @RequestParam(value = "imagensUrls", required = false) String imagensUrls,
+                               @RequestParam(required = false, defaultValue = "false") boolean manutencao,
+                               Authentication authentication,
                                RedirectAttributes redirectAttributes) {
+        verificarPropriedadeHotel(quarto.getCodigoHotel(), usuarioAutenticado(authentication));
+
+        if (manutencao) {
+            quarto.setDisponivel(false);
+        }
+
         List<String> novasUrls = fileStorageService.salvarArquivos(imagemArquivos, "quartos");
         if (imagensUrls != null && !imagensUrls.trim().isEmpty()) {
             for (String url : imagensUrls.split("[\n,]+")) {
@@ -135,6 +165,9 @@ public class QuartoController {
             quarto.getImagens().addAll(novasUrls);
         }
         quartoService.criarQuarto(quarto);
+        if (manutencao) {
+            manutencaoQuartoService.marcar(quarto.getCodigoHotel(), quarto.getNumero());
+        }
         redirectAttributes.addFlashAttribute("mensagem", "Quarto criado com sucesso!");
         return "redirect:/quartos/hotel/" + quarto.getCodigoHotel();
     }
@@ -145,9 +178,27 @@ public class QuartoController {
                                    @ModelAttribute Quarto quarto,
                                    @RequestParam(value = "imagemArquivos", required = false) List<MultipartFile> imagemArquivos,
                                    @RequestParam(value = "imagensUrls", required = false) String imagensUrls,
+                                   @RequestParam(required = false, defaultValue = "false") boolean manutencao,
+                                   Authentication authentication,
                                    RedirectAttributes redirectAttributes) {
+        verificarPropriedadeHotel(codigoHotel, usuarioAutenticado(authentication));
+
         quarto.setNumero(numero);
         quarto.setCodigoHotel(codigoHotel);
+
+        if (manutencao) {
+            quarto.setDisponivel(false);
+        }
+
+        // Fotos existentes são preservadas e as novas são anexadas — a remoção de uma foto
+        // específica é feita separadamente pelo botão de excluir em "Fotos atuais"
+        // (endpoint /quartos/atualizar/{codigoHotel}/{numero}/imagem/remover).
+        quartoService.buscarPorId(numero, codigoHotel).ifPresent(q -> {
+            if (q.getImagens() != null) {
+                quarto.getImagens().addAll(q.getImagens());
+            }
+        });
+
         List<String> novasUrls = fileStorageService.salvarArquivos(imagemArquivos, "quartos");
         if (imagensUrls != null && !imagensUrls.trim().isEmpty()) {
             for (String url : imagensUrls.split("[\n,]+")) {
@@ -157,29 +208,59 @@ public class QuartoController {
                 }
             }
         }
-        if (!novasUrls.isEmpty()) {
-            quarto.getImagens().clear();
-            quarto.getImagens().addAll(novasUrls);
-        } else {
-            quartoService.buscarPorId(numero, codigoHotel).ifPresent(q -> {
-                if (q.getImagens() != null) {
-                    quarto.getImagens().addAll(q.getImagens());
-                }
-            });
-        }
+        quarto.getImagens().addAll(novasUrls);
+
         quartoService.atualizarQuarto(quarto);
+        if (manutencao) {
+            manutencaoQuartoService.marcar(codigoHotel, numero);
+        } else {
+            manutencaoQuartoService.desmarcar(codigoHotel, numero);
+        }
         redirectAttributes.addFlashAttribute("mensagem", "Quarto atualizado com sucesso!");
-        return "redirect:/quartos/hotel/" + codigoHotel + "/numero/" + numero;
+        return "redirect:/gerenciar-quartos";
+    }
+
+    @PostMapping("/atualizar/{codigoHotel}/{numero}/imagem/remover")
+    public String removerImagemQuarto(@PathVariable Long codigoHotel,
+                                       @PathVariable Integer numero,
+                                       @RequestParam String url,
+                                       Authentication authentication,
+                                       RedirectAttributes redirectAttributes) {
+        verificarPropriedadeHotel(codigoHotel, usuarioAutenticado(authentication));
+        Quarto quarto = quartoService.buscarPorId(numero, codigoHotel)
+                .orElseThrow(() -> new RuntimeException("Quarto não encontrado"));
+
+        quarto.getImagens().remove(url);
+        quartoService.atualizarQuarto(quarto);
+
+        redirectAttributes.addFlashAttribute("mensagem", "Imagem removida com sucesso!");
+        return "redirect:/quartos/hotel/" + codigoHotel + "/numero/" + numero + "/editar";
     }
 
     @GetMapping("/deletar/{codigoHotel}/{numero}")
     public String deletarQuarto(@PathVariable Long codigoHotel,
                                  @PathVariable Integer numero,
+                                 Authentication authentication,
                                  RedirectAttributes redirectAttributes) {
+        verificarPropriedadeHotel(codigoHotel, usuarioAutenticado(authentication));
         quartoService.buscarPorId(numero, codigoHotel)
                 .orElseThrow(() -> new RuntimeException("Quarto não encontrado"));
         quartoService.deletarQuarto(numero, codigoHotel);
+        manutencaoQuartoService.desmarcar(codigoHotel, numero);
         redirectAttributes.addFlashAttribute("mensagem", "Quarto deletado com sucesso!");
-        return "redirect:/quartos/hotel/" + codigoHotel;
+        return "redirect:/gerenciar-quartos";
+    }
+
+    private Usuario usuarioAutenticado(Authentication authentication) {
+        return usuarioService.buscarPorEmail(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+    }
+
+    private void verificarPropriedadeHotel(Long codigoHotel, Usuario usuario) {
+        Hotel hotel = hotelService.buscarPorId(codigoHotel.intValue())
+                .orElseThrow(() -> new RuntimeException("Hotel não encontrado"));
+        if (!hotel.getCpf().equals(usuario.getCpf())) {
+            throw new RuntimeException("Você não tem permissão para gerenciar quartos deste hotel");
+        }
     }
 }
