@@ -2,64 +2,25 @@
 
 Projeto acadêmico para a disciplina de Desenvolvimento de Software do curso de Ciência da Computação da UFPEL.
 
-## 🏗️ Arquitetura
+O BahVago é um comparador de hospedagens no estilo Trivago: o viajante busca hotéis, navega pelos quartos e compara ofertas de diferentes parceiros (obtidas em tempo real de uma API externa de ofertas), podendo salvar favoritos e avaliar hotéis. Hoteleiros têm um painel administrativo próprio para gerenciar hotel, quartos, fotos e avaliações.
 
-O projeto foi adaptado para seguir a **arquitetura MVC (Model-View-Controller) com Spring Boot**, permitindo uma melhor separação de responsabilidades e escalabilidade.
+## 📖 Documentação
 
-### Estrutura do Projeto
+| Documento | Conteúdo |
+|-----------|----------|
+| [docs/ARQUITETURA.md](docs/ARQUITETURA.md) | Arquitetura, funcionalidades, modelo de dados e integrações externas |
+| [docs/DOCUMENTACAO.md](docs/DOCUMENTACAO.md) | Referência completa: rotas, níveis de acesso, configuração e convenções de frontend |
+| [GUIA_DESENVOLVIMENTO.md](GUIA_DESENVOLVIMENTO.md) | Guia prático para desenvolver no projeto (padrões, armadilhas conhecidas, verificação) |
 
-```
-src/
-├── main/
-│   ├── java/com/bahvago/
-│   │   ├── BahvagoApplication.java          # Classe principal da aplicação
-│   │   ├── controller/                       # Controllers MVC
-│   │   │   ├── HomeController.java
-│   │   │   ├── UsuarioController.java
-│   │   │   ├── HotelController.java
-│   │   │   ├── QuartoController.java
-│   │   │   ├── ReservaController.java
-│   │   │   └── FavoritoController.java
-│   │   ├── model/                            # Entidades JPA
-│   │   │   ├── Usuario.java
-│   │   │   ├── Hotel.java
-│   │   │   ├── Quarto.java
-│   │   │   ├── Reserva.java
-│   │   │   ├── Avaliacao.java
-│   │   │   └── Favorito.java
-│   │   ├── repository/                       # Repositórios (Data Access Layer)
-│   │   │   ├── UsuarioRepository.java
-│   │   │   ├── HotelRepository.java
-│   │   │   └── ...
-│   │   ├── service/                          # Services (Business Logic)
-│   │   │   ├── UsuarioService.java
-│   │   │   ├── HotelService.java
-│   │   │   └── ...
-│   │   └── config/                           # Configurações
-│   │       └── SecurityConfig.java
-│   ├── resources/
-│   │   ├── application.properties             # Configuração da aplicação
-│   │   ├── templates/                         # Templates Thymeleaf (Views)
-│   │   │   ├── index.html
-│   │   │   ├── login.html
-│   │   │   ├── hotel.html
-│   │   │   └── ...
-│   │   └── static/                            # Recursos estáticos
-│   │       ├── css/style.css
-│   │       └── js/script.js
-└── test/java/com/bahvago/
+## 🧰 Stack
 
-pom.xml                                        # Dependências Maven
-```
-
-## 📋 Dependências Principais
-
-- **Spring Boot 3.2.0** - Framework web
-- **Spring Data JPA** - Acesso a dados
-- **Thymeleaf** - Template engine
-- **Spring Security** - Autenticação e segurança
-- **MySQL** - Banco de dados
-- **Lombok** - Redução de boilerplate
+- **Java 17** + **Spring Boot 3.2.0** (Spring MVC)
+- **Thymeleaf** — views renderizadas no servidor
+- **Spring Data JPA / Hibernate** — persistência
+- **Spring Security 6** — autenticação por formulário, papéis `USER`/`HOTELEIRO`, BCrypt, CSRF via cookie
+- **MySQL 8** — banco de dados (container Docker)
+- **Lombok** — redução de boilerplate nas entidades
+- **RestClient (Spring 6.1)** — integrações HTTP (API externa de ofertas e Nominatim/OpenStreetMap)
 
 ## 🚀 Como Executar
 
@@ -67,108 +28,114 @@ pom.xml                                        # Dependências Maven
 
 - Java 17+
 - Maven 3.6+
-- MySQL 8+
+- Docker + Docker Compose (para o MySQL)
+- (Opcional, para ofertas reais) a API externa de ofertas rodando em `http://localhost:8001`
 
-### 1. Configurar o Banco de Dados
-
-Inicie o container MySQL:
+### 1. Banco de dados
 
 ```bash
 cd DB
 docker-compose up -d
+cd ..
 ```
 
-Isso criará um banco de dados MySQL com o nome `bahvagoBD` e usuário `root` com senha `root`.
+Isso constrói e sobe o container `bahvago-mysql` (MySQL 8, porta `3306`, banco `bahvagoBD`, usuário `root`, senha `root`). **Na primeira inicialização do volume**, o script `DB/migrations/bahvagoBD.sql` é executado automaticamente (via `docker-entrypoint-initdb.d`), criando o schema completo e dados de exemplo.
 
-### 2. Configurar a Aplicação
+> ⚠️ **Regra de ouro do projeto: nunca altere os arquivos em `DB/migrations/`.** O schema definido ali é a fonte da verdade. Funcionalidades novas devem ser modeladas sobre as colunas/tabelas existentes (ver exemplos no [guia de desenvolvimento](GUIA_DESENVOLVIMENTO.md)).
 
-Edite `src/main/resources/application.properties` se necessário para alterar as credenciais do banco de dados.
-
-### 3. Compilar e Executar
+### 2. Aplicação
 
 ```bash
-# Compilar
 mvn clean compile
-
-# Executar
 mvn spring-boot:run
 ```
 
-A aplicação estará disponível em: `http://localhost:8080`
+Acesse `http://localhost:8080`. As credenciais do banco e demais configurações estão em `src/main/resources/application.properties`.
 
-### Alternativa: IDE (Eclipse, IntelliJ, VS Code)
+### 3. (Opcional) API externa de ofertas
 
-1. Importe o projeto como Maven Project
-2. Clique em Run
+A página do quarto compara preços de parceiros consultando uma API externa (`POST /api/v1/hoteis/ofertas`), configurada por padrão em `http://localhost:8001` (propriedade `api.hoteis.ofertas.url`). Se ela estiver fora do ar, a aplicação **não quebra** — a página exibe o estado vazio "Nenhuma oferta encontrada".
 
-## 📚 Camadas da Arquitetura MVC
+### 4. (Opcional) Povoar quartos a partir da API de ofertas
 
-### 1. **Model (Camada de Dados)**
-- **Entidades JPA**: Define a estrutura dos dados (`Usuario.java`, `Hotel.java`, etc.)
-- **Repositories**: Interfaces que herdam de `JpaRepository` para acesso ao banco de dados
+O script `povoadorDeQuartos.py` consulta a API de ofertas para cada hotel do banco e cria quartos derivados dos nomes de quartos das ofertas reais:
 
-### 2. **View (Camada de Apresentação)**
-- **Templates Thymeleaf**: Arquivos HTML em `src/main/resources/templates/`
-- **Static Files**: CSS, JavaScript e imagens em `src/main/resources/static/`
+```bash
+pip install requests mysql-connector-python
+python3 povoadorDeQuartos.py
+```
 
-### 3. **Controller (Camada de Controle)**
-- **Controllers**: Classes que tratam requisições HTTP e retornam views
-- Exemplo: `HotelController` mapeia requisições para `/hoteis`
+## 🗂️ Estrutura do Projeto
 
-## 🔗 Rotas Principais
+```
+BahVago/
+├── DB/
+│   ├── docker-compose.yml       # Container MySQL
+│   ├── Dockerfile               # Imagem MySQL + migration embutida
+│   └── migrations/bahvagoBD.sql # Schema + seeds (NUNCA ALTERAR)
+├── docs/
+│   ├── ARQUITETURA.md           # Arquitetura e funcionalidades
+│   └── DOCUMENTACAO.md          # Referência de rotas e configuração
+├── povoadorDeQuartos.py         # Seeder de quartos via API de ofertas
+├── uploads/                     # Imagens enviadas pelos usuários (servidas em /uploads/**)
+├── pom.xml
+└── src/main/
+    ├── java/com/bahvago/
+    │   ├── config/              # SecurityConfig, WebConfig
+    │   ├── controller/          # Controllers MVC (+ controller/dto: forms e views)
+    │   ├── dto/                 # DTOs da integração com a API externa de ofertas
+    │   ├── model/               # Entidades JPA (+ classes de chave composta)
+    │   ├── repository/          # Spring Data JPA
+    │   ├── service/             # Regras de negócio e integrações
+    │   └── util/                # OfertaMatcher (casamento quarto ↔ oferta)
+    └── resources/
+        ├── application.properties
+        ├── templates/           # Views Thymeleaf
+        └── static/              # css/style.css, js/script.js
+```
 
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| GET | `/` | Página inicial |
-| GET | `/login` | Página de login |
-| GET | `/cadastro` | Página de cadastro |
-| GET | `/hoteis` | Listar hotéis |
-| GET | `/hoteis/search?termo=...` | Buscar hotéis |
-| GET | `/hoteis/{id}` | Detalhes do hotel |
-| GET | `/quartos/hotel/{idHotel}` | Quartos de um hotel |
-| GET | `/favoritos/usuario/{idUsuario}` | Meus favoritos |
-| POST | `/reservas/criar` | Criar reserva |
-| GET | `/usuarios/perfil/{id}` | Perfil do usuário |
+## ✨ Funcionalidades
 
-## 🛡️ Segurança
+**Viajante (público / autenticado):**
+- Busca de hotéis por nome/cidade com datas, hóspedes e nº de quartos propagados por todo o fluxo
+- Página do hotel com quartos disponíveis, filtro por nº de hóspedes, avaliações e média
+- Página do quarto com comparação de ofertas reais de parceiros (API externa), atualização ao vivo ao mudar as datas, cache de resultados e destaque de melhor preço
+- Cadastro/login, perfil (edição de dados e senha), favoritos com fotos reais, escrever avaliações
 
-A aplicação inclui configuração básica de segurança com Spring Security:
-- Autenticação de usuários
-- Rotas públicas e protegidas
-- Criptografia de senhas (BCrypt)
+**Hoteleiro (painel administrativo):**
+- Dashboard e login próprio (`/login-hoteleiro`)
+- Gerenciar hotel: dados, endereço com **geocodificação automática via OpenStreetMap/Nominatim**, galeria de fotos (upload múltiplo com preview, remoção por foto, toasts de feedback)
+- Gerenciar quartos: criar/editar/excluir, galeria de fotos no mesmo padrão, flag "Em manutenção", controle de disponibilidade
+- Responder avaliações
+- Segurança: todas as rotas administrativas exigem papel `HOTELEIRO` **e** verificação de propriedade (um hoteleiro não edita recursos de outro)
 
-## 📝 Exemplo de Fluxo
+Detalhes de cada fluxo em [docs/ARQUITETURA.md](docs/ARQUITETURA.md).
 
-### Criação de um Hotel
+## 🔗 Principais Rotas
 
-1. **View** (`gerenciar-hotel.html`): Usuário preenche formulário
-2. **Controller** (`HotelController.criarHotel()`): Recebe POST e valida dados
-3. **Service** (`HotelService.criarHotel()`): Lógica de negócio
-4. **Repository** (`HotelRepository.save()`): Persiste no banco
-5. **Response**: Redireiona para a página do hotel criado
+| Método | Rota | Acesso | Descrição |
+|--------|------|--------|-----------|
+| GET | `/` | público | Home com formulário de busca |
+| GET | `/hoteis/search?termo=...` | público | Busca de hotéis |
+| GET | `/hoteis/{id}` | público | Página do hotel |
+| GET | `/quartos/hotel/{codigoHotel}/numero/{numero}` | público | Página do quarto com ofertas |
+| GET | `/favoritos` | autenticado | Ofertas salvas do usuário |
+| GET | `/usuarios/perfil` | autenticado | Perfil do usuário |
+| GET | `/dashboard` | hoteleiro | Painel administrativo |
+| GET | `/hoteis/gerenciar-hotel` | hoteleiro | Edição do hotel |
+| GET | `/gerenciar-quartos` | hoteleiro | Listagem/gestão de quartos |
+
+A tabela completa de rotas, com todos os endpoints JSON e administrativos, está em [docs/DOCUMENTACAO.md](docs/DOCUMENTACAO.md).
 
 ## 🗄️ Banco de Dados
 
-O banco possui as seguintes tabelas:
+Tabelas criadas por `DB/migrations/bahvagoBD.sql`: `Localizacao`, `CriterioBusca`, `Usuario`, `HotelEstatisticas`, `ImagemHotel`, `Quarto`, `ImagemQuarto`, `Oferta`, `Avaliacao`, `Salva`, `Reserva`, `HotelFavorito`.
 
-- `usuarios` - Usuários e hoteleiros
-- `hoteis` - Informações dos hotéis
-- `quartos` - Quartos dos hotéis
-- `reservas` - Reservas de usuários
-- `avaliacoes` - Avaliações dos hotéis
-- `favoritos` - Hotéis favoritados
-
-## 📊 Migrations
-
-As migrations SQL estão em `DB/migrations/bahvagoBD.sql` e são executadas automaticamente pelo Hibernate.
-
-## 🧪 Testes
-
-Para executar testes unitários:
-
-```bash
-mvn test
-```
+Pontos que costumam surpreender:
+- **Latitude/Longitude são `INT`** em micrograus (`grau × 1.000.000`) e formam a chave primária de `Localizacao`.
+- **`Quarto` tem chave composta** (`Numero`, `CodigoHotel`) — não existe id único de quarto.
+- A entidade `Hotel` mapeia a tabela **`HotelEstatisticas`**.
+- Imagens de hotel/quarto ficam em tabelas próprias (`ImagemHotel`/`ImagemQuarto`), mapeadas como `@ElementCollection`.
 
 ## 📦 Build para Produção
 

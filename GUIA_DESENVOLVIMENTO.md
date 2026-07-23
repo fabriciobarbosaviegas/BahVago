@@ -1,428 +1,165 @@
 # Guia Prático de Desenvolvimento - BahVago
 
+Este guia é para quem vai **escrever código** no projeto. Para entender a arquitetura e as funcionalidades, leia antes [docs/ARQUITETURA.md](docs/ARQUITETURA.md); para a referência de rotas e configuração, [docs/DOCUMENTACAO.md](docs/DOCUMENTACAO.md).
+
 ## 🎯 Checklist Rápido para Começar
 
 ```bash
 # 1. Clonar o repositório
 git clone https://github.com/fabriciobarbosaviegas/BahVago
-
-# 2. Entrar na pasta
 cd BahVago
 
-# 3. Iniciar o MySQL
-cd DB && docker-compose up -d
+# 2. Iniciar o MySQL (primeira subida executa DB/migrations/bahvagoBD.sql)
+cd DB && docker-compose up -d && cd ..
 
-# 4. Volta para raiz
-cd ..
-
-# 5. Compilar
+# 3. Compilar e executar
 mvn clean compile
-
-# 6. Executar
 mvn spring-boot:run
 
-# 7. Acessar
-# Abra o navegador: http://localhost:8080
+# 4. Acessar: http://localhost:8080
+# API externa de ofertas em http://localhost:8001 para a página do quarto
+https://github.com/fabriciobarbosaviegas/Trivago-Scrapper
 ```
 
-## 🏗️ Como Adicionar um Novo Recurso
+## 🥇 Regra de Ouro: nunca toque nas migrations
 
-Exemplo: **Adicionar avaliação de hotel**
+`DB/migrations/bahvagoBD.sql` **não pode ser alterado** — nem para adicionar coluna, nem para "só ajustar um tipo". O schema é fixo. Quando uma funcionalidade nova parecer pedir uma coluna:
 
-### Passo 1: Criar a Entidade (Model)
+1. **Reaproveite colunas existentes** — ex.: a listagem pública esconde quartos via a coluna `Disponivel` que já existia.
+2. **Estado auxiliar em memória** — ex.: `ManutencaoQuartoService` guarda "quarto em manutenção" num `Set` em memória (distinto de "indisponível", que é persistido); `OfertaExternaService` mantém cache de ofertas com TTL num `ConcurrentHashMap`. Trade-off aceito: esse estado se perde no restart.
+3. **Calcule em tempo de requisição** — ex.: ofertas de parceiros nunca são persistidas; são buscadas ao vivo da API externa.
 
-`src/main/java/com/bahvago/model/Avaliacao.java`
+`spring.jpa.hibernate.ddl-auto=update` está ligado, mas **não conte com o Hibernate para criar/alterar schema**: as entidades devem espelhar exatamente as tabelas da migration.
+
+## 🏗️ Fluxo para Adicionar um Recurso
+
+Ordem de trabalho: **model → repository → service → controller → template → SecurityConfig** (se a rota for administrativa, veja a seção de segurança abaixo).
+
+As entidades usam Lombok (`@Data @Builder @AllArgsConstructor @NoArgsConstructor`) e mapeiam os nomes reais das colunas da migration (PascalCase, ex.: `@Column(name = "CodigoHotel")`). Chaves compostas usam `@IdClass` (`QuartoId`, `LocalizacaoId`).
+
+### Exemplo real: entidade com chave composta e coleção de imagens
 
 ```java
 @Entity
-@Table(name = "avaliacoes")
-public class Avaliacao {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    
-    @Column(name = "id_hotel", nullable = false)
-    private Long idHotel;
-    
-    @Column(nullable = false)
-    private Integer nota;  // 1 a 5
-    
-    @Column(columnDefinition = "TEXT")
-    private String comentario;
+@Table(name = "Quarto")
+@IdClass(QuartoId.class)
+public class Quarto {
+    @Id @Column(name = "Numero") private Integer numero;
+    @Id @Column(name = "CodigoHotel") private Long codigoHotel;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "ImagemQuarto", joinColumns = {
+        @JoinColumn(name = "Numero", referencedColumnName = "Numero"),
+        @JoinColumn(name = "CodigoHotel", referencedColumnName = "CodigoHotel")
+    })
+    @Column(name = "Url")
+    @Builder.Default
+    private List<String> imagens = new ArrayList<>();
+    // ...
 }
 ```
 
-### Passo 2: Criar o Repository
+### Padrão de controller administrativo (hoteleiro)
 
-`src/main/java/com/bahvago/repository/AvaliacaoRepository.java`
+Todo endpoint que **muta** um recurso do hoteleiro segue este esqueleto — repare na verificação de propriedade, que é obrigatória (a regra de papel no `SecurityConfig` não basta, pois qualquer hoteleiro autenticado passa por ela):
 
 ```java
-@Repository
-public interface AvaliacaoRepository extends JpaRepository<Avaliacao, Long> {
-    List<Avaliacao> findByIdHotel(Long idHotel);
-    
-    @Query("SELECT AVG(a.nota) FROM Avaliacao a WHERE a.idHotel = ?1")
-    Double calcularMedia(Long idHotel);
+@PostMapping("/atualizar/{codigoHotel}/{numero}")
+public String atualizarQuarto(@PathVariable Long codigoHotel, ...,
+                              Authentication authentication,
+                              RedirectAttributes redirectAttributes) {
+    verificarPropriedadeHotel(codigoHotel, usuarioAutenticado(authentication));
+    // ... lógica ...
+    redirectAttributes.addFlashAttribute("mensagem", "Quarto atualizado com sucesso!");
+    return "redirect:/gerenciar-quartos";
 }
 ```
 
-### Passo 3: Criar o Service
+`mensagem`/`erro` como flash attributes viram **toasts** automaticamente em qualquer página que tenha `<div class="toast-container" id="toastContainer">` (o JS genérico em `script.js` cuida do resto).
 
-`src/main/java/com/bahvago/service/AvaliacaoService.java`
+## 🛡️ Segurança: armadilhas conhecidas
 
-```java
-@Service
-public class AvaliacaoService {
-    @Autowired
-    private AvaliacaoRepository avaliacaoRepository;
-    
-    public Avaliacao criarAvaliacao(Avaliacao avaliacao) {
-        return avaliacaoRepository.save(avaliacao);
-    }
-    
-    public List<Avaliacao> buscarPorHotel(Long idHotel) {
-        return avaliacaoRepository.findByIdHotel(idHotel);
-    }
-    
-    public Double calcularMedia(Long idHotel) {
-        return avaliacaoRepository.calcularMedia(idHotel);
-    }
-}
-```
+### Ordem das regras importa (bug já ocorreu 2×)
 
-### Passo 4: Criar o Controller
+`authorizeHttpRequests` usa **a primeira regra que casar**, não a mais específica. As rotas de hoteleiro (`/hoteis/gerenciar-hotel`, `/quartos/atualizar/**`, etc.) estão declaradas **antes** dos `permitAll()` amplos de `/hoteis/**` e `/quartos/**` em `SecurityConfig`. Ao criar uma rota administrativa nova sob esses prefixos, **adicione-a ao bloco `hasRole("HOTELEIRO")` que vem primeiro** — senão ela nasce pública silenciosamente.
 
-`src/main/java/com/bahvago/controller/AvaliacaoController.java`
+### Propriedade do recurso
 
-```java
-@Controller
-@RequestMapping("/avaliacoes")
-public class AvaliacaoController {
-    @Autowired
-    private AvaliacaoService avaliacaoService;
-    
-    @PostMapping("/criar")
-    public String criarAvaliacao(@ModelAttribute Avaliacao avaliacao, 
-                                 @RequestParam Long idHotel,
-                                 RedirectAttributes redirectAttributes) {
-        avaliacao.setIdHotel(idHotel);
-        avaliacaoService.criarAvaliacao(avaliacao);
-        redirectAttributes.addFlashAttribute("mensagem", "Avaliação enviada!");
-        return "redirect:/hoteis/" + idHotel;
-    }
-}
-```
+Papel ≠ dono. Sempre chame `verificarPropriedade*` (compara o CPF do hoteleiro autenticado com o CPF dono do hotel) em todo GET de formulário administrativo e todo POST/GET mutador. Nunca confie em `cpf` vindo do formulário — force-o do usuário autenticado no servidor.
 
-### Passo 5: Criar a View (Template Thymeleaf)
+### CSRF em AJAX
 
-`src/main/resources/templates/avaliar.html`
+O token CSRF fica no cookie `XSRF-TOKEN` (legível por JS). POSTs via `fetch` devem enviá-lo no header `X-XSRF-TOKEN` — veja os exemplos existentes em `script.js` (favoritos, avaliações).
+
+## 📝 Armadilhas de HTML/Thymeleaf (todas já causaram bugs reais)
+
+### 1. Checkbox desmarcado não é enviado
+
+Um checkbox HTML desmarcado **some do POST**, e campos `Boolean` `NOT NULL` estouram `DataIntegrityViolationException`. Padrão do projeto — checkbox seguido de hidden com o mesmo `name` (a ordem importa: `getParameter()` retorna o **primeiro** valor):
 
 ```html
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Avaliar Hotel</title>
-    <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
-    <div class="container">
-        <h2>Avaliar Hotel</h2>
-        <form method="post" th:action="@{/avaliacoes/criar}" class="form-group">
-            <input type="hidden" name="idHotel" th:value="${idHotel}">
-            
-            <div class="form-group">
-                <label for="nota">Nota (1-5):</label>
-                <select id="nota" name="nota" required>
-                    <option value="">Selecione...</option>
-                    <option value="1">⭐ Ruim</option>
-                    <option value="2">⭐⭐ Fraco</option>
-                    <option value="3">⭐⭐⭐ Regular</option>
-                    <option value="4">⭐⭐⭐⭐ Bom</option>
-                    <option value="5">⭐⭐⭐⭐⭐ Excelente</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label for="comentario">Comentário:</label>
-                <textarea id="comentario" name="comentario" rows="4"></textarea>
-            </div>
-            
-            <button type="submit" class="btn-submit">Enviar Avaliação</button>
-        </form>
-    </div>
-</body>
-</html>
+<input type="checkbox" name="disponivel" value="true" th:checked="${...}">
+<input type="hidden" name="disponivel" value="false">
 ```
 
-## 📝 Exemplos de Consultas Comuns
+### 2. Nunca aninhe `<form>` dentro de `<form>`
 
-### Buscar um objeto por ID
+HTML5 proíbe e o navegador corrompe silenciosamente: o `<form>` interno é descartado, mas seu `</form>` **fecha o form externo mais cedo**, deixando os campos/botões seguintes órfãos. Sintoma real: "salvar não funciona e o botão de apagar imagem submete o form errado". Padrão correto (ver `gerenciar-hotel.html` e `novo-quarto.html`): a galeria "Fotos atuais" com seus mini-forms de exclusão é um `<div>` **irmão, antes** do form principal.
 
-```java
-// No Repository
-Optional<Hotel> hotel = hotelRepository.findById(1L);
+### 3. Edição de imagens é sempre aditiva
 
-// No Service
-public Hotel buscarPorId(Long id) {
-    return hotelRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Hotel não encontrado"));
-}
+Nos POSTs de atualização de hotel/quarto, as imagens existentes são **preservadas e as novas anexadas** (nunca `clear()` + substituir). Remoção de foto é exclusivamente pelos endpoints dedicados `.../imagem/remover`. Mantenha esse contrato ao mexer nesses fluxos.
 
-// No Controller
-@GetMapping("/{id}")
-public String detalheHotel(@PathVariable Long id, Model model) {
-    Hotel hotel = hotelService.buscarPorId(id);
-    model.addAttribute("hotel", hotel);
-    return "hotel";
-}
-```
+### 4. IDs compartilhados do JS de upload
 
-### Listar todos
+O preview de upload com remoção pré-envio em `script.js` é genérico e se ativa por IDs: `#imagemArquivos` (input file), `#fileNames` (resumo) e `#uploadPreviewStrip` (galeria). Para ganhar esse comportamento numa página nova, basta usar esses mesmos IDs.
 
-```java
-// Repository (herda de JpaRepository)
-List<Hotel> hoteis = hotelRepository.findAll();
+## 🌐 Integrações HTTP (RestClient)
 
-// Service
-public List<Hotel> listarTodos() {
-    return hotelRepository.findAll();
-}
+### API externa de ofertas (`OfertaExternaService`)
 
-// Controller
-@GetMapping
-public String listar(Model model) {
-    model.addAttribute("hoteis", hotelService.listarTodos());
-    return "hoteis";
-}
-```
+- **Construa o `RestClient` com `SimpleClientHttpRequestFactory`.** A factory padrão (JDK HttpClient, no Boot 3.2.0) descarta silenciosamente corpos POST pequenos → a API responde `422 field required, loc: body`. A explícita bufferiza o corpo e envia `Content-Length`.
+- Toda chamada externa é envolta em try/catch: falha → log de warning + lista vazia, a página nunca quebra.
+- Cache em memória por chave `(hotel, checkin, checkout, quartos, pessoas)` com TTL configurável (`api.hoteis.ofertas.cache-ttl-segundos`, padrão 300s).
 
-### Buscar com filtro
+### Jackson: `@JsonAlias` vs `@JsonProperty`
 
-```java
-// Repository - JPQL
-@Query("SELECT h FROM Hotel h WHERE h.cidade = ?1")
-List<Hotel> buscarPorCidade(String cidade);
+A API externa fala snake_case (`preco_noite`); nosso endpoint JSON interno devolve camelCase para o JS. Use **`@JsonAlias("preco_noite")`** (só leitura) nos DTOs. `@JsonProperty` renomeia **nos dois sentidos** e quebra a serialização do nosso próprio endpoint (bug real: "undefined/noite" no frontend).
 
-// Repository - Derivado
-List<Hotel> findByCidade(String cidade);
+### Geocodificação (`GeocodingService`)
 
-// Service
-public List<Hotel> buscarPorCidade(String cidade) {
-    return hotelRepository.findByCidade(cidade);
-}
+Nominatim/OpenStreetMap exige header `User-Agent` descritivo (configurado em `geocoding.nominatim.user-agent`). Coordenadas são convertidas para **micrograus inteiros** (`grau × 1.000.000`), o formato das colunas `Latitude`/`Longitude`. O serviço nunca lança exceção — retorna `Optional.empty()` e o chamador decide o fallback.
 
-// Controller
-@GetMapping("/cidade/{cidade}")
-public String buscarPorCidade(@PathVariable String cidade, Model model) {
-    model.addAttribute("hoteis", hotelService.buscarPorCidade(cidade));
-    return "resultados";
-}
-```
+## 📤 Upload de arquivos
 
-### Criar/Salvar
-
-```java
-// Service
-public Hotel criarHotel(Hotel hotel) {
-    return hotelRepository.save(hotel);
-}
-
-// Controller
-@PostMapping("/criar")
-public String criarHotel(@ModelAttribute Hotel hotel, RedirectAttributes attr) {
-    Hotel novoHotel = hotelService.criarHotel(hotel);
-    attr.addFlashAttribute("mensagem", "Hotel criado!");
-    return "redirect:/hoteis/" + novoHotel.getId();
-}
-```
-
-### Atualizar
-
-```java
-// Service
-public Hotel atualizarHotel(Hotel hotel) {
-    return hotelRepository.save(hotel);  // findById + atualizar
-}
-
-// Controller
-@PostMapping("/atualizar/{id}")
-public String atualizarHotel(@PathVariable Long id, 
-                            @ModelAttribute Hotel hotel,
-                            RedirectAttributes attr) {
-    hotel.setId(id);
-    hotelService.atualizarHotel(hotel);
-    attr.addFlashAttribute("mensagem", "Atualizado!");
-    return "redirect:/hoteis/" + id;
-}
-```
-
-### Deletar
-
-```java
-// Service
-public void deletarHotel(Long id) {
-    hotelRepository.deleteById(id);
-}
-
-// Controller
-@GetMapping("/deletar/{id}")
-public String deletarHotel(@PathVariable Long id, RedirectAttributes attr) {
-    hotelService.deletarHotel(id);
-    attr.addFlashAttribute("mensagem", "Deletado!");
-    return "redirect:/hoteis";
-}
-```
-
-## 🎨 Exemplos de Templates Thymeleaf
-
-### Loop com Each
-
-```html
-<div th:each="hotel : ${hoteis}" class="hotel-card">
-    <h3 th:text="${hotel.nome}">Nome</h3>
-    <p th:text="${hotel.descricao}">Descrição</p>
-</div>
-```
-
-### Condicional
-
-```html
-<div th:if="${hoteis.isEmpty()}">
-    <p>Nenhum hotel encontrado.</p>
-</div>
-<div th:unless="${hoteis.isEmpty()}">
-    <!-- Exibe se não estiver vazio -->
-</div>
-```
-
-### Link Dinâmico
-
-```html
-<a th:href="@{/hoteis/{id}(id=${hotel.id})}" class="btn">Ver Detalhes</a>
-```
-
-### Formulário
-
-```html
-<form method="post" th:action="@{/hoteis/criar}">
-    <input type="text" name="nome" required>
-    <input type="text" name="cidade" required>
-    <button type="submit">Criar</button>
-</form>
-```
-
-### Valor em Objeto
-
-```html
-<h3 th:text="${hotel.nome}">Padrão</h3>
-<p th:text="|Cidade: ${hotel.cidade}|">Padrão</p>
-```
+- Limites configurados em `application.properties` (`max-file-size=10MB`, `max-request-size=40MB`) — o padrão do Spring (1MB) rejeita fotos reais. Estouro cai no `@ExceptionHandler(MaxUploadSizeExceededException.class)` do `HotelController`, que vira toast de erro.
+- `FileStorageService.salvarArquivos(files, "hoteis"|"quartos")` grava em `uploads/<subpasta>/` com prefixo de timestamp e retorna as URLs `/uploads/...` (servidas pelo `WebConfig`).
 
 ## 🐛 Debugging
 
-### Ver Logs
-
-Edite `src/main/resources/application.properties`:
-
 ```properties
-logging.level.com.bahvago=DEBUG
-logging.level.org.springframework.web=DEBUG
-logging.level.org.hibernate.SQL=DEBUG
-```
-
-### Query SQL
-
-Adicione a `application.properties`:
-
-```properties
+# application.properties — já ligado:
+logging.level.com.bahvago=DEBUG      # inclui request/response da API de ofertas
+# Para ver SQL:
 spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.format_sql=true
 ```
 
-## 📊 Padrão de Resposta do Controller
+## 🧪 Verificando templates sem subir a aplicação
 
-```java
-@Controller
-@RequestMapping("/hoteis")
-public class HotelController {
-    
-    // Listar
-    @GetMapping
-    public String listar(Model model) {
-        model.addAttribute("hoteis", service.listarTodos());
-        return "hotel";  // renderiza hotel.html
-    }
-    
-    // Detalhe
-    @GetMapping("/{id}")
-    public String detalhe(@PathVariable Long id, Model model) {
-        model.addAttribute("hotel", service.buscarPorId(id));
-        return "detalhe";
-    }
-    
-    // Criar
-    @PostMapping("/criar")
-    public String criar(@ModelAttribute Hotel hotel, RedirectAttributes attr) {
-        Hotel novo = service.criarHotel(hotel);
-        attr.addFlashAttribute("mensagem", "Criado com sucesso!");
-        return "redirect:/hoteis/" + novo.getId();
-    }
-    
-    // Atualizar
-    @PostMapping("/atualizar/{id}")
-    public String atualizar(@PathVariable Long id, 
-                           @ModelAttribute Hotel hotel,
-                           RedirectAttributes attr) {
-        hotel.setId(id);
-        service.atualizarHotel(hotel);
-        attr.addFlashAttribute("mensagem", "Atualizado!");
-        return "redirect:/hoteis/" + id;
-    }
-    
-    // Deletar
-    @GetMapping("/deletar/{id}")
-    public String deletar(@PathVariable Long id, RedirectAttributes attr) {
-        service.deletarHotel(id);
-        attr.addFlashAttribute("mensagem", "Deletado!");
-        return "redirect:/hoteis";
-    }
-}
-```
+Padrão usado no projeto para pegar regressões de template offline: um `main` standalone com `SpringTemplateEngine` + `FileTemplateResolver` apontado para `src/main/resources/templates/`, renderizando o template com dados de mock e fazendo asserts no HTML gerado. Dois detalhes de plumbing:
 
-## 🧪 Testando a API com cURL
-
-```bash
-# Listar hotéis
-curl http://localhost:8080/hoteis
-
-# Buscar por ID
-curl http://localhost:8080/hoteis/1
-
-# Criar hotel (POST)
-curl -X POST http://localhost:8080/hoteis/criar \
-  -d "nome=Hotel ABC&cidade=Salvador" \
-  -H "Content-Type: application/x-www-form-urlencoded"
-```
-
-## 📚 Estrutura de Pastas Recomendada para Novo Desenvolvedor
-
-1. **Criar entidade** em `model/`
-2. **Criar repository** em `repository/`
-3. **Criar service** em `service/`
-4. **Criar controller** em `controller/`
-5. **Criar template** em `templates/`
-6. **Adicionar rota** no controller
-
-Sempre nessa ordem!
+- Sobrescreva `StandardLinkBuilder.computeContextPath` para retornar `""` — senão links `@{/...}` lançam `TemplateProcessingException` fora de um contexto web.
+- O Thymeleaf **não valida aninhamento HTML5** — ele renderiza `<form>` aninhado sem reclamar. Inclua uma checagem estrutural própria (varredura balanceando `<form>`/`</form>`) nos asserts.
 
 ## 🚨 Erros Comuns
 
 | Erro | Solução |
 |------|---------|
-| "Table not found" | Certifique-se que o MySQL está rodando (`docker-compose up -d`) |
-| "No mapping found" | Verifique `@RequestMapping` e `@GetMapping/@PostMapping` |
-| "Null Pointer Exception" | Use `.orElseThrow()` ou verifique se objeto existe |
-| "Template not found" | Verifique se o arquivo HTML está em `templates/` com nome correto |
-| "Resource not found (CSS/JS)" | Verifique se os arquivos estão em `static/` com caminho correto |
-
----
+| "Table not found" | MySQL fora do ar → `cd DB && docker-compose up -d` |
+| Schema desatualizado/estranho | O SQL só roda na 1ª criação do volume: `docker-compose down -v && docker-compose up -d` recria do zero (apaga os dados!) |
+| `422 field required, loc: body` na API de ofertas | RestClient sem `SimpleClientHttpRequestFactory` (ver seção acima) |
+| `DataIntegrityViolationException` em coluna boolean | Checkbox desmarcado não enviado → padrão checkbox + hidden |
+| Campo JSON `undefined` no frontend | `@JsonProperty` onde deveria ser `@JsonAlias` |
+| Upload "não funciona" sem erro claro | Arquivo > limite de multipart → conferir `spring.servlet.multipart.*` |
+| Rota administrativa acessível deslogado | Regra criada depois do `permitAll()` amplo → mover para o bloco `hasRole("HOTELEIRO")` |
+| Form salva errado / botão submete outra coisa | `<form>` aninhado → mover mini-forms para fora do form principal |
