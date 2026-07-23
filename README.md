@@ -31,6 +31,9 @@ O BahVago é um comparador de hospedagens no estilo Trivago: o viajante busca ho
 - Docker + Docker Compose (para o MySQL)
 - (Opcional, para ofertas reais) a API externa de ofertas rodando em `http://localhost:8001`
 
+### API de ofertas (externa)
+[https://github.com/fabriciobarbosaviegas/Trivago-Scrapper](https://github.com/fabriciobarbosaviegas/Trivago-Scrapper)
+
 ### 1. Banco de dados
 
 ```bash
@@ -131,8 +134,7 @@ A tabela completa de rotas, com todos os endpoints JSON e administrativos, está
 
 Tabelas criadas por `DB/migrations/bahvagoBD.sql`: `Localizacao`, `CriterioBusca`, `Usuario`, `HotelEstatisticas`, `ImagemHotel`, `Quarto`, `ImagemQuarto`, `Oferta`, `Avaliacao`, `Salva`, `Reserva`, `HotelFavorito`.
 
-Pontos que costumam surpreender:
-- **Latitude/Longitude são `INT`** em micrograus (`grau × 1.000.000`) e formam a chave primária de `Localizacao`.
+- **Latitude/Longitude são `INT`** em micrograus (`grau X 1.000.000`) e formam a chave primária de `Localizacao`.
 - **`Quarto` tem chave composta** (`Numero`, `CodigoHotel`) — não existe id único de quarto.
 - A entidade `Hotel` mapeia a tabela **`HotelEstatisticas`**.
 - Imagens de hotel/quarto ficam em tabelas próprias (`ImagemHotel`/`ImagemQuarto`), mapeadas como `@ElementCollection`.
