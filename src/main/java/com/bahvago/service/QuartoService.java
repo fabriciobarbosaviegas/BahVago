@@ -41,4 +41,15 @@ public class QuartoService {
     public void deletarQuarto(Integer numero, Long codigoHotel) {
         quartoRepository.deleteById(new QuartoId(numero, codigoHotel));
     }
+    public long contarTotal(Long codigoHotel) {
+    return quartoRepository.findByCodigoHotel(codigoHotel).size();
+        }
+
+    public long contarDisponiveis(Long codigoHotel) {
+        return quartoRepository.findByCodigoHotelAndDisponivel(codigoHotel, true).size();
+    }
+
+    public long contarIndisponiveis(Long codigoHotel) {
+        return quartoRepository.findByCodigoHotelAndDisponivel(codigoHotel, false).size();
+    }
 }

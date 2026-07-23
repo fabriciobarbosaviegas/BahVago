@@ -32,4 +32,10 @@ public class ManutencaoQuartoService {
     public boolean estaEmManutencao(Long codigoHotel, Integer numero) {
         return quartosEmManutencao.contains(chave(codigoHotel, numero));
     }
+    
+    public long contar(Long codigoHotel) {
+    return quartosEmManutencao.stream()
+            .filter(chave -> chave.startsWith(codigoHotel + ":"))
+            .count();
+}
 }

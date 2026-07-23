@@ -36,19 +36,14 @@
                     <p>Visão geral do seu hotel</p>
                 </div>
             </header>
-
+                
             <section class="metrics-row-grid">
                 <div class="metric-card">
-                    <div class="metric-header"><i class="fa-regular fa-calendar-check text-blue"></i> <span class="badge-trend positive">+12%</span></div>
-                    <h3>1.247</h3>
-                    <p>Total de reservas</p>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-header"><i class="fa-solid fa-percent text-blue"></i> <span class="badge-trend positive">+5%</span></div>
-                    <h3>87%</h3>
+                    <div class="metric-header"><i class="fa-solid fa-percent text-blue"></i></div>
+                    <h3 th:text="${#numbers.formatDecimal(taxaOcupacao,1,0) + '%'}"> 0%</h3>
                     <p>Taxa de ocupação</p>
                 </div>
-                <div class="metric-card">
+                <div class="metric-card" >
                     <div class="metric-header"><i class="fa-regular fa-star text-blue"></i> <span class="rating-label-mini" th:text="${hotel.avaliacaoMedia != null ? 
                 #numbers.formatDecimal(hotel.avaliacaoMedia,1,1) : '0.0'}"></span></div>
                 <h3 th:text="${hotel.avaliacaoMedia != null ? 
@@ -59,15 +54,34 @@
             </section>
 
             <section class="admin-section-container">
-                <h4>Status dos quartos</h4>
-                <div class="status-rooms-grid">
-                    <div class="status-block available"><h5>12</h5><p>Disponíveis</p></div>
-                    <div class="status-block occupied"><h5>18</h5><p>Ocupados</p></div>
-                    <div class="status-block maintenance"><h5>2</h5><p>Manutenção</p></div>
-                </div>
-            </section>
-        </main>
-    </div>
+    <h4>Status dos quartos</h4>
+
+    <div class="status-rooms-grid">
+
+        <div class="status-block total">
+            <h5 th:text="${totalQuartos}">0</h5>
+            <p>Total de quartos</p>
+        </div>
+
+        <div class="status-block available">
+            <h5 th:text="${quartosDisponiveis}">0</h5>
+            <p>Disponíveis</p>
+        </div>
+
+        <div class="status-block occupied">
+            <h5 th:text="${quartosOcupados}">0</h5>
+            <p>Ocupados</p>
+        </div>
+
+        <div class="status-block maintenance">
+            <h5 th:text="${quartosEmManutencao}">0</h5>
+            <p>Manutenção</p>
+        </div>
+
+            </div>
+        </section>
+                </main>
+            </div>
 
     <script th:src="@{/js/script.js}"></script>
 </body>

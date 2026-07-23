@@ -11,4 +11,7 @@ public interface QuartoRepository extends JpaRepository<Quarto, QuartoId> {
     List<Quarto> findByCodigoHotel(Long codigoHotel);
     List<Quarto> findByCodigoHotelAndDisponivel(Long codigoHotel, Boolean disponivel);
     boolean existsByCodigoHotelAndAceitaPetTrue(Integer codigoHotel);
+    long countByCodigoHotel(Long codigoHotel);
+    long countByCodigoHotelAndDisponivelTrue(Long codigoHotel);
+    long countByCodigoHotelAndDisponivelFalse(Long codigoHotel);
 }

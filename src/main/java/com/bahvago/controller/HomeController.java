@@ -6,6 +6,7 @@ import com.bahvago.model.Quarto;
 import com.bahvago.model.Usuario;
 import com.bahvago.service.AvaliacaoService;
 import com.bahvago.service.HotelService;
+import com.bahvago.service.ManutencaoQuartoService;
 import com.bahvago.service.OfertaService;
 import com.bahvago.service.QuartoService;
 import com.bahvago.service.UsuarioService;
@@ -35,6 +36,9 @@ public class HomeController {
     @Autowired
     private QuartoService quartoService;
 
+    @Autowired
+    private ManutencaoQuartoService manutencaoQuartoService;
+
     @GetMapping("/")
     public String index(Model model) {
         List<Hotel> hoteis = hotelService.listarTodos();
@@ -58,7 +62,18 @@ public class HomeController {
                 .orElseThrow();
 
         model.addAttribute("hotel", hotel);
+        Long codigoHotel = hotel.getId().longValue();
+        long totalQuartos = quartoService.contarTotal(codigoHotel);
+        long quartosDisponiveis = quartoService.contarDisponiveis(codigoHotel);
+        long quartosEmManutencao = manutencaoQuartoService.contar(codigoHotel);
+        long quartosOcupados = quartoService.contarIndisponiveis(codigoHotel) - quartosEmManutencao;
+        double taxaOcupacao = totalQuartos == 0 ? 0 : (quartosOcupados * 100.0) / totalQuartos;
 
+        model.addAttribute("taxaOcupacao", taxaOcupacao);
+        model.addAttribute("totalQuartos", totalQuartos);
+        model.addAttribute("quartosDisponiveis", quartosDisponiveis);
+        model.addAttribute("quartosOcupados", quartosOcupados);
+        model.addAttribute("quartosEmManutencao", quartosEmManutencao);
         return "dashboard";
     }
 
