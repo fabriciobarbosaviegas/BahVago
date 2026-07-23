@@ -31,6 +31,9 @@ O BahVago é um comparador de hospedagens no estilo Trivago: o viajante busca ho
 - Docker + Docker Compose (para o MySQL)
 - (Opcional, para ofertas reais) a API externa de ofertas rodando em `http://localhost:8001`
 
+### API de ofertas (externa)
+[https://github.com/fabriciobarbosaviegas/Trivago-Scrapper](https://github.com/fabriciobarbosaviegas/Trivago-Scrapper)
+
 ### 1. Banco de dados
 
 ```bash
@@ -40,8 +43,6 @@ cd ..
 ```
 
 Isso constrói e sobe o container `bahvago-mysql` (MySQL 8, porta `3306`, banco `bahvagoBD`, usuário `root`, senha `root`). **Na primeira inicialização do volume**, o script `DB/migrations/bahvagoBD.sql` é executado automaticamente (via `docker-entrypoint-initdb.d`), criando o schema completo e dados de exemplo.
-
-> ⚠️ **Regra de ouro do projeto: nunca altere os arquivos em `DB/migrations/`.** O schema definido ali é a fonte da verdade. Funcionalidades novas devem ser modeladas sobre as colunas/tabelas existentes (ver exemplos no [guia de desenvolvimento](GUIA_DESENVOLVIMENTO.md)).
 
 ### 2. Aplicação
 
@@ -131,8 +132,7 @@ A tabela completa de rotas, com todos os endpoints JSON e administrativos, está
 
 Tabelas criadas por `DB/migrations/bahvagoBD.sql`: `Localizacao`, `CriterioBusca`, `Usuario`, `HotelEstatisticas`, `ImagemHotel`, `Quarto`, `ImagemQuarto`, `Oferta`, `Avaliacao`, `Salva`, `Reserva`, `HotelFavorito`.
 
-Pontos que costumam surpreender:
-- **Latitude/Longitude são `INT`** em micrograus (`grau × 1.000.000`) e formam a chave primária de `Localizacao`.
+- **Latitude/Longitude são `INT`** em micrograus (`grau X 1.000.000`) e formam a chave primária de `Localizacao`.
 - **`Quarto` tem chave composta** (`Numero`, `CodigoHotel`) — não existe id único de quarto.
 - A entidade `Hotel` mapeia a tabela **`HotelEstatisticas`**.
 - Imagens de hotel/quarto ficam em tabelas próprias (`ImagemHotel`/`ImagemQuarto`), mapeadas como `@ElementCollection`.
