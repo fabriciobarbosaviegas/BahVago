@@ -2,10 +2,13 @@ package com.bahvago.controller;
 
 import com.bahvago.model.Avaliacao;
 import com.bahvago.model.Hotel;
+import com.bahvago.model.Localizacao;
 import com.bahvago.model.Oferta;
 import com.bahvago.model.Usuario;
 import com.bahvago.service.AvaliacaoService;
+import com.bahvago.service.GeocodingService;
 import com.bahvago.service.HotelService;
+import com.bahvago.service.LocalizacaoService;
 import com.bahvago.service.OfertaService;
 import com.bahvago.service.QuartoService;
 import com.bahvago.service.UsuarioService;
@@ -15,12 +18,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Controller
 @RequestMapping("/hoteis")
@@ -44,6 +51,12 @@ public class HotelController {
     @Autowired
     private FileStorageService fileStorageService;
 
+    @Autowired
+    private LocalizacaoService localizacaoService;
+
+    @Autowired
+    private GeocodingService geocodingService;
+
     @GetMapping
     public String listarHoteis(Model model) {
         List<Hotel> hoteis = hotelService.listarTodos();
@@ -64,13 +77,14 @@ public class HotelController {
     @GetMapping("/gerenciar-hotel")
     public String gerenciarHotel(Authentication authentication, Model model) {
 
-        Usuario usuario = usuarioService.buscarPorEmail(authentication.getName())
-                .orElseThrow();
+        Usuario usuario = usuarioAutenticado(authentication);
 
         Hotel hotel = hotelService.buscarPorHoteleiro(usuario.getCpf())
                 .stream()
                 .findFirst()
                 .orElseThrow();
+
+        hotelService.preencherInformacaoPet(List.of(hotel));
 
         model.addAttribute("hotel", hotel);
 
@@ -149,7 +163,13 @@ public class HotelController {
     public String criarHotel(@ModelAttribute Hotel hotel,
                               @RequestParam(value = "imagemArquivos", required = false) List<MultipartFile> imagemArquivos,
                               @RequestParam(value = "imagensUrls", required = false) String imagensUrls,
+                              Authentication authentication,
                               RedirectAttributes redirectAttributes) {
+        // CPF vem do usuário autenticado, nunca do formulário: evita que alguém
+        // registre um hotel em nome de outro hoteleiro forjando esse campo.
+        Usuario usuario = usuarioAutenticado(authentication);
+        hotel.setCpf(usuario.getCpf());
+
         List<String> novasUrls = fileStorageService.salvarArquivos(imagemArquivos, "hoteis");
         if (imagensUrls != null && !imagensUrls.trim().isEmpty()) {
             for (String url : imagensUrls.split("[\n,]+")) {
@@ -172,15 +192,17 @@ public class HotelController {
                                   @ModelAttribute Hotel dadosFormulario,
                                   @RequestParam(value = "imagemArquivos", required = false) List<MultipartFile> imagemArquivos,
                                   @RequestParam(value = "imagensUrls", required = false) String imagensUrls,
+                                  Authentication authentication,
                                   RedirectAttributes redirectAttributes) {
 
         Hotel hotel = hotelService.buscarPorId(id) .orElseThrow(() -> new RuntimeException("Hotel não encontrado"));
+        verificarPropriedade(hotel, usuarioAutenticado(authentication));
 
         hotel.setNome(dadosFormulario.getNome());
         hotel.setDescricao(dadosFormulario.getDescricao());
-        hotel.getLocalizacao().setCidade( dadosFormulario.getLocalizacao().getCidade());
-        hotel.getLocalizacao().setEstado( dadosFormulario.getLocalizacao().getEstado());
-        hotel.getLocalizacao().setEnderecoAproximado( dadosFormulario.getLocalizacao().getEnderecoAproximado());
+
+        boolean enderecoLocalizado = atualizarLocalizacaoComGeocoding(hotel, dadosFormulario.getLocalizacao());
+
         List<String> novasUrls = fileStorageService.salvarArquivos(imagemArquivos, "hoteis");
         if (imagensUrls != null && !imagensUrls.trim().isEmpty()) {
             for (String url : imagensUrls.split("[\n,]+")) {
@@ -190,15 +212,89 @@ public class HotelController {
                 }
             }
         }
-        hotel.getImagens().addAll(novasUrls);            
+        hotel.getImagens().addAll(novasUrls);
 
         hotelService.atualizarHotel(hotel);
-        redirectAttributes.addFlashAttribute("mensagem", "Hotel atualizado com sucesso!");
+
+        if (enderecoLocalizado) {
+            redirectAttributes.addFlashAttribute("mensagem", "Hotel atualizado com sucesso!");
+        } else {
+            redirectAttributes.addFlashAttribute("erro",
+                    "Hotel atualizado, mas não encontramos o endereço informado no mapa — a localização (latitude/longitude) pode ter ficado desatualizada.");
+        }
+        return "redirect:/hoteis/gerenciar-hotel";
+    }
+
+    /**
+     * Geocodifica o endereço informado no formulário via Nominatim/OpenStreetMap e associa o
+     * hotel à Localizacao correspondente (existente ou nova) por coordenadas. Se a geocodificação
+     * falhar, mantém as coordenadas atuais e apenas atualiza os textos (cidade/estado/endereço)
+     * na Localizacao já associada, para não perder os dados digitados pelo hoteleiro.
+     */
+    private boolean atualizarLocalizacaoComGeocoding(Hotel hotel, Localizacao dadosLocalizacao) {
+        String cidade = dadosLocalizacao.getCidade();
+        String estado = dadosLocalizacao.getEstado();
+        String enderecoAproximado = dadosLocalizacao.getEnderecoAproximado();
+
+        Localizacao localizacaoAtual = hotel.getLocalizacao();
+        String pais = localizacaoAtual != null && StringUtils.hasText(localizacaoAtual.getPais())
+                ? localizacaoAtual.getPais() : "Brasil";
+        String cep = localizacaoAtual != null && localizacaoAtual.getCep() != null
+                ? localizacaoAtual.getCep() : "";
+
+        String enderecoParaGeocodificar = Stream.of(enderecoAproximado, cidade, estado, pais)
+                .filter(StringUtils::hasText)
+                .collect(Collectors.joining(", "));
+
+        Optional<GeocodingService.Coordenadas> coordenadas = geocodingService.buscarCoordenadas(enderecoParaGeocodificar);
+
+        if (coordenadas.isPresent()) {
+            Localizacao localizacao = localizacaoService.buscarOuCriar(
+                    coordenadas.get().latitude(), coordenadas.get().longitude(),
+                    cidade, estado, pais, cep, enderecoAproximado);
+            hotel.setLatitude(localizacao.getId().getLatitude());
+            hotel.setLongitude(localizacao.getId().getLongitude());
+            hotel.setLocalizacao(localizacao);
+            return true;
+        }
+
+        if (localizacaoAtual != null) {
+            localizacaoAtual.setCidade(cidade);
+            localizacaoAtual.setEstado(estado);
+            localizacaoAtual.setEnderecoAproximado(enderecoAproximado);
+            localizacaoService.atualizarLocalizacao(localizacaoAtual);
+        }
+        return false;
+    }
+
+    @PostMapping("/atualizar/{id}/imagem/remover")
+    public String removerImagemHotel(@PathVariable Integer id,
+                                      @RequestParam String url,
+                                      Authentication authentication,
+                                      RedirectAttributes redirectAttributes) {
+        Hotel hotel = hotelService.buscarPorId(id).orElseThrow(() -> new RuntimeException("Hotel não encontrado"));
+        verificarPropriedade(hotel, usuarioAutenticado(authentication));
+
+        hotel.getImagens().remove(url);
+        hotelService.atualizarHotel(hotel);
+
+        redirectAttributes.addFlashAttribute("mensagem", "Imagem removida com sucesso!");
+        return "redirect:/hoteis/gerenciar-hotel";
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public String tratarUploadGrandeDemais(RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("erro",
+                "Uma ou mais imagens são grandes demais (limite de 10MB por arquivo). Tente novamente com arquivos menores.");
         return "redirect:/hoteis/gerenciar-hotel";
     }
 
     @GetMapping("/deletar/{id}")
-    public String deletarHotel(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
+    public String deletarHotel(@PathVariable Integer id, Authentication authentication,
+                                RedirectAttributes redirectAttributes) {
+        Hotel hotel = hotelService.buscarPorId(id).orElseThrow(() -> new RuntimeException("Hotel não encontrado"));
+        verificarPropriedade(hotel, usuarioAutenticado(authentication));
+
         hotelService.deletarHotel(id);
         redirectAttributes.addFlashAttribute("mensagem", "Hotel deletado com sucesso!");
         return "redirect:/hoteis";
@@ -242,5 +338,16 @@ public class HotelController {
     private Map<Integer, Oferta> mapOfertasPorHotel(List<Hotel> hoteis) {
         List<Integer> ids = hoteis.stream().map(Hotel::getId).collect(Collectors.toList());
         return ofertaService.mapOfertaPrincipalPorHotel(ids);
+    }
+
+    private Usuario usuarioAutenticado(Authentication authentication) {
+        return usuarioService.buscarPorEmail(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+    }
+
+    private void verificarPropriedade(Hotel hotel, Usuario usuario) {
+        if (!hotel.getCpf().equals(usuario.getCpf())) {
+            throw new RuntimeException("Você não tem permissão para gerenciar este hotel");
+        }
     }
 }

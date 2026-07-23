@@ -2281,6 +2281,7 @@ input:checked+.slider:before {
 
 .admin-thumb-gallery-preview {
     display: flex;
+    flex-wrap: wrap;
     gap: 12px;
     margin-top: 12px;
 }
@@ -2291,6 +2292,131 @@ input:checked+.slider:before {
     object-fit: cover;
     border-radius: 6px;
     border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.admin-thumb-item {
+    position: relative;
+    width: 100px;
+    height: 70px;
+}
+
+.admin-thumb-item img {
+    width: 100%;
+    height: 100%;
+}
+
+.admin-thumb-item form {
+    margin: 0;
+}
+
+.btn-remove-thumb {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: none;
+    background-color: #ef4444;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.btn-remove-thumb:hover {
+    background-color: #dc2626;
+}
+
+.admin-thumb-gallery-preview .empty-hint {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+}
+
+.toast {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 260px;
+    max-width: 360px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: #1e293b;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    color: var(--text-main);
+    font-size: 0.9rem;
+    animation: toast-slide-in 0.25s ease;
+}
+
+.toast.toast-hide {
+    animation: toast-slide-out 0.25s ease forwards;
+}
+
+.toast i {
+    font-size: 1.1rem;
+}
+
+.toast-success i {
+    color: #22c55e;
+}
+
+.toast-error i {
+    color: #ef4444;
+}
+
+.toast span {
+    flex: 1;
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+}
+
+@keyframes toast-slide-in {
+    from {
+        opacity: 0;
+        transform: translateX(24px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes toast-slide-out {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateX(24px);
+    }
 }
 
 .admin-checkbox-list-stack,

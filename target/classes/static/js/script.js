@@ -503,14 +503,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Formulários Administrativos
 
-    const formComodidadesHotel = document.getElementById("formComodidadesHotel");
-    if (formComodidadesHotel) {
-        formComodidadesHotel.addEventListener("submit", (e) => {
-            e.preventDefault();
-            alert("Comodidades atualizadas!");
-        });
-    }
-
     const formNovoQuarto = document.getElementById("formNovoQuarto");
     if (formNovoQuarto) {
         formNovoQuarto.addEventListener("submit", (e) => {
@@ -585,18 +577,77 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const inputArquivos = document.getElementById("imagemArquivos");
     const fileNames = document.getElementById("fileNames");
+    const previewStrip = document.getElementById("uploadPreviewStrip");
 
     if (inputArquivos) {
-        inputArquivos.addEventListener("change", () => {
-            if (inputArquivos.files.length === 0) {
+        let arquivosSelecionados = [];
+        let urlsPreviewAtuais = [];
+
+        const atualizarInputFiles = () => {
+            const dataTransfer = new DataTransfer();
+            arquivosSelecionados.forEach((arquivo) => dataTransfer.items.add(arquivo));
+            inputArquivos.files = dataTransfer.files;
+        };
+
+        const atualizarResumoTexto = () => {
+            if (!fileNames) return;
+            if (arquivosSelecionados.length === 0) {
                 fileNames.textContent = "Nenhum arquivo selecionado.";
-            } else if (inputArquivos.files.length === 1) {
-                fileNames.textContent = inputArquivos.files[0].name;
+            } else if (arquivosSelecionados.length === 1) {
+                fileNames.textContent = arquivosSelecionados[0].name;
             } else {
-                fileNames.textContent = `${inputArquivos.files.length} imagens selecionadas`;
+                fileNames.textContent = `${arquivosSelecionados.length} imagens selecionadas`;
             }
+        };
+
+        const renderizarPreview = () => {
+            if (!previewStrip) return;
+            urlsPreviewAtuais.forEach((url) => URL.revokeObjectURL(url));
+            urlsPreviewAtuais = [];
+            previewStrip.innerHTML = "";
+
+            arquivosSelecionados.forEach((arquivo, indice) => {
+                const url = URL.createObjectURL(arquivo);
+                urlsPreviewAtuais.push(url);
+
+                const item = document.createElement("div");
+                item.className = "admin-thumb-item";
+                item.innerHTML = `
+                    <img src="${url}" alt="Pré-visualização">
+                    <button type="button" class="btn-remove-thumb" title="Remover" aria-label="Remover">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                `;
+                item.querySelector(".btn-remove-thumb").addEventListener("click", () => {
+                    arquivosSelecionados.splice(indice, 1);
+                    atualizarInputFiles();
+                    atualizarResumoTexto();
+                    renderizarPreview();
+                });
+                previewStrip.appendChild(item);
+            });
+        };
+
+        inputArquivos.addEventListener("change", () => {
+            arquivosSelecionados = arquivosSelecionados.concat(Array.from(inputArquivos.files));
+            atualizarInputFiles();
+            atualizarResumoTexto();
+            renderizarPreview();
         });
-}
+    }
+
+    // Indicativo de carregamento ao salvar o formulário de "Informações básicas"
+    // (gerenciar-hotel.html) — o upload de imagens pode demorar alguns segundos.
+    const formInfoHotelSalvar = document.getElementById("formInfoHotel");
+    if (formInfoHotelSalvar) {
+        formInfoHotelSalvar.addEventListener("submit", () => {
+            const overlaySalvando = document.getElementById("pageLoadingOverlay");
+            if (overlaySalvando) overlaySalvando.style.display = "flex";
+
+            const botaoSalvar = formInfoHotelSalvar.querySelector("button[type=submit]");
+            if (botaoSalvar) botaoSalvar.disabled = true;
+        });
+    }
     // ==========================================
     // 8. GALERIA DE FOTOS DO HOTEL
     // ==========================================
@@ -753,98 +804,118 @@ document.addEventListener("DOMContentLoaded", () => {
     const clearFiltersBtn = document.getElementById("clearFilters");
 
     if (hotelsGrid && (filtersForm || sortSelect)) {
-        const allCards = Array.from(hotelsGrid.querySelectorAll(".hotel-card"));
+    const allCards = Array.from(hotelsGrid.querySelectorAll(".hotel-card"));
 
-        const applyFiltersAndSort = () => {
-            const maxPrice = priceRange ? parseFloat(priceRange.value) : Infinity;
+    const applyFiltersAndSort = () => {
+        console.log("Aplicando filtros..."); 
 
-            const ratingCheckboxes = document.querySelectorAll('input[data-filter="rating"]:checked');
-            const selectedRatings = Array.from(ratingCheckboxes).map(cb => parseFloat(cb.value));
+        const maxPrice = priceRange ? parseFloat(priceRange.value) : Infinity;
+        
+        const petFriendlyCheckbox = document.querySelector('input[data-filter="pet"]');
+        const petFriendlyChecked = petFriendlyCheckbox ? petFriendlyCheckbox.checked : false;
 
-            let visibleCards = allCards.filter(card => {
-                const price = parseFloat(card.getAttribute("data-price"));
-                const rating = parseFloat(card.getAttribute("data-rating"));
+        const ratingCheckboxes = document.querySelectorAll('input[data-filter="rating"]:checked');
+        const selectedRatings = Array.from(ratingCheckboxes).map(cb => parseFloat(cb.value));
 
-                if (price > maxPrice) return false;
+        let visibleCards = allCards.filter(card => {
+            const price = parseFloat(card.getAttribute("data-price"));
+            const rating = parseFloat(card.getAttribute("data-rating"));
+            const aceitaPet = card.getAttribute("data-pet") === 'true';
 
-                if (selectedRatings.length > 0) {
-                    const minSelectedRating = Math.min(...selectedRatings);
-                    if (rating < minSelectedRating) return false;
-                }
+            if (price > maxPrice) return false;
 
-                return true;
-            });
+            if (petFriendlyChecked && !aceitaPet) return false;
 
-            if (sortSelect) {
-                const sortValue = sortSelect.value;
-                visibleCards.sort((a, b) => {
-                    const priceA = parseFloat(a.getAttribute("data-price"));
-                    const priceB = parseFloat(b.getAttribute("data-price"));
-                    const ratingA = parseFloat(a.getAttribute("data-rating"));
-                    const ratingB = parseFloat(b.getAttribute("data-rating"));
-
-                    if (sortValue === "preco_asc") return priceA - priceB;
-                    if (sortValue === "preco_desc") return priceB - priceA;
-                    if (sortValue === "avaliacao") return ratingB - ratingA;
-                    return 0;
-                });
+            if (selectedRatings.length > 0) {
+                const minSelectedRating = Math.min(...selectedRatings);
+                if (rating < minSelectedRating) return false;
             }
 
-            allCards.forEach(card => card.style.display = "none");
-            visibleCards.forEach(card => {
-                card.style.display = "";
-                hotelsGrid.appendChild(card);
-            });
-
-            const resultsCount = document.querySelector(".results-count");
-            if (resultsCount) {
-                resultsCount.textContent = `${visibleCards.length} ${visibleCards.length === 1 ? 'opção encontrada' : 'opções encontradas'}`;
-            }
-
-            const emptyState = document.querySelector(".empty-search-state");
-            if (emptyState) {
-                if (visibleCards.length === 0) {
-                    emptyState.style.display = "flex";
-                } else {
-                    emptyState.style.display = "none";
-                }
-            } else if (visibleCards.length === 0) {
-                const emptyHTML = document.createElement("div");
-                emptyHTML.className = "empty-search-state";
-                emptyHTML.innerHTML = `
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <h3>Nenhum hotel encontrado</h3>
-                    <p>Nenhum hotel corresponde aos filtros selecionados.</p>
-                    <button class="btn-primary" onclick="document.getElementById('clearFilters').click()">Limpar Filtros</button>
-                `;
-                hotelsGrid.appendChild(emptyHTML);
-            }
-        };
-
-        if (filtersForm) {
-            filtersForm.addEventListener("submit", (e) => {
-                e.preventDefault();
-                applyFiltersAndSort();
-            });
-
-            if (priceRange && priceRangeMax) {
-                priceRange.addEventListener("input", (e) => {
-                    priceRangeMax.textContent = `R$ ${e.target.value}`;
-                });
-            }
-
-            if (clearFiltersBtn) {
-                clearFiltersBtn.addEventListener("click", () => {
-                    filtersForm.reset();
-                    if (priceRangeMax) priceRangeMax.textContent = `R$ ${priceRange ? priceRange.max : 5000}+`;
-                    applyFiltersAndSort();
-                });
-            }
-        }
+            return true;
+        });
 
         if (sortSelect) {
-            sortSelect.addEventListener("change", applyFiltersAndSort);
+            const sortValue = sortSelect.value;
+            visibleCards.sort((a, b) => {
+                const priceA = parseFloat(a.getAttribute("data-price"));
+                const priceB = parseFloat(b.getAttribute("data-price"));
+                const ratingA = parseFloat(a.getAttribute("data-rating"));
+                const ratingB = parseFloat(b.getAttribute("data-rating"));
+
+                if (sortValue === "preco_asc") return priceA - priceB;
+                if (sortValue === "preco_desc") return priceB - priceA;
+                if (sortValue === "avaliacao") return ratingB - ratingA;
+                return 0;
+            });
         }
+
+        allCards.forEach(card => card.style.display = "none");
+        
+        visibleCards.forEach(card => {
+            card.style.display = "block"; 
+            hotelsGrid.appendChild(card);
+        });
+
+        const resultsCount = document.querySelector(".results-count");
+        if (resultsCount) {
+            resultsCount.textContent = `${visibleCards.length} ${visibleCards.length === 1 ? 'opção encontrada' : 'opções encontradas'}`;
+        }
+
+        const emptyState = document.querySelector(".empty-search-state");
+        if (emptyState) {
+            emptyState.style.display = visibleCards.length === 0 ? "flex" : "none";
+        }
+    };
+
+    if (filtersForm) {
+        filtersForm.addEventListener("submit", (e) => {
+            console.log("Submit do formulário interceptado");
+            e.preventDefault(); 
+            applyFiltersAndSort();
+            return false; 
+        });
+
+        if (priceRange) {
+            priceRange.addEventListener("change", applyFiltersAndSort);
+        }
+    }
+
+    if (clearFiltersBtn) {
+        clearFiltersBtn.addEventListener("click", () => {
+            console.log("Limpando filtros...");
+            filtersForm.reset();
+            if (priceRange) {
+                priceRange.value = priceRange.max; 
+            }
+            if (priceRangeMax) {
+                priceRangeMax.textContent = `R$ ${priceRange ? priceRange.max : '5000'}+`;
+            }
+            applyFiltersAndSort();
+        });
+    }
+
+    if (sortSelect) {
+        sortSelect.addEventListener("change", applyFiltersAndSort);
+    }
+}
+
+    // ==========================================
+    // 13. TOASTS DE FEEDBACK (ex.: gerenciar-hotel.html)
+    // ==========================================
+    const toastContainer = document.getElementById("toastContainer");
+    if (toastContainer) {
+        const removerToast = (toast) => {
+            toast.classList.add("toast-hide");
+            toast.addEventListener("animationend", () => toast.remove(), { once: true });
+        };
+
+        toastContainer.querySelectorAll(".toast").forEach((toast) => {
+            const botaoFechar = toast.querySelector(".toast-close");
+            if (botaoFechar) {
+                botaoFechar.addEventListener("click", () => removerToast(toast));
+            }
+            setTimeout(() => removerToast(toast), 4500);
+        });
     }
 
     console.log("HotelHub - Sistema inicializado com sucesso! 🚀");

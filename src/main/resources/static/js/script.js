@@ -503,14 +503,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Formulários Administrativos
 
-    const formComodidadesHotel = document.getElementById("formComodidadesHotel");
-    if (formComodidadesHotel) {
-        formComodidadesHotel.addEventListener("submit", (e) => {
-            e.preventDefault();
-            alert("Comodidades atualizadas!");
-        });
-    }
-
     const formNovoQuarto = document.getElementById("formNovoQuarto");
     if (formNovoQuarto) {
         formNovoQuarto.addEventListener("submit", (e) => {
@@ -585,18 +577,77 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const inputArquivos = document.getElementById("imagemArquivos");
     const fileNames = document.getElementById("fileNames");
+    const previewStrip = document.getElementById("uploadPreviewStrip");
 
     if (inputArquivos) {
-        inputArquivos.addEventListener("change", () => {
-            if (inputArquivos.files.length === 0) {
+        let arquivosSelecionados = [];
+        let urlsPreviewAtuais = [];
+
+        const atualizarInputFiles = () => {
+            const dataTransfer = new DataTransfer();
+            arquivosSelecionados.forEach((arquivo) => dataTransfer.items.add(arquivo));
+            inputArquivos.files = dataTransfer.files;
+        };
+
+        const atualizarResumoTexto = () => {
+            if (!fileNames) return;
+            if (arquivosSelecionados.length === 0) {
                 fileNames.textContent = "Nenhum arquivo selecionado.";
-            } else if (inputArquivos.files.length === 1) {
-                fileNames.textContent = inputArquivos.files[0].name;
+            } else if (arquivosSelecionados.length === 1) {
+                fileNames.textContent = arquivosSelecionados[0].name;
             } else {
-                fileNames.textContent = `${inputArquivos.files.length} imagens selecionadas`;
+                fileNames.textContent = `${arquivosSelecionados.length} imagens selecionadas`;
             }
+        };
+
+        const renderizarPreview = () => {
+            if (!previewStrip) return;
+            urlsPreviewAtuais.forEach((url) => URL.revokeObjectURL(url));
+            urlsPreviewAtuais = [];
+            previewStrip.innerHTML = "";
+
+            arquivosSelecionados.forEach((arquivo, indice) => {
+                const url = URL.createObjectURL(arquivo);
+                urlsPreviewAtuais.push(url);
+
+                const item = document.createElement("div");
+                item.className = "admin-thumb-item";
+                item.innerHTML = `
+                    <img src="${url}" alt="Pré-visualização">
+                    <button type="button" class="btn-remove-thumb" title="Remover" aria-label="Remover">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                `;
+                item.querySelector(".btn-remove-thumb").addEventListener("click", () => {
+                    arquivosSelecionados.splice(indice, 1);
+                    atualizarInputFiles();
+                    atualizarResumoTexto();
+                    renderizarPreview();
+                });
+                previewStrip.appendChild(item);
+            });
+        };
+
+        inputArquivos.addEventListener("change", () => {
+            arquivosSelecionados = arquivosSelecionados.concat(Array.from(inputArquivos.files));
+            atualizarInputFiles();
+            atualizarResumoTexto();
+            renderizarPreview();
         });
-}
+    }
+
+    // Indicativo de carregamento ao salvar o formulário de "Informações básicas"
+    // (gerenciar-hotel.html) — o upload de imagens pode demorar alguns segundos.
+    const formInfoHotelSalvar = document.getElementById("formInfoHotel");
+    if (formInfoHotelSalvar) {
+        formInfoHotelSalvar.addEventListener("submit", () => {
+            const overlaySalvando = document.getElementById("pageLoadingOverlay");
+            if (overlaySalvando) overlaySalvando.style.display = "flex";
+
+            const botaoSalvar = formInfoHotelSalvar.querySelector("button[type=submit]");
+            if (botaoSalvar) botaoSalvar.disabled = true;
+        });
+    }
     // ==========================================
     // 8. GALERIA DE FOTOS DO HOTEL
     // ==========================================
@@ -847,6 +898,25 @@ document.addEventListener("DOMContentLoaded", () => {
         sortSelect.addEventListener("change", applyFiltersAndSort);
     }
 }
+
+    // ==========================================
+    // 13. TOASTS DE FEEDBACK (ex.: gerenciar-hotel.html)
+    // ==========================================
+    const toastContainer = document.getElementById("toastContainer");
+    if (toastContainer) {
+        const removerToast = (toast) => {
+            toast.classList.add("toast-hide");
+            toast.addEventListener("animationend", () => toast.remove(), { once: true });
+        };
+
+        toastContainer.querySelectorAll(".toast").forEach((toast) => {
+            const botaoFechar = toast.querySelector(".toast-close");
+            if (botaoFechar) {
+                botaoFechar.addEventListener("click", () => removerToast(toast));
+            }
+            setTimeout(() => removerToast(toast), 4500);
+        });
+    }
 
     console.log("HotelHub - Sistema inicializado com sucesso! 🚀");
 });

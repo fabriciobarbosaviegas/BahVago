@@ -25,6 +25,19 @@
         </aside>
 
         <main class="admin-main-content">
+            <div class="toast-container" id="toastContainer">
+                <div class="toast toast-success" th:if="${mensagem != null}">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span th:text="${mensagem}">Sucesso</span>
+                    <button type="button" class="toast-close" aria-label="Fechar">&times;</button>
+                </div>
+                <div class="toast toast-error" th:if="${erro != null}">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span th:text="${erro}">Erro</span>
+                    <button type="button" class="toast-close" aria-label="Fechar">&times;</button>
+                </div>
+            </div>
+
             <header class="admin-content-header">
                 <div>
                     <h1>Gerenciar hotel</h1>
@@ -66,6 +79,8 @@
                             hidden>
 
                         <small id="fileNames">Nenhum arquivo selecionado.</small>
+
+                        <div class="admin-thumb-gallery-preview" id="uploadPreviewStrip"></div>
                     </div>
 
                     <div class="auth-input-group">
@@ -80,27 +95,42 @@
                     <div class="admin-card-form">
                         <h3>Fotos do hotel</h3>
                         <div class="admin-thumb-gallery-preview">
-                            <img th:each="img : ${hotel != null and hotel.imagens != null and !hotel.imagens.isEmpty() ? hotel.imagens : #arrays.toArray({'https://blog.iprocess.com.br/wp-content/uploads/2021/11/placeholder.png'})}"
-                                 th:src="${img}"
-                                 src="https://blog.iprocess.com.br/wp-content/uploads/2021/11/placeholder.png">
+                            <div class="admin-thumb-item" th:each="img : ${hotel != null ? hotel.imagens : null}">
+                                <img th:src="${img}" src="https://blog.iprocess.com.br/wp-content/uploads/2021/11/placeholder.png">
+                                <form method="post" th:action="@{/hoteis/atualizar/{id}/imagem/remover(id=${hotel.id})}"
+                                      onsubmit="return confirm('Remover esta imagem do hotel?');">
+                                    <input type="hidden" name="url" th:value="${img}">
+                                    <button type="submit" class="btn-remove-thumb" title="Remover imagem" aria-label="Remover imagem">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                </form>
+                            </div>
+                            <p class="empty-hint" th:if="${hotel == null or hotel.imagens == null or hotel.imagens.isEmpty()}">
+                                Nenhuma foto cadastrada ainda.
+                            </p>
                         </div>
                     </div>
 
-                    <form class="admin-card-form" id="formComodidadesHotel">
+                    <div class="admin-card-form">
                         <h3>Comodidades</h3>
                         <div class="admin-checkbox-list-stack">
-                            <label class="checkbox-container"><input type="checkbox" checked> Wi-Fi gratuito</label>
-                            <label class="checkbox-container"><input type="checkbox" checked> Estacionamento</label>
-                            <label class="checkbox-container"><input type="checkbox" checked> Piscina</label>
-                            <label class="checkbox-container"><input type="checkbox" checked> Academia</label>
-                            <label class="checkbox-container"><input type="checkbox" checked> Café da manhã</label>
-                            <label class="checkbox-container"><input type="checkbox" checked> Ar condicionado</label>
+                            <label class="checkbox-container">
+                                <input type="checkbox" th:checked="${hotel != null and hotel.aceitaPet}" disabled>
+                                Aceita PET
+                            </label>
                         </div>
-                        <button type="submit" class="btn-secondary-outline mt-16">Salvar comodidades</button>
-                    </form>
+                        <small style="display:block; margin-top:8px; color: var(--text-muted);">
+                            Definido automaticamente: fica ativo quando pelo menos um quarto do hotel aceita pet.
+                        </small>
+                    </div>
                 </div>
             </div>
         </main>
+    </div>
+
+    <div id="pageLoadingOverlay" class="page-loading-overlay" style="display:none;">
+        <div class="spinner-lg"></div>
+        <p>Salvando alterações...</p>
     </div>
 
     <script th:src="@{/js/script.js}"></script>
