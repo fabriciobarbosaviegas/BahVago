@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head xmlns:th="http://www.thymeleaf.org">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BahVago - Comparador de Ofertas</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css">
+</head>
+
+<body>
+
+    <header class="navbar">
+        <div class="container nav-container">
+            <div class="logo" style="cursor: pointer;" onclick="window.location.href='/'">
+                <span class="logo-icon">B</span>
+                <span class="logo-text">BahVago</span>
+            </div>
+            <nav class="nav-actions" id="navActionsRoom">
+                <a th:href="@{/login}" href="/login" class="btn-text">Entrar</a>
+                <a th:href="@{/cadastro}" href="/cadastro" class="btn-primary">Cadastrar</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container breadcrumb-trail">
+        <p>Home &gt; Hotéis &gt; <span th:text="${hotel != null ? hotel.nome : 'Hotel'}">Hotel</span> &gt; <span id="breadRoomName"
+                th:text="${quarto != null ? quarto.descricao : 'Quarto disponível.'}">Descrição do quarto</span></p>
+    </div>
+
+    <main class="container room-page-layout">
+
+        <div class="room-columns-grid">
+
+            <div class="room-main-content">
+
+                <div class="room-hero-display">
+                    <img th:src="${quarto != null and quarto.imagemUrl != null ? quarto.imagemUrl : 'https://blog.iprocess.com.br/wp-content/uploads/2021/11/placeholder.png'}"
+                        src="https://blog.iprocess.com.br/wp-content/uploads/2021/11/placeholder.png" alt="Quarto"
+                        id="roomDisplayImg">
+                    <div class="room-thumbnails-strip">
+                        <img th:each="img, stat : ${quarto != null and quarto.imagens != null and !quarto.imagens.isEmpty() ? quarto.imagens : #arrays.toArray({'https://blog.iprocess.com.br/wp-content/uploads/2021/11/placeholder.png'})}"
+                             th:src="${img}"
+                             src="https://blog.iprocess.com.br/wp-content/uploads/2021/11/placeholder.png"
+                             class="thumb"
+                             th:classappend="${stat.index == 0} ? 'active' : ''">
+                    </div>
+                </div>
+
+                <div class="room-header-box">
+                    <h2 id="roomMainTitle" th:text="${quarto != null ? quarto.tipo : 'Quarto'}">Quarto</h2>
+                    <p class="room-description-text"
+                        th:text="${quarto != null ? quarto.descricao : 'Quarto disponível.'}">Descrição do quarto</p>
+
+                    <div class="room-specs-tags-container">
+                        <span><i class="fa-solid fa-vector-square"></i> Número: <b
+                                th:text="${quarto != null ? quarto.numero : '-'}">-</b></span>
+                        <span><i class="fa-solid fa-users"></i> Capacidade: <b
+                                th:text="${quarto != null ? quarto.capacidade : '-'}">-</b></span>
+                        <span><i class="fa-solid fa-bed"></i> Tipo: <b
+                                th:text="${quarto != null ? quarto.tipo : '-'}">-</b></span>
+                        <span><i class="fa-solid fa-cloud"></i> Disponível: <b
+                                th:text="${quarto != null and quarto.disponivel ? 'Sim' : 'Não'}">Não</b></span>
+                    </div>
+                </div>
+
+                <div class="room-features-box">
+                    <h3>Comodidades do quarto</h3>
+                    <div class="features-grid-quad">
+                        <span th:if="${quarto != null and quarto.aceitaPet}"><i class="fa-solid fa-paw"></i> Aceita
+                            PET</span>
+                        <span th:unless="${quarto != null and quarto.aceitaPet}"><i class="fa-solid fa-ban"></i> Não
+                            aceita PET</span>
+                    </div>
+                </div>
+
+                <div class="room-comparison-box"
+                    th:attr="data-codigo-hotel=${quarto != null ? quarto.codigoHotel : ''}, data-numero=${quarto != null ? quarto.numero : ''}">
+                    <h3>Compare preços em diferentes plataformas</h3>
+
+                    <div class="offers-loading" id="offersLoading" style="display:none;">
+                        <div class="spinner"></div>
+                        <p>Buscando as melhores ofertas...</p>
+                    </div>
+
+                    <div class="offers-stack" id="offersStack"
+                        th:style="${ofertas != null and !ofertas.isEmpty() ? '' : 'display:none;'}">
+
+                        <div class="offer-card-row" th:each="oferta, stat : ${ofertas}">
+                            <div class="platform-meta" style="gap:0;">
+                                <span class="platform-logo-mock booking-color" style="padding: 15px;margin-right: 20px;width: auto;height: auto;" th:text="${oferta.parceiro}">Parceiro</span>
+                                <div>
+                                    <h4><span th:text="${oferta.parceiro}">Parceiro</span>
+                                        <span class="badge-best-choice" th:if="${stat.index == 0}">Melhor preço</span>
+                                    </h4>
+                                    <p class="perks-text" th:if="${oferta.atributos != null and !oferta.atributos.isEmpty() and !oferta.atributos.contains('_')}" th:text="''">
+                                        <span th:each="atributo : ${oferta.atributos}" th:text="${atributo + ' '}">atributo</span>
+                                    </p>
+                                    <p class="perks-text" th:if="${oferta.quarto != null}" th:text="${oferta.quarto}">Nome do quarto na oferta</p>
+                                </div>
+                            </div>
+                            <div class="platform-pricing-action">
+                                <div class="price-stack">
+                                    <span class="current-price" th:text="${oferta.precoNoite + '/noite'}">R$ 0<small>/noite</small></span>
+                                    <small class="tax-info" th:text="'Total: ' + ${oferta.precoTotal}">Total</small>
+                                </div>
+                                <button class="btn-redirect-offer" th:attr="data-url=${oferta.url}"
+                                    th:text="${oferta.botao != null ? 'Ver oferta' : 'Ver oferta'}">Ver oferta</button>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="offers-empty-state" id="offersEmptyState"
+                        th:style="${ofertas != null and !ofertas.isEmpty() ? 'display:none;' : ''}">
+                        <p>Nenhuma oferta encontrada no momento.</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <aside class="room-sticky-booking-sidebar">
+                <div class="sticky-price-box">
+                    <small>Melhor preço encontrado</small>
+                    <h2 id="melhorPrecoNoite" th:text="${(ofertas != null and !ofertas.isEmpty() ? ofertas[0].precoNoite : (quarto != null ? 'R$ ' + quarto.preco : 'R$ 0')) + '/noite'}">R$ 0<small>/noite</small></h2>
+                    <p class="provider-tag" id="melhorPrecoParceiro" th:text="${ofertas != null and !ofertas.isEmpty() ? 'via ' + ofertas[0].parceiro : 'Sem ofertas disponíveis'}">via Booking.com</p>
+                </div>
+                <div class="sticky-booking-form">
+                    <div class="search-bar" style="border: none;box-shadow: none;padding: 0;gap: 0;">
+                        <div class="search-input-group" style="margin-right: 15px; gap:0;">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" height="25" width="25"
+                                fill="#3B82F6"><!--!Font Awesome Free v7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.-->
+                                <path
+                                    d="M216 64C229.3 64 240 74.7 240 88L240 128L400 128L400 88C400 74.7 410.7 64 424 64C437.3 64 448 74.7 448 88L448 128L480 128C515.3 128 544 156.7 544 192L544 480C544 515.3 515.3 544 480 544L160 544C124.7 544 96 515.3 96 480L96 192C96 156.7 124.7 128 160 128L192 128L192 88C192 74.7 202.7 64 216 64zM216 176L160 176C151.2 176 144 183.2 144 192L144 240L496 240L496 192C496 183.2 488.8 176 480 176L216 176zM144 288L144 480C144 488.8 151.2 496 160 496L480 496C488.8 496 496 488.8 496 480L496 288L144 288z" />
+                            </svg>
+                            <div>
+                                <label>Check-in</label>
+                                <input type="date" id="checkin" th:value="${checkinResolvido}">
+                            </div>
+                        </div>
+
+                        <div class="search-input-group" style="gap:0">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" height="25" width="25"
+                                fill="#3B82F6"><!--!Font Awesome Free v7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.-->
+                                <path
+                                    d="M216 64C229.3 64 240 74.7 240 88L240 128L400 128L400 88C400 74.7 410.7 64 424 64C437.3 64 448 74.7 448 88L448 128L480 128C515.3 128 544 156.7 544 192L544 480C544 515.3 515.3 544 480 544L160 544C124.7 544 96 515.3 96 480L96 192C96 156.7 124.7 128 160 128L192 128L192 88C192 74.7 202.7 64 216 64zM216 176L160 176C151.2 176 144 183.2 144 192L144 240L496 240L496 192C496 183.2 488.8 176 480 176L216 176zM144 288L144 480C144 488.8 151.2 496 160 496L480 496C488.8 496 496 488.8 496 480L496 288L144 288z" />
+                            </svg>
+                            <div>
+                                <label>Check-out</label>
+                                <input type="date" id="checkout" th:value="${checkoutResolvido}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="search-bar"
+                        style="display:none;border: 0;place-items: center;box-shadow: none;width: 100%;margin-bottom: 0;padding: 0;margin-top: 20px;display-grid: 0;display: inline-block;">
+                        <div class="search-input-group" style="gap:0;display:none;width: fit-content;/* width: 100%; */">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="50" height="40"
+                                fill="#3B82F6"><!--!Font Awesome Free v7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.-->
+                                <path
+                                    d="M96 192C96 130.1 146.1 80 208 80C269.9 80 320 130.1 320 192C320 253.9 269.9 304 208 304C146.1 304 96 253.9 96 192zM32 528C32 430.8 110.8 352 208 352C305.2 352 384 430.8 384 528L384 534C384 557.2 365.2 576 342 576L74 576C50.8 576 32 557.2 32 534L32 528zM464 128C517 128 560 171 560 224C560 277 517 320 464 320C411 320 368 277 368 224C368 171 411 128 464 128zM464 368C543.5 368 608 432.5 608 512L608 534.4C608 557.4 589.4 576 566.4 576L421.6 576C428.2 563.5 432 549.2 432 534L432 528C432 476.5 414.6 429.1 385.5 391.3C408.1 376.6 435.1 368 464 368z">
+                                </path>
+                            </svg>
+                            <div>
+                                <label>Hóspedes</label>
+                                <input type="number" th:value="${pessoasResolvido}" value="2" min="1">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="booking-summary-calc" id="bookingSummaryCalc"
+                        th:style="${ofertas != null and !ofertas.isEmpty() ? '' : 'display:none;'}">
+                        <div class="calc-row"><span id="calcLinhaNoites" th:text="${ofertas != null and !ofertas.isEmpty() ? ofertas[0].precoNoite + ' x ' + noites + ' noites' : ''}">R$ 0 x 0 noites</span><span id="calcLinhaTotal" th:text="${ofertas != null and !ofertas.isEmpty() ? ofertas[0].precoTotal : ''}">R$ 0</span></div>
+                        <hr>
+                        <div class="calc-row total"><span>Total</span><span id="calcTotalGeral" th:text="${ofertas != null and !ofertas.isEmpty() ? ofertas[0].precoTotal : ''}">R$ 0</span></div>
+                    </div>
+                    <button class="btn-checkout-redirect" style="margin-top: 20px;" id="btnMainRedirect"
+                        th:attr="data-url=${ofertas != null and !ofertas.isEmpty() ? ofertas[0].url : null}">Ir para a página</button>
+                    <p class="secure-checkout-notice"><i class="fa-solid fa-shield-halved"></i> Melhor preço garantido
+                        &bull; Cancelamento grátis</p>
+                </div>
+            </aside>
+
+        </div>
+    </main>
+
+    <script th:src="@{/js/script.js}" src="/js/script.js"></script>
+</body>
+
+</html>

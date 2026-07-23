@@ -2,24 +2,28 @@ package com.bahvago.controller;
 
 import com.bahvago.model.Hotel;
 import com.bahvago.model.Oferta;
+import com.bahvago.model.Usuario;
 import com.bahvago.service.AvaliacaoService;
 import com.bahvago.service.HotelService;
 import com.bahvago.service.OfertaService;
+import com.bahvago.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-
+import org.springframework.security.core.Authentication;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 @Controller
 public class HomeController {
 
     @Autowired
     private HotelService hotelService;
 
+    @Autowired
+    private UsuarioService usuarioService;
+    
     @Autowired
     private OfertaService ofertaService;
 
@@ -37,18 +41,19 @@ public class HomeController {
     }
 
     @GetMapping("/dashboard")
-    public String dashboard() {
+    public String dashboard(Authentication authentication, Model model) {
+
+        Usuario usuario = usuarioService.buscarPorEmail(authentication.getName())
+                .orElseThrow();
+
+        Hotel hotel = hotelService.buscarPorHoteleiro(usuario.getCpf())
+                .stream()
+                .findFirst()
+                .orElseThrow();
+
+        model.addAttribute("hotel", hotel);
+
         return "dashboard";
-    }
-
-    @GetMapping("/estatisticas")
-    public String estatisticas() {
-        return "estatisticas";
-    }
-
-    @GetMapping("/gerenciar-hotel")
-    public String gerenciarHotel() {
-        return "gerenciar-hotel";
     }
 
     @GetMapping("/gerenciar-quartos")
@@ -57,7 +62,21 @@ public class HomeController {
     }
 
     @GetMapping("/gerenciar-avaliacoes")
-    public String gerenciarAvaliacoes() {
+    public String gerenciarAvaliacoes(Authentication authentication, Model model) {
+
+        Usuario usuario = usuarioService.buscarPorEmail(authentication.getName())
+                .orElseThrow();
+
+        Hotel hotel = hotelService.buscarPorHoteleiro(usuario.getCpf())
+                .stream()
+                .findFirst()
+                .orElseThrow();
+
+        model.addAttribute("hotel", hotel);
+
+        model.addAttribute("avaliacoes",
+                avaliacaoService.buscarPorHotel(hotel.getId()));
+
         return "gerenciar-avaliacoes";
     }
 

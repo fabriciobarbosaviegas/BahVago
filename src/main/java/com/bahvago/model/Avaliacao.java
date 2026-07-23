@@ -21,7 +21,7 @@ public class Avaliacao {
     private Integer id;
 
     @Column(name = "Nota", nullable = false)
-    private Float nota; // 0 a 5
+    private Float nota;
 
     @Column(name = "Comentario", length = 200)
     private String comentario;
@@ -41,6 +41,9 @@ public class Avaliacao {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CPF", referencedColumnName = "CPF", insertable = false, updatable = false)
     private Usuario usuario;
+
+    @Column(name = "DataResposta")
+    private LocalDate dataResposta;
 
     @PrePersist
     protected void onCreate() {

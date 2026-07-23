@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BahVago - Login</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div class="auth-page">
+        <!-- Lado do Formulário -->
+        <div class="auth-form-side">
+            <div class="auth-header">
+                <div class="logo" style="cursor: pointer;" onclick="window.location.href='/'">
+                    <span class="logo-icon">B</span>
+                    <span class="logo-text">BahVago</span>
+                </div>
+            </div>
+            
+            <div class="auth-card">
+                <h2>Bem-vindo de volta</h2>
+                <p class="auth-subtitle">Entre na sua conta para continuar</p>
+
+                <div th:if="${mensagemSucesso}" class="auth-input-group">
+                    <p th:text="${mensagemSucesso}" style="color: #0a7b34; margin: 0; font-size: 0.9rem;"></p>
+                </div>
+
+                <div th:if="${param.error}" class="auth-input-group">
+                    <p style="color: #cc0000; margin: 0; font-size: 0.9rem;">E-mail ou senha invalidos.</p>
+                </div>
+
+                <div th:if="${param.logout}" class="auth-input-group">
+                    <p style="color: #0a7b34; margin: 0; font-size: 0.9rem;">Voce saiu da conta com sucesso.</p>
+                </div>
+
+                <form id="formLoginHospede" th:action="@{/login}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <div class="auth-input-group">
+                        <label for="userEmail">E-mail</label>
+                        <input type="email" id="userEmail" name="email" placeholder="seu@email.com" autocomplete="email" required>
+                    </div>
+                    
+                    <div class="auth-input-group">
+                        <label for="userPassword">Senha</label>
+                        <input type="password" id="userPassword" name="senha" placeholder="********" autocomplete="current-password" required>
+                    </div>
+
+                    <div class="auth-options">
+                        <label class="checkbox-container">
+                            <input type="checkbox"> Lembrar de mim
+                        </label>
+                        <a href="#" class="auth-link">Esqueceu a senha?</a>
+                    </div>
+
+                    <button type="submit" class="btn-auth">Entrar</button>
+                    
+                    <p class="auth-footer-text">
+                        Não tem uma conta? <a href="/cadastro" class="auth-accent-link">Cadastre-se</a>
+                    </p>
+                    
+                    <a href="/login-hoteleiro" class="manager-link" id="linkLoginGerente">Acessar como gerente →</a>
+                </form>
+            </div>
+        </div>
+
+        <!-- Lado da Imagem -->
+        <div class="auth-image-side" style="background-image: linear-gradient(rgba(7, 13, 25, 0.3), rgba(7, 13, 25, 0.5)), url('https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80');">
+            <div class="auth-image-content">
+                <h2>Encontre o hotel perfeito para sua próxima aventura</h2>
+                <p>Compare preços de milhares de hotéis e economize até 40% na sua reserva</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/script.js"></script>
+</body>
+</html>

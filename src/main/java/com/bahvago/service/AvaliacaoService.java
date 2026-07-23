@@ -4,6 +4,8 @@ import com.bahvago.model.Avaliacao;
 import com.bahvago.repository.AvaliacaoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -54,14 +56,8 @@ public class AvaliacaoService {
     }
 
     public Double calcularMediaAvaliacoes(Integer codigoHotel) {
-        List<Avaliacao> avaliacoes = buscarPorHotel(codigoHotel);
-        if (avaliacoes.isEmpty()) {
-            return 0.0;
-        }
-        return avaliacoes.stream()
-            .mapToDouble(Avaliacao::getNota)
-            .average()
-            .orElse(0.0);
+        Double media = avaliacaoRepository.calcularMediaPorHotel(codigoHotel);
+        return media != null ? media : 0.0;
     }
 
     public Map<Integer, Long> contarAvaliacoesPorHoteis(List<Integer> hotelIds) {
@@ -79,4 +75,15 @@ public class AvaliacaoService {
             hotelRepository.save(hotel);
         });
     }
+
+    public Avaliacao responderAvaliacao(Integer id, String resposta) {
+
+    Avaliacao avaliacao = avaliacaoRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Avaliação não encontrada"));
+
+    avaliacao.setResposta(resposta);
+    avaliacao.setDataResposta(LocalDate.now());
+
+    return avaliacaoRepository.save(avaliacao);
+}
 }
