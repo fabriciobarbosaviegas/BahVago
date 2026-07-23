@@ -55,3 +55,6 @@ logs/
 tmp/
 temp/
 .claude/settings.local.json
+
+target/*
+target/
