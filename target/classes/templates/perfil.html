@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BahVago - Meu Perfil</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css">
+</head>
+<body>
+
+    <!-- NAVBAR LOGADO -->
+    <header class="navbar">
+        <div class="container nav-container">
+            <div class="logo" style="cursor: pointer;" onclick="window.location.href='/'">
+                <span class="logo-icon">B</span>
+                <span class="logo-text">BahVago</span>
+            </div>
+            <nav class="nav-actions-logged">
+                <a th:href="@{/favoritos}" href="/favoritos" class="nav-icon-link" title="Favoritos"><i class="fa-regular fa-heart"></i></a>
+                <a href="/usuarios/perfil" class="nav-icon-link active" title="Minha Conta"><i class="fa-regular fa-user"></i></a>
+                <button id="btnLogoutTop" class="btn-logout-icon" title="Sair"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- CONTAINER PRINCIPAL DO PERFIL -->
+    <main class="container profile-layout">
+        
+        <!-- Painel Lateral Esquerdo (Menu de Abas) -->
+        <aside class="profile-sidebar">
+            <div class="profile-avatar-box">
+                <div class="avatar-large" th:text="${#strings.substring(usuario.nome, 0, 1)}">U</div>
+                <h3 th:text="${usuario.nome}">Nome Usuario</h3>
+                <p th:text="${usuario.email}">email@exemplo.com</p>
+            </div>
+            <nav class="profile-tabs">
+                <button class="tab-btn" th:classappend="${abaAtiva == null || abaAtiva == 'pessoais'} ? ' active'" data-tab="pessoais">
+                    <i class="fa-regular fa-user"></i> Informações pessoais
+                </button>
+                <button class="tab-btn" th:classappend="${abaAtiva == 'seguranca'} ? ' active'" data-tab="seguranca">
+                    <i class="fa-solid fa-lock"></i> Segurança
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Painel Direito Conteúdo Dinâmico -->
+        <section class="profile-content-box">
+            
+            <!-- ABA 1: INFORMAÇÕES PESSOAIS -->
+            <div class="tab-content" th:classappend="${abaAtiva == null || abaAtiva == 'pessoais'} ? ' active'" id="tab-pessoais">
+                <h2>Informações pessoais</h2>
+                <div th:if="${mensagemPerfil}" class="auth-input-group">
+                    <p th:text="${mensagemPerfil}" style="color: #0a7b34; margin: 0; font-size: 0.9rem;"></p>
+                </div>
+
+                <form class="profile-form" th:action="@{/usuarios/perfil}" th:object="${atualizarPerfilForm}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <div class="form-grid-2">
+                        <div class="auth-input-group">
+                            <label><i class="fa-regular fa-user"></i> Nome completo</label>
+                            <input type="text" th:field="*{nome}" maxlength="120" required>
+                            <small th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}" style="color: #cc0000;"></small>
+                        </div>
+                        <div class="auth-input-group">
+                            <label><i class="fa-regular fa-envelope"></i> E-mail</label>
+                            <input type="email" th:field="*{email}" maxlength="255" required>
+                            <small th:if="${#fields.hasErrors('email')}" th:errors="*{email}" style="color: #cc0000;"></small>
+                        </div>
+                        <div class="auth-input-group">
+                            <label><i class="fa-regular fa-address-card"></i> CPF</label>
+                            <input type="text" th:value="${usuario.cpf}" disabled>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-save">Salvar alterações</button>
+                        <button type="button" class="btn-cancel" onclick="window.location.href='/'">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- ABA 2: SEGURANÇA -->
+            <div class="tab-content" th:classappend="${abaAtiva == 'seguranca'} ? ' active'" id="tab-seguranca">
+                <h2>Segurança da Conta</h2>
+                <p class="section-desc">Gerencie suas credenciais de acesso, senhas e integridade do seu perfil.</p>
+
+                <div th:if="${mensagemSenha}" class="auth-input-group">
+                    <p th:text="${mensagemSenha}" style="color: #0a7b34; margin: 0; font-size: 0.9rem;"></p>
+                </div>
+                
+                <form class="profile-form" th:action="@{/usuarios/perfil/senha}" th:object="${alterarSenhaForm}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <h3 class="form-section-title">Alterar Senha</h3>
+                    <div class="auth-input-group">
+                        <label>Senha atual</label>
+                        <input type="password" th:field="*{senhaAtual}" placeholder="********" autocomplete="current-password" required>
+                        <small th:if="${#fields.hasErrors('senhaAtual')}" th:errors="*{senhaAtual}" style="color: #cc0000;"></small>
+                    </div>
+                    <div class="form-grid-2">
+                        <div class="auth-input-group">
+                            <label>Nova senha</label>
+                            <input type="password" th:field="*{novaSenha}" placeholder="Minimo 8 caracteres" autocomplete="new-password" required>
+                            <small th:if="${#fields.hasErrors('novaSenha')}" th:errors="*{novaSenha}" style="color: #cc0000;"></small>
+                        </div>
+                        <div class="auth-input-group">
+                            <label>Confirmar nova senha</label>
+                            <input type="password" th:field="*{confirmarNovaSenha}" placeholder="Repita a nova senha" autocomplete="new-password" required>
+                            <small th:if="${#fields.hasErrors('confirmarNovaSenha')}" th:errors="*{confirmarNovaSenha}" style="color: #cc0000;"></small>
+                        </div>
+                    </div>
+
+                    <div class="form-actions" style="margin-top: 30px;">
+                        <button type="submit" class="btn-save">Atualizar Segurança</button>
+                    </div>
+                </form>
+
+                <hr class="section-divider">
+
+                <div class="danger-zone">
+                    <h3>Zona de Perigo</h3>
+                    <p>Uma vez excluída, todos os históricos de hospedagem e dados da sua conta serão apagados permanentemente.</p>
+                    <form th:action="@{/usuarios/deletar}" method="post" onsubmit="return confirm('Tem certeza que deseja excluir sua conta? Esta acao nao pode ser desfeita.');">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                        <button type="submit" id="btnDeleteAccount" class="btn-danger">Excluir minha conta</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script th:src="@{/js/script.js}" src="/js/script.js"></script>
+</body>
+</html>

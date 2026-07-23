@@ -20,4 +20,6 @@ public interface HotelRepository extends JpaRepository<Hotel, Integer> {
     @Query("SELECT h FROM Hotel h WHERE LOWER(h.nome) LIKE LOWER(CONCAT('%', ?1, '%')) " +
            "OR LOWER(h.localizacao.cidade) LIKE LOWER(CONCAT('%', ?1, '%'))")
     List<Hotel> buscarPorNomeOuCidade(String termo);
+
+    
 }

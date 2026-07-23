@@ -3,6 +3,7 @@ package com.bahvago.controller;
 import com.bahvago.model.Avaliacao;
 import com.bahvago.model.Hotel;
 import com.bahvago.model.Oferta;
+import com.bahvago.model.Usuario;
 import com.bahvago.service.AvaliacaoService;
 import com.bahvago.service.HotelService;
 import com.bahvago.service.OfertaService;
@@ -57,6 +58,22 @@ public class HotelController {
         model.addAttribute("totalAvaliacoesPorHotel", avaliacaoService.contarAvaliacoesPorHoteis(ids));
         model.addAttribute("termo", "Todos os Hotéis");
         return "resultados";
+    }
+
+    @GetMapping("/gerenciar-hotel")
+    public String gerenciarHotel(Authentication authentication, Model model) {
+
+        Usuario usuario = usuarioService.buscarPorEmail(authentication.getName())
+                .orElseThrow();
+
+        Hotel hotel = hotelService.buscarPorHoteleiro(usuario.getCpf())
+                .stream()
+                .findFirst()
+                .orElseThrow();
+
+        model.addAttribute("hotel", hotel);
+
+        return "gerenciar-hotel";
     }
 
     @GetMapping("/search")
@@ -140,11 +157,18 @@ public class HotelController {
 
     @PostMapping("/atualizar/{id}")
     public String atualizarHotel(@PathVariable Integer id,
-                                  @ModelAttribute Hotel hotel,
+                                  @ModelAttribute Hotel dadosFormulario,
                                   @RequestParam(value = "imagemArquivos", required = false) List<MultipartFile> imagemArquivos,
                                   @RequestParam(value = "imagensUrls", required = false) String imagensUrls,
                                   RedirectAttributes redirectAttributes) {
-        hotel.setId(id);
+
+        Hotel hotel = hotelService.buscarPorId(id) .orElseThrow(() -> new RuntimeException("Hotel não encontrado"));
+
+        hotel.setNome(dadosFormulario.getNome());
+        hotel.setDescricao(dadosFormulario.getDescricao());
+        hotel.getLocalizacao().setCidade( dadosFormulario.getLocalizacao().getCidade());
+        hotel.getLocalizacao().setEstado( dadosFormulario.getLocalizacao().getEstado());
+        hotel.getLocalizacao().setEnderecoAproximado( dadosFormulario.getLocalizacao().getEnderecoAproximado());
         List<String> novasUrls = fileStorageService.salvarArquivos(imagemArquivos, "hoteis");
         if (imagensUrls != null && !imagensUrls.trim().isEmpty()) {
             for (String url : imagensUrls.split("[\n,]+")) {
@@ -154,19 +178,11 @@ public class HotelController {
                 }
             }
         }
-        if (!novasUrls.isEmpty()) {
-            hotel.getImagens().clear();
-            hotel.getImagens().addAll(novasUrls);
-        } else {
-            hotelService.buscarPorId(id).ifPresent(h -> {
-                if (h.getImagens() != null) {
-                    hotel.getImagens().addAll(h.getImagens());
-                }
-            });
-        }
+        hotel.getImagens().addAll(novasUrls);            
+
         hotelService.atualizarHotel(hotel);
         redirectAttributes.addFlashAttribute("mensagem", "Hotel atualizado com sucesso!");
-        return "redirect:/hoteis/" + id;
+        return "redirect:/hoteis/gerenciar-hotel";
     }
 
     @GetMapping("/deletar/{id}")
