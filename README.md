@@ -44,8 +44,6 @@ cd ..
 
 Isso constrói e sobe o container `bahvago-mysql` (MySQL 8, porta `3306`, banco `bahvagoBD`, usuário `root`, senha `root`). **Na primeira inicialização do volume**, o script `DB/migrations/bahvagoBD.sql` é executado automaticamente (via `docker-entrypoint-initdb.d`), criando o schema completo e dados de exemplo.
 
-> ⚠️ **Regra de ouro do projeto: nunca altere os arquivos em `DB/migrations/`.** O schema definido ali é a fonte da verdade. Funcionalidades novas devem ser modeladas sobre as colunas/tabelas existentes (ver exemplos no [guia de desenvolvimento](GUIA_DESENVOLVIMENTO.md)).
-
 ### 2. Aplicação
 
 ```bash
